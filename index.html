@@ -3,16 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#c8a96e" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="NEXUS" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="description" content="NEXUS TTRPG Character Sheet — track stats, wounds, fatigue, abilities and actions for all character types." />
-    <link rel="manifest" href="manifest.json" />
-    <link rel="apple-touch-icon" href="icon-192.svg" />
-    <link rel="icon" type="image/svg+xml" href="icon-192.svg" />
-    <title>NEXUS — Character Sheet</title>
+    <title>NEXUS — Character Sheet (Multi-Type)</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap"
       rel="stylesheet"
@@ -3737,6 +3728,38 @@ function importJSON(fileInputOrFile) {
       /* ══════════════════════════════════════════════
          INIT
       ══════════════════════════════════════════════ */
+
+      /* ── Wire item library import ── */
+      (function() {
+        const importLibInput = document.getElementById('import-library-file');
+        if (importLibInput) {
+          importLibInput.addEventListener('change', function() {
+            if (this.files && this.files.length) importFromLibrary(this.files);
+            this.value = '';
+          });
+        }
+      })();
+
+      /* ── Auto-load last saved slot on open ── */
+      (function() {
+        try {
+          /* remember which slot was active across sessions */
+          const lastSlot = parseInt(localStorage.getItem('nexus-last-active-slot') || '0', 10);
+          const data = getSlotData(lastSlot);
+          if (data && data.charname !== undefined) {
+            activeSlot = lastSlot;
+            deserializeSheet(data);
+          }
+        } catch(e) { /* no saved data, start fresh */ }
+      })();
+
+      /* ── Persist active slot index whenever save happens ── */
+      const _origSaveToSlot = saveToSlot;
+      saveToSlot = function(n) {
+        _origSaveToSlot(n);
+        try { localStorage.setItem('nexus-last-active-slot', String(n)); } catch(e) {}
+      };
+
       buildWeightPips(0);
       rebuildTracks();
       ['might','expertise','wit','insight','intuition','charm'].forEach(updateStatDie);
@@ -3751,103 +3774,5 @@ function importJSON(fileInputOrFile) {
       renderCustomTraits();
       updateBacklashPanel();
     </script>
-    <!-- ── PWA Banners ── -->
-    <div id="pwa-install-banner" style="display:none; position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%); z-index:9998; background:var(--surface); border:1px solid var(--accent-dim); padding:0.75rem 1rem; gap:0.75rem; align-items:center; max-width:440px; width:calc(100% - 3rem);">
-      <span style="font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.15em;color:var(--text-dim);text-transform:uppercase;flex:1;">Install NEXUS as an app for offline play</span>
-      <button id="pwa-install-btn" style="background:none;border:1px solid var(--accent);color:var(--accent);font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.15em;padding:0.35rem 0.75rem;cursor:pointer;text-transform:uppercase;white-space:nowrap;">Install</button>
-      <button id="pwa-dismiss-btn" style="background:none;border:none;color:var(--text-muted);font-family:var(--font-mono);font-size:0.75rem;cursor:pointer;padding:0 4px;">✕</button>
-    </div>
-    <div id="pwa-update-banner" style="display:none; position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%); z-index:9998; background:var(--surface); border:1px solid var(--blue); padding:0.75rem 1rem; gap:0.75rem; align-items:center; max-width:440px; width:calc(100% - 3rem);">
-      <span style="font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.15em;color:var(--text-dim);text-transform:uppercase;flex:1;">Update available</span>
-      <button id="pwa-update-btn" style="background:none;border:1px solid var(--blue);color:var(--blue);font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.15em;padding:0.35rem 0.75rem;cursor:pointer;text-transform:uppercase;">Reload</button>
-    </div>
-
-    <!-- ── PWA: Service Worker Registration + Install Banner ── -->
-    <script>
-    (function() {
-      // ── Service Worker ──
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./sw.js').then(reg => {
-            console.log('[NEXUS PWA] SW registered:', reg.scope);
-            // Check for updates
-            reg.addEventListener('updatefound', () => {
-              const newWorker = reg.installing;
-              newWorker.addEventListener('statechange', () => {
-                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                  showUpdateBanner();
-                }
-              });
-            });
-          }).catch(err => {
-            console.log('[NEXUS PWA] SW registration failed:', err);
-          });
-        });
-      }
-
-      // ── Install Prompt ──
-      let deferredPrompt = null;
-      const installBtn = document.getElementById('pwa-install-btn');
-      const installBanner = document.getElementById('pwa-install-banner');
-      const updateBanner = document.getElementById('pwa-update-banner');
-
-      window.addEventListener('beforeinstallprompt', e => {
-        e.preventDefault();
-        deferredPrompt = e;
-        if (installBanner) installBanner.style.display = 'flex';
-      });
-
-      window.addEventListener('appinstalled', () => {
-        if (installBanner) installBanner.style.display = 'none';
-        deferredPrompt = null;
-        if (typeof toast === 'function') toast('NEXUS installed as app', 'var(--green)');
-      });
-
-      if (installBtn) {
-        installBtn.addEventListener('click', () => {
-          if (!deferredPrompt) return;
-          deferredPrompt.prompt();
-          deferredPrompt.userChoice.then(choice => {
-            deferredPrompt = null;
-            if (installBanner) installBanner.style.display = 'none';
-          });
-        });
-      }
-
-      const dismissBtn = document.getElementById('pwa-dismiss-btn');
-      if (dismissBtn) {
-        dismissBtn.addEventListener('click', () => {
-          if (installBanner) installBanner.style.display = 'none';
-        });
-      }
-
-      function showUpdateBanner() {
-        if (updateBanner) updateBanner.style.display = 'flex';
-      }
-
-      const updateBtn = document.getElementById('pwa-update-btn');
-      if (updateBtn) {
-        updateBtn.addEventListener('click', () => {
-          window.location.reload();
-        });
-      }
-
-      // ── Detect if running as installed PWA ──
-      const isInstalled = window.matchMedia('(display-mode: standalone)').matches
-        || window.navigator.standalone === true;
-
-      if (isInstalled) {
-        document.documentElement.classList.add('pwa-installed');
-        // In standalone mode, never show install banner
-        if (installBanner) installBanner.style.display = 'none';
-      }
-    })();
-    </script>
-
   </body>
 </html>
-
-
-
-
-
