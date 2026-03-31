@@ -208,12 +208,55 @@
       .boost-rank-label { font-family: var(--font-mono); font-size: 0.55rem; color: var(--text-muted); margin-top: 3px; }
       .stat-lock-note { font-family: var(--font-mono); font-size: 0.52rem; letter-spacing: 0.1em; color: var(--text-muted); text-align: center; margin-top: 4px; min-height: 0.8em; transition: color 0.2s; }
       .stat-lock-note.unlocked { color: var(--purple); }
-      .inventory-item { background: var(--surface2); border: 1px solid var(--border); padding: 0.55rem 0.75rem; display: grid; grid-template-columns: 1fr auto auto; gap: 0.5rem; align-items: center; }
-      .inv-name-input { background: transparent; border: none; border-bottom: 1px solid var(--border-bright); color: var(--text); font-family: var(--font-display); font-size: 0.9rem; font-weight: 500; padding: 2px 0; outline: none; transition: border-color 0.2s; width: 100%; }
+      /* ── INVENTORY EXPANDED ── */
+      .inventory-item { background: var(--surface2); border: 1px solid var(--border); padding: 0; overflow: hidden; transition: border-color 0.2s; }
+      .inventory-item:hover { border-color: var(--border-bright); }
+      .inv-top { display: grid; grid-template-columns: 1fr auto auto auto; gap: 0.5rem; align-items: center; padding: 0.55rem 0.75rem 0.4rem; cursor: pointer; }
+      .inv-name-input { background: transparent; border: none; border-bottom: 1px solid var(--border-bright); color: var(--text); font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; padding: 2px 0; outline: none; transition: border-color 0.2s; width: 100%; }
       .inv-name-input:focus { border-bottom-color: var(--accent); }
       .inv-name-input::placeholder { color: var(--text-muted); font-style: italic; font-weight: 400; }
-      .inv-qty { background: var(--surface); border: 1px solid var(--border); color: var(--text-dim); font-family: var(--font-mono); font-size: 0.75rem; width: 44px; text-align: center; padding: 3px 4px; outline: none; }
+      .inv-type-badge { font-family: var(--font-mono); font-size: 0.48rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 1px 6px; border: 1px solid var(--border); color: var(--text-muted); background: var(--surface); white-space: nowrap; flex-shrink: 0; }
+      .inv-qty { background: var(--surface); border: 1px solid var(--border); color: var(--text-dim); font-family: var(--font-mono); font-size: 0.75rem; width: 40px; text-align: center; padding: 3px 4px; outline: none; flex-shrink: 0; }
       .inv-qty:focus { border-color: var(--accent); }
+      .inv-body { display: none; border-top: 1px solid var(--border); padding: 0.6rem 0.75rem; background: var(--surface); }
+      .inv-body.open { display: block; }
+      .inv-desc { font-family: var(--font-body); font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; margin-bottom: 0.5rem; white-space: pre-wrap; }
+      .inv-desc-input { width: 100%; background: transparent; border: none; border-bottom: 1px solid var(--border); color: var(--text-dim); font-family: var(--font-body); font-size: 0.9rem; line-height: 1.6; padding: 2px 0; outline: none; resize: none; min-height: 1.8rem; transition: border-color 0.2s; }
+      .inv-desc-input:focus { border-bottom-color: var(--accent); }
+      .inv-desc-input::placeholder { color: var(--text-muted); font-style: italic; }
+      .inv-props { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.4rem; }
+      .inv-prop { font-family: var(--font-mono); font-size: 0.5rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 7px; border: 1px solid var(--border); color: var(--text-muted); background: var(--surface2); }
+      .inv-prop.prop-weapon { border-color: var(--red); color: var(--red); }
+      .inv-prop.prop-armor { border-color: var(--blue); color: var(--blue); }
+      .inv-prop.prop-arcane { border-color: var(--accent); color: var(--accent); }
+      .inv-prop.prop-psionic { border-color: var(--purple); color: var(--purple); }
+      .inv-prop.prop-consumable { border-color: var(--green); color: var(--green); }
+      .inv-notes-input { width: 100%; background: transparent; border: none; border-bottom: 1px solid var(--border); color: var(--text-muted); font-family: var(--font-mono); font-size: 0.55rem; letter-spacing: 0.08em; padding: 2px 0; outline: none; margin-top: 0.4rem; transition: border-color 0.2s; }
+      .inv-notes-input:focus { border-bottom-color: var(--accent); }
+      .inv-notes-input::placeholder { color: var(--text-muted); }
+      /* inv type panels */
+      .inv-type-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.6rem; }
+      .inv-field-sel { width: 100%; background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.08em; padding: 4px 6px; outline: none; cursor: pointer; appearance: none; -webkit-appearance: none; transition: border-color 0.2s; }
+      .inv-field-sel:focus { border-color: var(--accent); }
+      .inv-sub-label { font-family: var(--font-mono); font-size: 0.5rem; letter-spacing: 0.15em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 3px; }
+      .inv-field-input { width: 100%; background: transparent; border: none; border-bottom: 1px solid var(--border); color: var(--text); font-family: var(--font-display); font-size: 0.88rem; font-weight: 500; padding: 2px 0; outline: none; transition: border-color 0.2s; }
+      .inv-field-input:focus { border-bottom-color: var(--accent); }
+      .inv-field-input::placeholder { color: var(--text-muted); font-style: italic; font-weight: 400; }
+      .inv-field-textarea { width: 100%; background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: var(--font-body); font-size: 0.88rem; line-height: 1.6; padding: 0.45rem 0.6rem; resize: vertical; outline: none; transition: border-color 0.2s; min-height: 52px; }
+      .inv-field-textarea:focus { border-color: var(--accent); }
+      .inv-field-textarea::placeholder { color: var(--text-muted); font-style: italic; }
+      .inv-type-panel { display: none; }
+      .inv-type-panel.inv-panel-visible { display: block; }
+      .inv-panel-inner { background: var(--surface2); border: 1px solid var(--border); padding: 0.6rem 0.75rem; margin-bottom: 0.5rem; }
+      .inv-panel-label { font-family: var(--font-mono); font-size: 0.5rem; letter-spacing: 0.22em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+      .inv-panel-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+      .inv-g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.4rem; }
+      .inv-g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; margin-bottom: 0.4rem; }
+      .inv-fg { display: flex; flex-direction: column; gap: 3px; margin-bottom: 0.4rem; }
+      .inv-tag-row { display: flex; gap: 0.3rem; flex-wrap: wrap; margin-top: 0.25rem; margin-bottom: 0.4rem; }
+      .inv-tag { font-family: var(--font-mono); font-size: 0.46rem; letter-spacing: 0.07em; text-transform: uppercase; padding: 2px 6px; border: 1px solid var(--border); color: var(--text-muted); background: none; cursor: pointer; transition: all 0.15s; user-select: none; }
+      .inv-tag:hover { border-color: var(--border-bright); color: var(--text-dim); }
+      .inv-tag.inv-tag-on { border-color: var(--accent-dim); color: var(--accent); background: var(--accent-glow); }
       .action-declare-row { display: grid; grid-template-columns: 80px 1fr; gap: 0.75rem; align-items: end; margin-top: 0.25rem; }
       .ability-declare-row { display: grid; grid-template-columns: 80px 1fr; gap: 0.75rem; align-items: end; margin-top: 0.25rem; }
       .fatigue-cost-input { width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--red); font-family: var(--font-mono); font-size: 0.85rem; font-weight: 600; padding: 5px 8px; outline: none; text-align: center; transition: border-color 0.2s; }
@@ -1648,10 +1691,12 @@
       <!-- Inventory -->
       <div class="section">
         <div class="section-label">Inventory</div>
-        <div
-          style="font-family:var(--font-mono);font-size:0.55rem;color:var(--text-muted);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:0.6rem;"
-        >
-          Item name · Qty
+        <div style="display:flex;gap:0.5rem;margin-bottom:0.6rem;flex-wrap:wrap;align-items:center;">
+          <label style="background:none;border:1px solid var(--border);color:var(--text-dim);font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.18em;padding:0.32rem 0.75rem;cursor:pointer;text-transform:uppercase;transition:all 0.2s;" id="import-lib-label" onmouseover="this.style.borderColor='var(--teal)';this.style.color='var(--teal)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-dim)'">
+            ↑ Import from Item Library
+            <input type="file" accept=".json" id="import-library-file" style="display:none" multiple/>
+          </label>
+          <span style="font-family:var(--font-mono);font-size:0.52rem;color:var(--text-muted);letter-spacing:0.12em;text-transform:uppercase;">Click an item to expand details</span>
         </div>
         <div class="additive-list" id="inventory-list"></div>
         <button class="add-btn" onclick="addInventoryItem()">+ add item</button>
@@ -2869,20 +2914,327 @@
           }
         }
       }
+      /* ════════════════════════════════════════════
+         INVENTORY — full item card with type panels
+      ════════════════════════════════════════════ */
+      const INV_TYPES = ['weapon','armor','tool','consumable','arcane','psionic','key','misc'];
+      const INV_TYPE_COLS = {weapon:'var(--red)',armor:'var(--blue)',tool:'var(--teal)',consumable:'var(--green)',arcane:'var(--accent)',psionic:'var(--purple)',key:'var(--orange)',misc:'var(--text-muted)'};
+      const INV_WPN_TAGS = ['One-Handed','Two-Handed','Concealable','Lethal','Non-Lethal','Improvised','Thrown','Automatic','Silenced','Metaphysical'];
+      const INV_ARM_TAGS = ['Light','Medium','Heavy','Concealable','Powered','Psi-Shielded','Noise-Making','Environmental'];
+      const INV_TOOL_TAGS = ['Medical','Electrical','Mechanical','Surveillance','Lockpicking','Communication','Forensic','Hacking','Single-Use'];
+      const INV_ARC_TAGS = ['Attuned','Cursed','Sentient','Weight-Granting','Restriction-Bound','Backlash-Prone','Pocket Dimension'];
+      const INV_PSI_TAGS = ['Amplifier','Dampener','Shielding','Resonant','Soul-Linked','Volatile'];
+
+      function invMakeTags(containerId, tagList, activeTags) {
+        const row = document.getElementById(containerId);
+        if (!row) return;
+        row.innerHTML = '';
+        tagList.forEach(tag => {
+          const el = document.createElement('div');
+          el.className = 'inv-tag' + ((activeTags||[]).includes(tag) ? ' inv-tag-on' : '');
+          el.textContent = tag;
+          el.addEventListener('click', () => el.classList.toggle('inv-tag-on'));
+          row.appendChild(el);
+        });
+      }
+
+      function invGetTags(containerId) {
+        const row = document.getElementById(containerId);
+        if (!row) return [];
+        return [...row.querySelectorAll('.inv-tag.inv-tag-on')].map(t => t.textContent);
+      }
+
+      function invSwitchTypePanel(itemId, type) {
+        INV_TYPES.forEach(t => {
+          const panel = document.getElementById('inv-panel-' + t + '-' + itemId);
+          if (panel) panel.classList.toggle('inv-panel-visible', t === type);
+        });
+        const badge = document.getElementById('inv-badge-' + itemId);
+        if (badge) {
+          badge.textContent = type ? type.charAt(0).toUpperCase() + type.slice(1) : '';
+          badge.style.display = type ? '' : 'none';
+          badge.style.borderColor = INV_TYPE_COLS[type] || 'var(--border)';
+          badge.style.color = INV_TYPE_COLS[type] || 'var(--text-muted)';
+        }
+      }
+
       function addInventoryItem(data) {
         const list = document.getElementById('inventory-list');
         const id = uid();
+        const d = data || {};
+        const type = d.type || '';
+
         const div = document.createElement('div');
-        div.className = 'inventory-item'; div.id = id;
-        div.innerHTML = `<input class="inv-name-input" data-key="name" type="text" placeholder="Item name…" /><input class="inv-qty" data-key="qty" type="number" value="1" min="0" title="Quantity" /><button class="remove-btn" onclick="removeItem('${id}')">✕</button>`;
+        div.className = 'inventory-item';
+        div.id = id;
+
+        // TOP ROW
+        const top = document.createElement('div');
+        top.className = 'inv-top';
+
+        const nameInp = document.createElement('input');
+        nameInp.className = 'inv-name-input';
+        nameInp.setAttribute('data-key', 'name');
+        nameInp.type = 'text';
+        nameInp.placeholder = 'Item name…';
+        nameInp.value = d.name || '';
+
+        const badge = document.createElement('span');
+        badge.className = 'inv-type-badge';
+        badge.id = 'inv-badge-' + id;
+        badge.style.display = type ? '' : 'none';
+        badge.style.borderColor = INV_TYPE_COLS[type] || 'var(--border)';
+        badge.style.color = INV_TYPE_COLS[type] || 'var(--text-muted)';
+        badge.textContent = type ? type.charAt(0).toUpperCase() + type.slice(1) : '';
+
+        const qty = document.createElement('input');
+        qty.className = 'inv-qty';
+        qty.setAttribute('data-key', 'qty');
+        qty.type = 'number'; qty.min = '0';
+        qty.value = d.quantity != null ? d.quantity : (d.qty != null ? d.qty : 1);
+        qty.title = 'Quantity';
+
+        const rmBtn = document.createElement('button');
+        rmBtn.className = 'remove-btn';
+        rmBtn.style.cssText = 'padding:3px 7px;font-size:0.6rem;';
+        rmBtn.textContent = '✕';
+        rmBtn.addEventListener('click', () => div.remove());
+
+        top.appendChild(nameInp);
+        top.appendChild(badge);
+        top.appendChild(qty);
+        top.appendChild(rmBtn);
+        top.addEventListener('click', e => {
+          if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.tagName === 'SELECT') return;
+          body.classList.toggle('open');
+        });
+
+        // BODY
+        const body = document.createElement('div');
+        body.className = 'inv-body';
+        body.id = 'body-' + id;
+
+        // helpers
+        function ifield(labelTxt, key, val, placeholder, mono) {
+          const fg = document.createElement('div'); fg.className = 'inv-fg';
+          const lbl = document.createElement('div'); lbl.className = 'inv-sub-label'; lbl.textContent = labelTxt;
+          const inp = document.createElement('input'); inp.className = 'inv-field-input';
+          if (mono) inp.style.fontFamily = 'var(--font-mono)';
+          inp.setAttribute('data-key', key); inp.type = 'text';
+          inp.placeholder = placeholder || ''; inp.value = val || '';
+          fg.appendChild(lbl); fg.appendChild(inp); return fg;
+        }
+        function iselect(labelTxt, key, options, val) {
+          const fg = document.createElement('div'); fg.className = 'inv-fg';
+          const lbl = document.createElement('div'); lbl.className = 'inv-sub-label'; lbl.textContent = labelTxt;
+          const sel = document.createElement('select'); sel.className = 'inv-field-sel';
+          sel.setAttribute('data-key', key);
+          options.forEach(([v,l]) => { const o = document.createElement('option'); o.value=v; o.textContent=l; sel.appendChild(o); });
+          sel.value = val || options[0][0];
+          fg.appendChild(lbl); fg.appendChild(sel); return fg;
+        }
+        function itextarea(labelTxt, key, val, placeholder, rows) {
+          const fg = document.createElement('div'); fg.className = 'inv-fg';
+          const lbl = document.createElement('div'); lbl.className = 'inv-sub-label'; lbl.textContent = labelTxt;
+          const ta = document.createElement('textarea'); ta.className = 'inv-field-textarea';
+          ta.setAttribute('data-key', key); ta.placeholder = placeholder||''; ta.rows = rows||2; ta.value = val||'';
+          fg.appendChild(lbl); fg.appendChild(ta); return fg;
+        }
+        function itags(labelTxt, tagKey, tagList, active) {
+          const wrap = document.createElement('div');
+          const lbl = document.createElement('div'); lbl.className = 'inv-sub-label'; lbl.textContent = labelTxt;
+          const row = document.createElement('div'); row.className = 'inv-tag-row';
+          row.id = 'inv-tags-' + tagKey + '-' + id;
+          wrap.appendChild(lbl); wrap.appendChild(row);
+          setTimeout(() => invMakeTags('inv-tags-' + tagKey + '-' + id, tagList, active), 0);
+          return wrap;
+        }
+        function panel(typeKey, color, labelTxt, contentFn) {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'inv-type-panel' + (typeKey === type ? ' inv-panel-visible' : '');
+          wrapper.id = 'inv-panel-' + typeKey + '-' + id;
+          const inner = document.createElement('div'); inner.className = 'inv-panel-inner';
+          const lbl = document.createElement('div'); lbl.className = 'inv-panel-label'; lbl.style.color = color; lbl.textContent = labelTxt;
+          inner.appendChild(lbl); contentFn(inner); wrapper.appendChild(inner); return wrapper;
+        }
+
+        // type + rarity selectors
+        const typeRow = document.createElement('div'); typeRow.className = 'inv-type-row';
+        const typeFg = document.createElement('div');
+        const typeLabel = document.createElement('div'); typeLabel.className = 'inv-sub-label'; typeLabel.textContent = 'Item Type';
+        const typeSel = document.createElement('select'); typeSel.className = 'inv-field-sel'; typeSel.setAttribute('data-key','type');
+        [['','— none —'],...INV_TYPES.map(t=>[t,t.charAt(0).toUpperCase()+t.slice(1)])].forEach(([v,l])=>{
+          const o = document.createElement('option'); o.value=v; o.textContent=l; typeSel.appendChild(o);
+        });
+        typeSel.value = type;
+        typeSel.addEventListener('change', () => invSwitchTypePanel(id, typeSel.value));
+        typeFg.appendChild(typeLabel); typeFg.appendChild(typeSel);
+
+        const rarityFg = document.createElement('div');
+        const rarityLabel = document.createElement('div'); rarityLabel.className = 'inv-sub-label'; rarityLabel.textContent = 'Rarity';
+        const raritySel = document.createElement('select'); raritySel.className = 'inv-field-sel'; raritySel.setAttribute('data-key','rarity');
+        ['common','uncommon','rare','exceptional','legendary','unique'].forEach(r=>{
+          const o = document.createElement('option'); o.value=r; o.textContent=r.charAt(0).toUpperCase()+r.slice(1); raritySel.appendChild(o);
+        });
+        raritySel.value = d.rarity || 'common';
+        rarityFg.appendChild(rarityLabel); rarityFg.appendChild(raritySel);
+        typeRow.appendChild(typeFg); typeRow.appendChild(rarityFg);
+        body.appendChild(typeRow);
+
+        // description
+        body.appendChild(itextarea('Description','description',d.description,'What is this item…',2));
+
+        // WEAPON panel
+        body.appendChild(panel('weapon','var(--red)','Weapon Properties', el => {
+          const g = document.createElement('div'); g.className = 'inv-g3';
+          g.appendChild(ifield('Base Wounds','wpnWounds',d.wpnWounds,'0',true));
+          g.appendChild(ifield('Modifier','wpnModifier',d.wpnModifier,'+0',true));
+          g.appendChild(iselect('Range','wpnRange',[['close','Close'],['ranged','Ranged'],['both','Both']],d.wpnRange));
+          el.appendChild(g);
+          el.appendChild(itags('Tags','wpnTags',INV_WPN_TAGS,d.wpnTags));
+          el.appendChild(itextarea('Special Effect','wpnSpecial',d.wpnSpecial,'On-hit effect…',2));
+        }));
+
+        // ARMOR panel
+        body.appendChild(panel('armor','var(--blue)','Armor Properties', el => {
+          const g = document.createElement('div'); g.className = 'inv-g3';
+          g.appendChild(ifield('Fortitude Bonus','armFortitude',d.armFortitude,'+0 hits',true));
+          g.appendChild(ifield('Vigor Bonus','armVigor',d.armVigor,'+0 pool',true));
+          g.appendChild(ifield('Fatigue (wear)','armFatigue',d.armFatigue,'0',true));
+          el.appendChild(g);
+          el.appendChild(itags('Tags','armTags',INV_ARM_TAGS,d.armTags));
+          el.appendChild(itextarea('Resistances','armSpecial',d.armSpecial,'Damage resistance…',2));
+        }));
+
+        // TOOL panel
+        body.appendChild(panel('tool','var(--teal)','Tool Properties', el => {
+          const g = document.createElement('div'); g.className = 'inv-g2';
+          g.appendChild(ifield('Stat Bonus','tlStat',d.tlStat,'+1 tier to Expertise…'));
+          g.appendChild(ifield('Requires','tlReq',d.tlReq,'Skill or trait…'));
+          el.appendChild(g);
+          el.appendChild(itags('Tags','toolTags',INV_TOOL_TAGS,d.toolTags));
+          el.appendChild(itextarea('Usage Notes','tlUse',d.tlUse,'How it works…',2));
+        }));
+
+        // CONSUMABLE panel
+        body.appendChild(panel('consumable','var(--green)','Consumable Properties', el => {
+          const g = document.createElement('div'); g.className = 'inv-g3';
+          g.appendChild(ifield('Uses','conUses',d.conUses,'1',true));
+          g.appendChild(iselect('Action','conAction',[['Instant','Instant'],['Action','Action'],['Full Scene','Full Scene'],['Extended','Extended']],d.conAction));
+          g.appendChild(ifield('Duration','conDuration',d.conDuration,'Immediate…'));
+          el.appendChild(g);
+          el.appendChild(itextarea('Effect','conEffect',d.conEffect,'What happens…',2));
+          el.appendChild(itextarea('Side Effects','conDrawback',d.conDrawback,'Drawbacks…',2));
+        }));
+
+        // ARCANE panel
+        body.appendChild(panel('arcane','var(--accent)','Arcane Properties', el => {
+          const g = document.createElement('div'); g.className = 'inv-g2';
+          g.appendChild(ifield('Weight (pips)','arcWeight',d.arcWeight,'0–10',true));
+          g.appendChild(iselect('System','arcSystem',[['','None'],['Contracts','Contracts'],['Alchemy','Alchemy'],['Language','Language'],['Movements','Movements'],['Forging','Forging']],d.arcSystem));
+          el.appendChild(g);
+          el.appendChild(itags('Tags','arcTags',INV_ARC_TAGS,d.arcTags));
+          el.appendChild(itextarea('Magical Effect','arcEffect',d.arcEffect,'What magic this holds…',2));
+          el.appendChild(itextarea('Attunement','arcAttune',d.arcAttune,'Activation requirement…',2));
+        }));
+
+        // PSIONIC panel
+        body.appendChild(panel('psionic','var(--purple)','Psionic Properties', el => {
+          const g = document.createElement('div'); g.className = 'inv-g2';
+          g.appendChild(ifield("Psi Cost",'psiCost',d.psiCost,'0',true));
+          g.appendChild(iselect("Mind's Eye",'psiMindseye',[['none','None'],['close','Close'],['focus','Focus'],['reach','Reach'],['beyond','Beyond']],d.psiMindseye));
+          el.appendChild(g);
+          el.appendChild(itags('Tags','psiTags',INV_PSI_TAGS,d.psiTags));
+          el.appendChild(itextarea('Psionic Effect','psiEffect',d.psiEffect,'How it interacts with psi…',2));
+        }));
+
+        // KEY ITEM panel
+        body.appendChild(panel('key','var(--orange)','Key Item Properties', el => {
+          const g = document.createElement('div'); g.className = 'inv-g2';
+          g.appendChild(ifield('Function','keyFunction',d.keyFunction,'Unlocks, proves…'));
+          g.appendChild(ifield('Linked To','keyLink',d.keyLink,'Person, place, faction…'));
+          el.appendChild(g);
+          el.appendChild(itextarea('Significance','keySignificance',d.keySignificance,'Why this matters…',2));
+        }));
+
+        // MISC panel
+        body.appendChild(panel('misc','var(--text-muted)','Additional Properties', el => {
+          const g = document.createElement('div'); g.className = 'inv-g2';
+          g.appendChild(ifield('Property 1','miscProp1',d.miscProp1,'Custom…'));
+          g.appendChild(ifield('Property 2','miscProp2',d.miscProp2,'Custom…'));
+          el.appendChild(g);
+        }));
+
+        // source / value (always shown)
+        const bottomG = document.createElement('div'); bottomG.className = 'inv-g2'; bottomG.style.marginTop='0.5rem';
+        bottomG.appendChild(ifield('Source / Origin','source',d.source,'Occupation, found at…'));
+        bottomG.appendChild(ifield('Value','value',d.value,'Cost or trade weight…'));
+        body.appendChild(bottomG);
+
+        const noteInp = document.createElement('input');
+        noteInp.className = 'inv-notes-input';
+        noteInp.setAttribute('data-key','notes');
+        noteInp.type='text';
+        noteInp.placeholder='Character notes on this item…';
+        noteInp.value = d.notes || d.invNotes || d.charNotes || '';
+        body.appendChild(noteInp);
+
+        div.appendChild(top);
+        div.appendChild(body);
         list.appendChild(div);
-        if (data) { div.querySelector('[data-key="name"]').value = data.name || ''; div.querySelector('[data-key="qty"]').value = data.qty != null ? data.qty : 1; }
+        setTimeout(() => invSwitchTypePanel(id, type), 10);
       }
 
-      /* ══════════════════════════════════════════════
-         BOOST SLOTS
-      ══════════════════════════════════════════════ */
-      function changeBoostCount(delta) { boostCount = Math.max(1, boostCount + delta); document.getElementById('boost-count-val').textContent = boostCount; renderBoostSlots(); updateAllStatOptions(); }
+      /* ── INVENTORY SERIALIZATION HELPER ── */
+      function serializeInventoryItem(item) {
+        function gv(key) {
+          const el = item.querySelector('[data-key="' + key + '"]');
+          return el ? el.value : '';
+        }
+        function getTags(tagKey) {
+          const prefix = 'inv-tags-' + tagKey + '-';
+          const row = [...item.querySelectorAll('.inv-tag-row')].find(r => r.id && r.id.startsWith(prefix));
+          if (!row) return [];
+          return [...row.querySelectorAll('.inv-tag.inv-tag-on')].map(t => t.textContent);
+        }
+        return {
+          name:gv('name'), qty:gv('qty'), type:gv('type'), rarity:gv('rarity'),
+          description:gv('description'), source:gv('source'), value:gv('value'), notes:gv('notes'),
+          wpnWounds:gv('wpnWounds'), wpnModifier:gv('wpnModifier'), wpnRange:gv('wpnRange'),
+          wpnSpecial:gv('wpnSpecial'), wpnTags:getTags('wpnTags'),
+          armFortitude:gv('armFortitude'), armVigor:gv('armVigor'), armFatigue:gv('armFatigue'),
+          armSpecial:gv('armSpecial'), armTags:getTags('armTags'),
+          tlStat:gv('tlStat'), tlReq:gv('tlReq'), tlUse:gv('tlUse'), toolTags:getTags('toolTags'),
+          conUses:gv('conUses'), conAction:gv('conAction'), conDuration:gv('conDuration'),
+          conEffect:gv('conEffect'), conDrawback:gv('conDrawback'),
+          arcWeight:gv('arcWeight'), arcSystem:gv('arcSystem'), arcEffect:gv('arcEffect'),
+          arcAttune:gv('arcAttune'), arcTags:getTags('arcTags'),
+          psiCost:gv('psiCost'), psiMindseye:gv('psiMindseye'), psiEffect:gv('psiEffect'),
+          psiTags:getTags('psiTags'),
+          keyFunction:gv('keyFunction'), keyLink:gv('keyLink'), keySignificance:gv('keySignificance'),
+          miscProp1:gv('miscProp1'), miscProp2:gv('miscProp2'),
+        };
+      }
+
+      /* ── IMPORT FROM ITEM LIBRARY ── */
+      function importFromLibrary(files) {
+        Array.from(files).forEach(file => {
+          const reader = new FileReader();
+          reader.onload = e => {
+            try {
+              const parsed = JSON.parse(e.target.result);
+              const items = Array.isArray(parsed) ? parsed : [parsed];
+              items.forEach(item => { if (item && (item.name || item.type)) addInventoryItem(item); });
+              if (typeof toast === 'function') toast('Imported ' + items.length + ' item' + (items.length!==1?'s':''), 'var(--teal)');
+            } catch(err) {
+              if (typeof toast === 'function') toast('Could not read library JSON', 'var(--red)');
+            }
+          };
+          reader.readAsText(file);
+        });
+      }
+
+            function changeBoostCount(delta) { boostCount = Math.max(1, boostCount + delta); document.getElementById('boost-count-val').textContent = boostCount; renderBoostSlots(); updateAllStatOptions(); }
 
       function renderBoostSlots(slotData) {
         const container = document.getElementById('boost-slots-container');
@@ -3057,7 +3409,7 @@
         });
         data.inventory = [];
         document.querySelectorAll('#inventory-list .inventory-item').forEach(item => {
-          data.inventory.push({ name: item.querySelector('[data-key="name"]').value, qty: item.querySelector('[data-key="qty"]').value });
+          data.inventory.push(serializeInventoryItem(item));
         });
         const boxState = (id, cls) => {
           const filled = new Set();
@@ -3399,7 +3751,6 @@ function importJSON(fileInputOrFile) {
       renderCustomTraits();
       updateBacklashPanel();
     </script>
-
     <!-- ── PWA Banners ── -->
     <div id="pwa-install-banner" style="display:none; position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%); z-index:9998; background:var(--surface); border:1px solid var(--accent-dim); padding:0.75rem 1rem; gap:0.75rem; align-items:center; max-width:440px; width:calc(100% - 3rem);">
       <span style="font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.15em;color:var(--text-dim);text-transform:uppercase;flex:1;">Install NEXUS as an app for offline play</span>
@@ -3492,7 +3843,11 @@ function importJSON(fileInputOrFile) {
       }
     })();
     </script>
+
   </body>
 </html>
+
+
+
 
 
