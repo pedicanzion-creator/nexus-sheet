@@ -1,5 +1,5 @@
 // NEXUS Character Sheet — Service Worker
-const CACHE_NAME = 'nexus-sheet-v2';
+const CACHE_NAME = 'nexus-sheet-v3';
 
 // Resources to pre-cache on install
 const PRECACHE = [
