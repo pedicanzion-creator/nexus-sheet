@@ -3,11 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NEXUS — Character Sheet (Multi-Type)</title>
+    <title>NEXUS Character Sheet</title>
+    <meta name="color-scheme" content="light dark" />
     <link
       href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap"
       rel="stylesheet"
     />
+    <!-- OBR SDK — loaded async, gracefully degraded if unavailable -->
+    <script>
+      window.__OBR_READY = false;
+      window.__OBR_CALLBACKS = [];
+      function onOBRReady(cb) { if (window.__OBR_READY) cb(); else window.__OBR_CALLBACKS.push(cb); }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@owlbear-rodeo/sdk@latest/dist/index.umd.js" async onload="initOBR()"></script>
     <style>
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
       :root {
@@ -24,6 +32,71 @@
         --font-display: 'Rajdhani', sans-serif;
         --font-mono: 'Share Tech Mono', monospace;
         --font-body: 'Crimson Pro', serif;
+      }
+
+      /* ── OBR LIGHT THEME ── */
+      [data-obr-theme="light"] {
+        --bg: #f5f3ef;
+        --surface: #ffffff;
+        --surface2: #ede9e1;
+        --border: #c8c4bc;
+        --border-bright: #a8a49c;
+        --accent: #8a6a28;
+        --accent-dim: #c4a460;
+        --accent-glow: rgba(138,106,40,0.10);
+        --text: #1a1816;
+        --text-dim: #4a4640;
+        --text-muted: #8a8680;
+        --red: #b03020;
+        --red-dim: #f0d0c8;
+        --blue: #1a5fa4;
+        --blue-dim: #c8daf4;
+        --purple: #6a3ca4;
+        --purple-dim: #dac8f4;
+        --green: #2a6a3c;
+        --green-dim: #c8e4d0;
+        --orange: #a45820;
+        --teal: #1a8070;
+        --teal-dim: #c8ece8;
+      }
+
+      /* ── MOBILE IMPROVEMENTS ── */
+      @media (max-width: 768px) {
+        body { padding: 0.75rem 0.5rem 3rem; }
+        .sheet { max-width: 100%; }
+        .header { grid-template-columns: 1fr; gap: 0.5rem; }
+        .header-right { align-items: flex-start; text-align: left; }
+        .nexus-logo { font-size: 2.4rem; }
+        .grid-4 { grid-template-columns: repeat(2, 1fr); }
+        .grid-2 { grid-template-columns: 1fr; }
+        .type-selector { grid-template-columns: repeat(2, 1fr); }
+        .save-bar { flex-wrap: wrap; gap: 0.4rem; }
+        .sbar-btn { font-size: 0.6rem; padding: 0.35rem 0.65rem; }
+        .stat-tier-select { font-size: 0.8rem; }
+        .track-box { width: 20px; height: 20px; }
+        .minds-eye-row { flex-wrap: wrap; gap: 0.4rem; }
+        .eye-stage { min-width: 70px; flex: 1; }
+        .meta-panel { padding: 0.75rem; }
+        .weight-track { gap: 4px; }
+        .weight-pip { width: 18px; height: 18px; }
+        .slots-modal { padding: 0.75rem; }
+        .field-input { width: 100%; min-width: 0; }
+        .action-declare-row { grid-template-columns: 70px 1fr; }
+      }
+      @media (max-width: 480px) {
+        .grid-4 { grid-template-columns: repeat(2, 1fr); }
+        .save-bar-actions { flex-wrap: wrap; }
+        .tabs-row { flex-wrap: wrap; }
+        .tab-btn { font-size: 0.65rem; padding: 0.35rem 0.5rem; }
+        .type-btn { font-size: 0.75rem; padding: 0.5rem 0.2rem; }
+      }
+
+      /* Accessibility: ensure minimum touch target 44px on mobile */
+      @media (max-width: 768px) {
+        button, select, input[type="file"] + label { min-height: 44px; }
+        .type-btn, .sbar-btn, .add-btn, .backlash-roll-btn { min-height: 44px; }
+        .tab-btn { min-height: 40px; }
+        .track-box { min-width: 22px; min-height: 22px; }
       }
       body { background: var(--bg); color: var(--text); font-family: var(--font-display); min-height: 100vh; padding: 2rem 1.5rem 4rem; }
       .sheet { max-width: 960px; margin: 0 auto; }
@@ -248,6 +321,14 @@
       .inv-tag { font-family: var(--font-mono); font-size: 0.46rem; letter-spacing: 0.07em; text-transform: uppercase; padding: 2px 6px; border: 1px solid var(--border); color: var(--text-muted); background: none; cursor: pointer; transition: all 0.15s; user-select: none; }
       .inv-tag:hover { border-color: var(--border-bright); color: var(--text-dim); }
       .inv-tag.inv-tag-on { border-color: var(--accent-dim); color: var(--accent); background: var(--accent-glow); }
+      /* ── MAGE SYSTEMS ── */
+      .mage-system-card { background: var(--surface2); border: 1px solid var(--border); padding: 0.75rem; margin-bottom: 0.6rem; position: relative; transition: border-color 0.2s; }
+      .mage-system-card:hover { border-color: var(--border-bright); }
+      .mage-system-card-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.6rem; }
+      .mage-system-num { font-family: var(--font-mono); font-size: 0.5rem; letter-spacing: 0.15em; color: var(--accent-dim); text-transform: uppercase; flex-shrink: 0; }
+      .mage-system-card .occ-select { flex: 1; }
+      .mage-system-rm { background: none; border: 1px solid var(--border); color: var(--text-muted); font-family: var(--font-mono); font-size: 0.55rem; padding: 2px 6px; cursor: pointer; transition: all 0.15s; flex-shrink: 0; }
+      .mage-system-rm:hover { border-color: var(--red); color: var(--red); }
       .action-declare-row { display: grid; grid-template-columns: 80px 1fr; gap: 0.75rem; align-items: end; margin-top: 0.25rem; }
       .ability-declare-row { display: grid; grid-template-columns: 80px 1fr; gap: 0.75rem; align-items: end; margin-top: 0.25rem; }
       .fatigue-cost-input { width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--red); font-family: var(--font-mono); font-size: 0.85rem; font-weight: 600; padding: 5px 8px; outline: none; text-align: center; transition: border-color 0.2s; }
@@ -511,6 +592,7 @@
           <button class="sbar-btn btn-save" onclick="saveSheet()">Save</button>
           <button class="sbar-btn btn-clear" onclick="clearSlot()">Clear slot</button>
           <button class="sbar-btn btn-export" onclick="exportJSON()">Export JSON</button>
+          <button class="sbar-btn" onclick="showSupport()" style="border-color:var(--blue);color:var(--blue);" title="Help &amp; Support">?</button>
           <label class="sbar-btn" style="cursor:pointer;">Import JSON<input type="file" accept=".json" style="display:none;" onchange="importJSON(this.files[0])" /></label>
         </div>
       </div>
@@ -999,40 +1081,9 @@
                 </div>
               </div>
 
-              <!-- Restriction list -->
-              <div style="margin-top:0.75rem;">
-                <div
-                  class="meta-panel-title"
-                  style="display:flex;align-items:center;gap:0.5rem;"
-                >
-                  Restrictions
-                  <span
-                    class="restriction-count-badge"
-                    id="restriction-count-badge"
-                    >0 / 4</span
-                  >
-                </div>
-                <div
-                  style="font-family:var(--font-mono);font-size:0.52rem;color:var(--text-muted);letter-spacing:0.1em;margin-bottom:0.5rem;"
-                >
-                  Each restriction reduces the backlash die. At 4+, no backlash.
-                </div>
-                <div class="restriction-list" id="restriction-list"></div>
-                <div class="restriction-add-row">
-                  <input
-                    class="restriction-input"
-                    id="restriction-input"
-                    type="text"
-                    placeholder="Add a restriction…"
-                    onkeydown="if(event.key==='Enter')addRestriction()"
-                  />
-                  <button
-                    class="restriction-add-btn"
-                    onclick="addRestriction()"
-                  >
-                    + Add
-                  </button>
-                </div>
+              <!-- Restrictions moved into each system card below -->
+              <div style="margin-top:0.75rem;font-family:var(--font-mono);font-size:0.5rem;letter-spacing:0.12em;color:var(--text-muted);text-transform:uppercase;">
+                Restrictions &amp; backlash are tracked per system below
               </div>
 
               <!-- Backlash panel -->
@@ -1064,36 +1115,15 @@
                 <div class="backlash-result" id="backlash-result"></div>
               </div>
 
-              <div style="margin-top:0.75rem;">
-                <div class="meta-panel-title">Great system affiliation</div>
-                <select class="occ-select" id="mage-system">
-                  <option value="">— None / Independent —</option>
-                  <option>Contracts — Magic as agreement</option>
-                  <option>Alchemy — Magic as transformation</option>
-                  <option>Language — Magic as word</option>
-                  <option>Movements — Magic as action</option>
-                  <option>Forging — Magic as making</option>
-                </select>
-              </div>
             </div>
-            <div>
-              <div class="meta-panel-title">Magical abilities</div>
-              <div class="additive-list" id="mage-ability-list"></div>
-              <button
-                class="add-btn add-accent"
-                onclick="addAbility('mage-ability-list','mage')"
-              >
-                + add ability
-              </button>
-              <div style="margin-top:0.75rem;">
-                <div class="meta-panel-title">Backlash notes</div>
-                <textarea
-                  class="meta-textarea"
-                  id="mage-backlash"
-                  placeholder="Known backlash effects…"
-                ></textarea>
-              </div>
+          </div>
+          <!-- Systems section -->
+          <div style="margin-top:1rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.6rem;">
+              <div class="meta-panel-title" style="margin-bottom:0;">Great Systems</div>
+              <button class="add-btn add-accent" style="width:auto;padding:0.25rem 0.75rem;font-size:0.58rem;" onclick="addMageSystem()">+ Add System</button>
             </div>
+            <div id="mage-systems-list"></div>
           </div>
         </div>
 
@@ -1767,6 +1797,26 @@
       </div>
     </div>
     <div class="save-toast" id="save-toast"></div>
+
+    <!-- Support Modal -->
+    <div id="support-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:10000;align-items:center;justify-content:center;padding:1rem;">
+      <div style="background:var(--surface);border:1px solid var(--border);padding:1.5rem;max-width:440px;width:100%;position:relative;">
+        <button onclick="document.getElementById('support-modal').style.display='none'" style="position:absolute;top:0.75rem;right:0.75rem;background:none;border:none;color:var(--text-dim);font-size:1rem;cursor:pointer;">✕</button>
+        <div style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--accent);letter-spacing:0.1em;margin-bottom:0.75rem;">NEXUS — Help &amp; Support</div>
+        <div style="font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.15em;color:var(--text-muted);text-transform:uppercase;margin-bottom:0.4rem;">About</div>
+        <p style="font-family:var(--font-body);font-size:0.9rem;color:var(--text-dim);margin-bottom:1rem;line-height:1.6;">NEXUS Character Sheet v2.0 — Owlbear Rodeo Extension. A digital-native character sheet for the NEXUS tabletop RPG system.</p>
+        <div style="font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.15em;color:var(--text-muted);text-transform:uppercase;margin-bottom:0.4rem;">Support &amp; Issues</div>
+        <p style="font-family:var(--font-body);font-size:0.9rem;color:var(--text-dim);margin-bottom:0.5rem;line-height:1.6;">For bug reports, feature requests, or questions:</p>
+        <a href="https://rodentroyaltywiki.com" target="_blank" rel="noopener" style="display:block;font-family:var(--font-mono);font-size:0.65rem;color:var(--accent);letter-spacing:0.1em;margin-bottom:0.4rem;">rodentroyaltywiki.com</a>
+        <div style="font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.15em;color:var(--text-muted);text-transform:uppercase;margin:0.75rem 0 0.4rem;">Tips</div>
+        <ul style="font-family:var(--font-body);font-size:0.85rem;color:var(--text-dim);padding-left:1.25rem;line-height:1.8;">
+          <li>Hit <strong>Save</strong> to sync your character across sessions</li>
+          <li>Export JSON as a backup or to share with your GM</li>
+          <li>Portrait, stats, and all fields save automatically when you save</li>
+          <li>Use multiple slots for different characters</li>
+        </ul>
+      </div>
+    </div>
 
     <script>
       /* ══════════════════════════════════════════════
@@ -2468,6 +2518,7 @@
 
       function renderTypePanels() {
         document.getElementById('panel-mage').classList.toggle('visible', activeTypes.has('mage'));
+      if (activeTypes.has('mage') && !document.querySelector('.mage-system-card')) addMageSystem();
         document.getElementById('panel-psion').classList.toggle('visible', activeTypes.has('psion'));
         document.getElementById('panel-meta').classList.toggle('visible', activeTypes.has('meta'));
         const pt = document.getElementById('psi-track');
@@ -3207,7 +3258,273 @@
         };
       }
 
-      /* ── IMPORT FROM ITEM LIBRARY ── */
+      /* ── MAGE SYSTEMS ── */
+      function addMageSystem(data) {
+        const list = document.getElementById('mage-systems-list');
+        const id = uid();
+        const d = data || {};
+        const cardNum = list.children.length + 1;
+        const sysRestrictions = d.restrictions ? [...d.restrictions] : [];
+
+        const card = document.createElement('div');
+        card.className = 'mage-system-card';
+        card.id = 'mage-sys-' + id;
+
+        // ── HEADER: System N + affiliation select + remove ──
+        const hdr = document.createElement('div');
+        hdr.className = 'mage-system-card-header';
+
+        const numLabel = document.createElement('span');
+        numLabel.className = 'mage-system-num';
+        numLabel.textContent = 'System ' + cardNum;
+
+        const sel = document.createElement('select');
+        sel.className = 'occ-select';
+        sel.setAttribute('data-key', 'system');
+        [
+          ['', '— None / Independent —'],
+          ['Contracts', 'Contracts — Magic as agreement'],
+          ['Alchemy', 'Alchemy — Magic as transformation'],
+          ['Language', 'Language — Magic as word'],
+          ['Movements', 'Movements — Magic as action'],
+          ['Forging', 'Forging — Magic as making'],
+        ].forEach(([v, l]) => {
+          const o = document.createElement('option');
+          o.value = v; o.textContent = l; sel.appendChild(o);
+        });
+        sel.value = d.system || '';
+
+        const rmBtn = document.createElement('button');
+        rmBtn.className = 'mage-system-rm';
+        rmBtn.textContent = '✕';
+        rmBtn.title = 'Remove this system';
+        rmBtn.addEventListener('click', () => {
+          card.remove();
+          document.querySelectorAll('.mage-system-card .mage-system-num').forEach((el, i) => {
+            el.textContent = 'System ' + (i + 1);
+          });
+        });
+
+        hdr.appendChild(numLabel);
+        hdr.appendChild(sel);
+        hdr.appendChild(rmBtn);
+        card.appendChild(hdr);
+
+        // ── RESTRICTIONS ──
+        const restrSection = document.createElement('div');
+        restrSection.style.marginBottom = '0.75rem';
+
+        const restrTitleRow = document.createElement('div');
+        restrTitleRow.className = 'meta-panel-title';
+        restrTitleRow.style.cssText = 'display:flex;align-items:center;gap:0.5rem;margin-bottom:0.3rem;';
+
+        const restrTitle = document.createElement('span');
+        restrTitle.textContent = 'Restrictions';
+
+        const countBadge = document.createElement('span');
+        countBadge.className = 'restriction-count-badge';
+        countBadge.id = 'restr-badge-' + id;
+        countBadge.textContent = '0 / 4';
+
+        // backlash die display in title row
+        const backlashTag = document.createElement('span');
+        backlashTag.id = 'bl-die-tag-' + id;
+        backlashTag.style.cssText = 'font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.1em;color:var(--red);margin-left:auto;padding:1px 7px;border:1px solid var(--red);background:rgba(196,92,74,0.08);';
+        backlashTag.textContent = 'd10';
+
+        restrTitleRow.appendChild(restrTitle);
+        restrTitleRow.appendChild(countBadge);
+        restrTitleRow.appendChild(backlashTag);
+        restrSection.appendChild(restrTitleRow);
+
+        const restrHint = document.createElement('div');
+        restrHint.style.cssText = 'font-family:var(--font-mono);font-size:0.5rem;color:var(--text-muted);letter-spacing:0.08em;margin-bottom:0.4rem;';
+        restrHint.textContent = 'Each restriction reduces backlash die. 4+ = no backlash.';
+        restrSection.appendChild(restrHint);
+
+        const restrList = document.createElement('div');
+        restrList.className = 'restriction-list';
+        restrList.id = 'restr-list-' + id;
+        restrSection.appendChild(restrList);
+
+        const restrAddRow = document.createElement('div');
+        restrAddRow.className = 'restriction-add-row';
+        const restrInput = document.createElement('input');
+        restrInput.className = 'restriction-input';
+        restrInput.type = 'text';
+        restrInput.placeholder = 'Add a restriction…';
+        restrInput.id = 'restr-input-' + id;
+
+        const restrAddBtn = document.createElement('button');
+        restrAddBtn.className = 'restriction-add-btn';
+        restrAddBtn.textContent = '+ Add';
+
+        function refreshRestrictions() {
+          restrList.innerHTML = '';
+          sysRestrictions.forEach((r, idx) => {
+            const item = document.createElement('div');
+            item.className = 'restriction-item';
+            const inner = document.createElement('div');
+            inner.style.cssText = 'display:flex;align-items:center;gap:0.5rem;';
+            const indexEl = document.createElement('span');
+            indexEl.className = 'restriction-item-index';
+            indexEl.textContent = 'R' + (idx + 1);
+            const textEl = document.createElement('span');
+            textEl.className = 'restriction-item-text';
+            textEl.textContent = r;
+            inner.appendChild(indexEl);
+            inner.appendChild(textEl);
+            const rmR = document.createElement('button');
+            rmR.className = 'restriction-remove-btn';
+            rmR.textContent = '✕';
+            rmR.addEventListener('click', () => {
+              sysRestrictions.splice(idx, 1);
+              refreshRestrictions();
+            });
+            item.appendChild(inner);
+            item.appendChild(rmR);
+            restrList.appendChild(item);
+          });
+          // update badge
+          const count = sysRestrictions.length;
+          countBadge.textContent = count + ' / 4';
+          countBadge.style.color = count >= 4 ? 'var(--green)' : 'var(--accent)';
+          countBadge.style.borderColor = count >= 4 ? 'var(--green)' : 'var(--accent-dim)';
+          // update backlash die tag
+          const die = getBacklashDie(count);
+          backlashTag.textContent = die === 'none' ? 'No Backlash' : die;
+          backlashTag.style.color = die === 'none' ? 'var(--green)' : 'var(--red)';
+          backlashTag.style.borderColor = die === 'none' ? 'var(--green)' : 'var(--red)';
+          backlashTag.style.background = die === 'none' ? 'rgba(74,138,92,0.08)' : 'rgba(196,92,74,0.08)';
+        }
+
+        restrAddBtn.addEventListener('click', () => {
+          const val = restrInput.value.trim();
+          if (!val) { restrInput.focus(); return; }
+          sysRestrictions.push(val);
+          restrInput.value = '';
+          refreshRestrictions();
+        });
+        restrInput.addEventListener('keydown', e => {
+          if (e.key === 'Enter') restrAddBtn.click();
+        });
+
+        // also wire roll backlash to use this system's count
+        const rollBtn = document.createElement('button');
+        rollBtn.className = 'backlash-roll-btn';
+        rollBtn.style.marginTop = '0.4rem';
+        rollBtn.id = 'bl-roll-' + id;
+        rollBtn.addEventListener('click', () => {
+          const count = sysRestrictions.length;
+          const die = getBacklashDie(count);
+          if (die === 'none') { toast('No backlash — fully restricted', 'var(--green)'); return; }
+          const sides = parseInt(die.replace('d',''), 10);
+          const roll = Math.ceil(Math.random() * sides);
+          const weightPips = document.querySelectorAll('.weight-pip.filled').length;
+          const rawWounds = Math.max(0, roll - weightPips);
+          let woundsDealt = 0;
+          if (rawWounds > 0) {
+            const boxes = [...document.querySelectorAll('#wpool-boxes .track-box')];
+            const empty = boxes.filter(b => !b.classList.contains('filled-wpool'));
+            woundsDealt = Math.min(rawWounds, empty.length);
+            empty.slice(0, woundsDealt).forEach(b => b.classList.add('filled-wpool'));
+            rebuildTracks();
+          }
+          rollBtn.textContent = 'Rolled ' + die + ' → ' + roll + (weightPips ? ' − ' + weightPips + 'W absorbed' : '') + (rawWounds > 0 ? ' → ' + woundsDealt + ' wound' + (woundsDealt !== 1 ? 's' : '') : ' → fully absorbed');
+          setTimeout(() => {
+            rollBtn.textContent = die === 'none' ? 'No backlash (4+ restrictions)' : 'Roll backlash (' + die + ')';
+          }, 3500);
+        });
+
+        restrAddRow.appendChild(restrInput);
+        restrAddRow.appendChild(restrAddBtn);
+        restrSection.appendChild(restrAddRow);
+        restrSection.appendChild(rollBtn);
+        card.appendChild(restrSection);
+
+        // ── ABILITIES ──
+        const abilLabel = document.createElement('div');
+        abilLabel.className = 'meta-panel-title';
+        abilLabel.textContent = 'Abilities';
+        card.appendChild(abilLabel);
+
+        const abilList = document.createElement('div');
+        abilList.className = 'additive-list';
+        abilList.id = 'mage-abil-' + id;
+        card.appendChild(abilList);
+
+        const abilBtn = document.createElement('button');
+        abilBtn.className = 'add-btn add-accent';
+        abilBtn.textContent = '+ add ability';
+        abilBtn.addEventListener('click', () => addAbility('mage-abil-' + id, 'mage'));
+        card.appendChild(abilBtn);
+
+        // ── BACKLASH NOTES ──
+        const blLabel = document.createElement('div');
+        blLabel.className = 'meta-panel-title';
+        blLabel.style.marginTop = '0.75rem';
+        blLabel.textContent = 'Backlash Notes';
+        card.appendChild(blLabel);
+
+        const blTa = document.createElement('textarea');
+        blTa.className = 'meta-textarea';
+        blTa.setAttribute('data-key', 'backlash');
+        blTa.placeholder = 'Known backlash effects for this system…';
+        blTa.value = d.backlash || '';
+        card.appendChild(blTa);
+
+        list.appendChild(card);
+
+        // restore restrictions and abilities
+        sysRestrictions.length = 0;
+        if (d.restrictions && d.restrictions.length) {
+          d.restrictions.forEach(r => sysRestrictions.push(r));
+        }
+        refreshRestrictions();
+
+        if (d.abilities && d.abilities.length) {
+          d.abilities.forEach(ab => addAbility('mage-abil-' + id, 'mage', ab));
+        }
+
+        // init roll button label
+        const initDie = getBacklashDie(sysRestrictions.length);
+        rollBtn.textContent = initDie === 'none' ? 'No backlash (4+ restrictions)' : 'Roll backlash (' + initDie + ')';
+      }
+
+      function serializeMageSystems() {
+        const systems = [];
+        document.querySelectorAll('.mage-system-card').forEach(card => {
+          const systemSel = card.querySelector('[data-key="system"]');
+          const backlashTa = card.querySelector('[data-key="backlash"]');
+          const abilList = card.querySelector('.additive-list');
+          const restrList = card.querySelector('.restriction-list');
+          // restrictions
+          const restrictions = [];
+          if (restrList) {
+            restrList.querySelectorAll('.restriction-item-text').forEach(el => {
+              if (el.textContent.trim()) restrictions.push(el.textContent.trim());
+            });
+          }
+          // abilities
+          const abilities = [];
+          if (abilList) {
+            abilList.querySelectorAll('.additive-item').forEach(item => {
+              const obj = {};
+              item.querySelectorAll('[data-key]').forEach(el => { obj[el.dataset.key] = el.value; });
+              abilities.push(obj);
+            });
+          }
+          systems.push({
+            system: systemSel ? systemSel.value : '',
+            restrictions,
+            abilities,
+            backlash: backlashTa ? backlashTa.value : '',
+          });
+        });
+        return systems;
+      }
+
+            /* ── IMPORT FROM ITEM LIBRARY ── */
       function importFromLibrary(files) {
         Array.from(files).forEach(file => {
           const reader = new FileReader();
@@ -3332,7 +3649,76 @@
          SAVE / LOAD
       ══════════════════════════════════════════════ */
       const STORAGE_KEY = 'nexus-sheet-slot-';
+      const OBR_META_KEY = 'com.nexus/sheet-data';
       let activeSlot = 0;
+      let __obrAvailable = false;
+
+      /* ── OBR INIT ── called when SDK script loads */
+      function initOBR() {
+        if (typeof OBR === 'undefined') return;
+        OBR.onReady(async () => {
+          __obrAvailable = true;
+          window.__OBR_READY = true;
+          window.__OBR_CALLBACKS.forEach(cb => { try { cb(); } catch(e) {} });
+          window.__OBR_CALLBACKS = [];
+
+          /* Apply OBR theme */
+          try {
+            const theme = await OBR.theme.getTheme();
+            applyOBRTheme(theme.mode);
+            OBR.theme.onChange(t => applyOBRTheme(t.mode));
+          } catch(e) {}
+
+          /* Load saved data from OBR player metadata */
+          try {
+            const meta = await OBR.player.getMetadata();
+            const savedSlots = meta[OBR_META_KEY];
+            if (savedSlots) {
+              /* Store into localStorage as cache */
+              try {
+                Object.keys(savedSlots).forEach(k => {
+                  localStorage.setItem(STORAGE_KEY + k, typeof savedSlots[k] === 'string'
+                    ? savedSlots[k] : JSON.stringify(savedSlots[k]));
+                });
+              } catch(e) {}
+              /* Auto-load last active slot */
+              const lastSlot = parseInt(savedSlots['last-active'] || '0', 10);
+              const slotRaw = savedSlots[lastSlot];
+              if (slotRaw) {
+                const data = typeof slotRaw === 'string' ? JSON.parse(slotRaw) : slotRaw;
+                if (data && data.charname !== undefined) {
+                  activeSlot = lastSlot;
+                  deserializeSheet(data);
+                  refreshSlotLabels();
+                }
+              }
+            }
+          } catch(e) { console.warn('NEXUS: OBR metadata load failed', e); }
+        });
+      }
+
+      function applyOBRTheme(mode) {
+        document.body.setAttribute('data-obr-theme', mode === 'LIGHT' ? 'light' : 'dark');
+      }
+
+      /* ── STORAGE ABSTRACTION ── OBR metadata preferred, localStorage fallback ── */
+      async function _obrSaveAllSlots() {
+        if (!__obrAvailable) return;
+        try {
+          const slotCount = getSlotCount();
+          const payload = { 'last-active': String(activeSlot) };
+          for (let i = 0; i < slotCount + 3; i++) {
+            const raw = localStorage.getItem(STORAGE_KEY + i);
+            if (raw) payload[i] = raw;
+          }
+          payload['count'] = String(slotCount);
+          await OBR.player.setMetadata({ [OBR_META_KEY]: payload });
+        } catch(e) { console.warn('NEXUS: OBR metadata save failed', e); }
+      }
+
+      function showSupport() {
+        document.getElementById('support-modal').style.display = 'flex';
+      }
 
       function toast(msg, color) {
         const t = document.getElementById('save-toast');
@@ -3358,8 +3744,9 @@
         data.mindsEye = currentMindsEye;
         data.mageWeight = document.querySelectorAll('.weight-pip.filled').length;
         data.mageRestrictions = [...mageRestrictions];
-        data.mageSystem = document.getElementById('mage-system').value;
-        data.mageBacklash = document.getElementById('mage-backlash').value;
+        data.mageSystem = ''; // legacy — kept for compat
+        data.mageBacklash = ''; // legacy
+        data.mageSystems = serializeMageSystems();
         data.psionEthics = document.getElementById('psion-ethics').value;
         data.psionPassive = document.getElementById('psion-passive').value;
         data.psionSmoke = document.getElementById('psion-smoke').value;
@@ -3379,7 +3766,7 @@
           });
           return items;
         };
-        data.mageAbilities = serList('mage-ability-list');
+        data.mageAbilities = []; // legacy — now per-system
         data.psionAbilities = serList('psion-ability-list');
         data.metaAbilities = serList('meta-ability-list');
         data.actions = [];
@@ -3464,8 +3851,17 @@
         renderRestrictions();
         updateBacklashPanel();
 
-        document.getElementById('mage-system').value = data.mageSystem || '';
-        document.getElementById('mage-backlash').value = data.mageBacklash || '';
+        // legacy: if old single-system data, convert
+        if (data.mageSystems && data.mageSystems.length) {
+          document.getElementById('mage-systems-list').innerHTML = '';
+          data.mageSystems.forEach(s => addMageSystem(s));
+        } else if (data.mageSystem || (data.mageAbilities && data.mageAbilities.length)) {
+          document.getElementById('mage-systems-list').innerHTML = '';
+          addMageSystem({ system: data.mageSystem || '', abilities: data.mageAbilities || [], backlash: data.mageBacklash || '' });
+        } else {
+          document.getElementById('mage-systems-list').innerHTML = '';
+          if (!document.querySelector('.mage-system-card')) addMageSystem();
+        }
         if (data.mindsEye) setMindsEye(data.mindsEye);
         document.getElementById('psion-ethics').value = data.psionEthics || '';
         document.getElementById('psion-passive').value = data.psionPassive || '';
@@ -3479,7 +3875,7 @@
         document.getElementById('mage-ability-list').innerHTML = '';
         document.getElementById('psion-ability-list').innerHTML = '';
         document.getElementById('meta-ability-list').innerHTML = '';
-        (data.mageAbilities || []).forEach(d => addAbility('mage-ability-list', 'mage', d));
+        // mageAbilities handled per-system
         (data.psionAbilities || []).forEach(d => addAbility('psion-ability-list', 'psion', d));
         (data.metaAbilities || []).forEach(d => addAbility('meta-ability-list', 'meta', d));
         document.getElementById('actions-list').innerHTML = '';
@@ -3591,9 +3987,12 @@
           activeSlot = n;
           const data = serializeSheet();
           localStorage.setItem(STORAGE_KEY + n, JSON.stringify(data));
+          localStorage.setItem('nexus-last-active-slot', String(n));
           refreshSlotLabels();
           renderSlotsModal();
           toast('Saved to slot ' + (n + 1) + ' — ' + (data.charname || 'Unnamed'));
+          /* Push to OBR player metadata (async, non-blocking) */
+          _obrSaveAllSlots();
         } catch (e) { toast('Save failed — storage may be full', 'var(--red)'); }
       }
 
@@ -3741,27 +4140,30 @@ function importJSON(fileInputOrFile) {
       })();
 
       /* ── Auto-load last saved slot on open ── */
+      /* OBR path: handled by initOBR() after OBR.onReady fires */
+      /* Non-OBR path: load from localStorage immediately */
       (function() {
-        try {
-          /* remember which slot was active across sessions */
-          const lastSlot = parseInt(localStorage.getItem('nexus-last-active-slot') || '0', 10);
-          const data = getSlotData(lastSlot);
-          if (data && data.charname !== undefined) {
-            activeSlot = lastSlot;
-            deserializeSheet(data);
-          }
-        } catch(e) { /* no saved data, start fresh */ }
+        /* Short delay to let OBR SDK initialise if present */
+        setTimeout(function() {
+          if (__obrAvailable) return; /* OBR handled it */
+          try {
+            const lastSlot = parseInt(localStorage.getItem('nexus-last-active-slot') || '0', 10);
+            const data = getSlotData(lastSlot);
+            if (data && data.charname !== undefined) {
+              activeSlot = lastSlot;
+              deserializeSheet(data);
+              refreshSlotLabels();
+            }
+          } catch(e) { /* no saved data, start fresh */ }
+        }, 600);
       })();
 
-      /* ── Persist active slot index whenever save happens ── */
-      const _origSaveToSlot = saveToSlot;
-      saveToSlot = function(n) {
-        _origSaveToSlot(n);
-        try { localStorage.setItem('nexus-last-active-slot', String(n)); } catch(e) {}
-      };
+      /* nexus-last-active-slot now set in saveToSlot directly */
 
       buildWeightPips(0);
       rebuildTracks();
+      // ensure at least one mage system card exists
+      if (!document.querySelector('.mage-system-card')) addMageSystem();
       ['might','expertise','wit','insight','intuition','charm'].forEach(updateStatDie);
       renderBoostSlots();
       updateAllStatOptions();
@@ -3776,3 +4178,5 @@ function importJSON(fileInputOrFile) {
     </script>
   </body>
 </html>
+
+

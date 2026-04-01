@@ -1,29 +1,21 @@
 {
-  "name": "NEXUS \u2014 Character Sheet",
-  "short_name": "NEXUS",
-  "description": "NEXUS TTRPG Character Sheet \u2014 Multi-Type",
-  "start_url": "./",
-  "display": "standalone",
-  "orientation": "any",
-  "background_color": "#0e0e0f",
-  "theme_color": "#c8a96e",
-  "icons": [
-    {
-      "src": "icon-192.svg",
-      "sizes": "192x192",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icon-512.svg",
-      "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+  "name": "NEXUS Character Sheet",
+  "version": "2.0.0",
+  "author": "Rodent Royalty",
+  "description": "Full-featured NEXUS TTRPG character sheet with stat tracking, metaphysical type panels, inventory, and campaign data. Saves to your Owlbear player profile — works across sessions and devices.",
+  "icon": "/nexus-obr-extension/icon.svg",
+  "action": {
+    "title": "NEXUS Sheet",
+    "icon": "/nexus-obr-extension/icon.svg",
+    "popover": {
+      "url": "/nexus-obr-extension/index.html",
+      "height": 700,
+      "width": 900
     }
-  ],
-  "categories": [
-    "games",
-    "utilities"
-  ],
-  "lang": "en"
+  },
+  "permissions": [
+    "PLAYER_READ",
+    "PLAYER_WRITE",
+    "THEME_READ"
+  ]
 }
