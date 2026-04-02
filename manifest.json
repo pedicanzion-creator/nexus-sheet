@@ -5,7 +5,7 @@
   "action": {
     "title": "NEXUS Sheet",
     "popover": "/nexus-sheet/index.html",
-    "icon": "/nexus-sheet/icon.svg"
+    "icon": "/nexus-sheet/icon.svg",
     "height": 700,
     "width": 920
   }
