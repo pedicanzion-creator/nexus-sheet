@@ -1554,7 +1554,146 @@
     </div>
     <div class="save-toast" id="save-toast"></div>
 
+  <!-- Mage System Dialog -->
+  <div class="modal-overlay" id="mage-system-dialog" style="display:none;" onclick="if(event.target===this)closeMageSystemDialog()">
+    <div style="background:var(--surface);border:1px solid var(--border);width:100%;max-width:480px;max-height:90vh;overflow-y:auto;">
+      <div class="slots-modal-header">
+        <span class="slots-modal-title" id="mage-dialog-title">Add Magic System</span>
+        <button onclick="closeMageSystemDialog()" style="background:none;border:none;color:var(--text-muted);font-size:1.1rem;cursor:pointer;">✕</button>
+      </div>
+      <div style="padding:1.25rem;">
+        <!-- Step 1: Great System question -->
+        <div id="mage-step-1">
+          <div style="font-family:var(--font-body);font-size:0.95rem;color:var(--text);margin-bottom:1.25rem;line-height:1.6;">
+            Are you a follower of one of the Great Systems?
+          </div>
+          <div style="display:flex;gap:0.75rem;">
+            <button class="add-btn add-accent" style="flex:1;" onclick="mageDialogStep(2, true)">Yes</button>
+            <button class="add-btn" style="flex:1;background:var(--surface2);border-color:var(--border);color:var(--text);" onclick="mageDialogStep(2, false)">No</button>
+          </div>
+        </div>
+        <!-- Step 2a: Choose Great System -->
+        <div id="mage-step-2a" style="display:none;">
+          <div class="meta-panel-title" style="margin-bottom:0.6rem;">Choose your system</div>
+          <select id="great-system-select" class="training-stat-select" style="margin-bottom:1rem;">
+            <option value="">— Select a system —</option>
+            <option value="Contracts">Contracts</option>
+            <option value="Alchemy">Alchemy</option>
+            <option value="Language">Language</option>
+            <option value="Movements">Movements</option>
+            <option value="Forging">Forging</option>
+          </select>
+          <div style="display:flex;gap:0.75rem;">
+            <button class="add-btn" style="flex:1;background:var(--surface2);border-color:var(--border);color:var(--text);" onclick="mageDialogStep(1)">Back</button>
+            <button class="add-btn add-accent" style="flex:1;" onclick="confirmGreatSystem()">Confirm</button>
+          </div>
+        </div>
+        <!-- Step 2b: Custom system -->
+        <div id="mage-step-2b" style="display:none;">
+          <div class="meta-panel-title" style="margin-bottom:0.4rem;">System name</div>
+          <input id="custom-system-name" type="text" class="trait-add-input" placeholder="Name your system…" style="width:100%;margin-bottom:1rem;">
+          <div class="meta-panel-title" style="margin-bottom:0.4rem;">Restrictions (4 required)</div>
+          <div style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:1rem;">
+            <input class="custom-restr-input trait-add-input" placeholder="Restriction 1…">
+            <input class="custom-restr-input trait-add-input" placeholder="Restriction 2…">
+            <input class="custom-restr-input trait-add-input" placeholder="Restriction 3…">
+            <input class="custom-restr-input trait-add-input" placeholder="Restriction 4…">
+          </div>
+          <div style="display:flex;gap:0.75rem;">
+            <button class="add-btn" style="flex:1;background:var(--surface2);border-color:var(--border);color:var(--text);" onclick="mageDialogStep(1)">Back</button>
+            <button class="add-btn add-accent" style="flex:1;" onclick="confirmCustomSystem()">Confirm</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Meta Ability Dialog -->
+  <div class="modal-overlay" id="meta-ability-dialog" style="display:none;" onclick="if(event.target===this)closeMetaAbilityDialog()">
+    <div style="background:var(--surface);border:1px solid var(--border);width:100%;max-width:480px;max-height:90vh;overflow-y:auto;">
+      <div class="slots-modal-header">
+        <span class="slots-modal-title">Add Meta Ability</span>
+        <button onclick="closeMetaAbilityDialog()" style="background:none;border:none;color:var(--text-muted);font-size:1.1rem;cursor:pointer;">✕</button>
+      </div>
+      <div style="padding:1.25rem;">
+        <!-- Step 1: Simple or Complex -->
+        <div id="meta-step-1">
+          <div style="font-family:var(--font-body);font-size:0.95rem;color:var(--text);margin-bottom:1.25rem;line-height:1.6;">
+            What type of Meta ability is this?
+          </div>
+          <div style="display:flex;gap:0.75rem;">
+            <button class="add-btn add-purple" style="flex:1;" onclick="metaDialogStep(2, 'simple')">Simple<span style="display:block;font-size:0.6rem;opacity:0.7;margin-top:2px;">Stat lock</span></button>
+            <button class="add-btn add-purple" style="flex:1;" onclick="metaDialogStep(2, 'complex')">Complex<span style="display:block;font-size:0.6rem;opacity:0.7;margin-top:2px;">Full ability</span></button>
+          </div>
+        </div>
+        <!-- Step 2: Simple -->
+        <div id="meta-step-2-simple" style="display:none;">
+          <div class="meta-panel-title" style="margin-bottom:0.4rem;">Ability name</div>
+          <input id="simple-ability-name" type="text" class="trait-add-input" placeholder="Name this ability…" style="width:100%;margin-bottom:0.75rem;">
+          <div class="meta-panel-title" style="margin-bottom:0.4rem;">Locked stat</div>
+          <select id="simple-stat-select" class="training-stat-select" style="margin-bottom:0.75rem;">
+            <option value="vigor">Vigor</option>
+            <option value="fortitude">Fortitude</option>
+            <option value="might">Might</option>
+            <option value="expertise">Expertise</option>
+            <option value="wit">Wit</option>
+            <option value="insight">Insight</option>
+            <option value="intuition">Intuition</option>
+            <option value="charm">Charm</option>
+          </select>
+          <div class="meta-panel-title" style="margin-bottom:0.4rem;">Locked tier</div>
+          <select id="simple-tier-select" class="training-stat-select" style="margin-bottom:1rem;">
+            <option value="deficient">Deficient</option>
+            <option value="average">Average</option>
+            <option value="capable">Capable</option>
+            <option value="proficient">Proficient</option>
+            <option value="expert">Expert</option>
+            <option value="master">Master</option>
+            <option value="enhanced">Enhanced</option>
+            <option value="remarkable">Remarkable</option>
+            <option value="extraordinary">Extraordinary</option>
+            <option value="legendary">Legendary</option>
+          </select>
+          <div style="display:flex;gap:0.75rem;">
+            <button class="add-btn" style="flex:1;background:var(--surface2);border-color:var(--border);color:var(--text);" onclick="metaDialogStep(1)">Back</button>
+            <button class="add-btn add-purple" style="flex:1;" onclick="confirmSimpleAbility()">Add Ability</button>
+          </div>
+        </div>
+        <!-- Step 2: Complex -->
+        <div id="meta-step-2-complex" style="display:none;">
+          <div class="meta-panel-title" style="margin-bottom:0.4rem;">Ability name</div>
+          <input id="complex-ability-name" type="text" class="trait-add-input" placeholder="Name this ability…" style="width:100%;margin-bottom:0.75rem;">
+          <div class="meta-panel-title" style="margin-bottom:0.4rem;">Description</div>
+          <textarea id="complex-ability-desc" class="meta-textarea" placeholder="Describe what this ability does…" style="margin-bottom:1rem;min-height:80px;"></textarea>
+          <div style="display:flex;gap:0.75rem;">
+            <button class="add-btn" style="flex:1;background:var(--surface2);border-color:var(--border);color:var(--text);" onclick="metaDialogStep(1)">Back</button>
+            <button class="add-btn add-purple" style="flex:1;" onclick="confirmComplexAbility()">Add Ability</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Remove Restriction Dialog -->
+  <div class="modal-overlay" id="remove-restr-dialog" style="display:none;">
+    <div style="background:var(--surface);border:1px solid var(--border);width:100%;max-width:380px;">
+      <div class="slots-modal-header">
+        <span class="slots-modal-title">Remove Restriction</span>
+      </div>
+      <div style="padding:1.25rem;">
+        <div style="font-family:var(--font-body);font-size:0.92rem;color:var(--text);margin-bottom:1rem;line-height:1.6;">
+          Are you sure? Removing this restriction shatters the chain. To add a new restriction afterwards will cost <strong style="color:var(--accent);">4 training points</strong>.
+        </div>
+        <div style="display:flex;gap:0.75rem;">
+          <button class="add-btn" style="flex:1;background:var(--surface2);border-color:var(--border);color:var(--text);" onclick="closeRemoveRestrDialog()">Cancel</button>
+          <button class="add-btn" style="flex:1;background:none;border-color:var(--red);color:var(--red);" onclick="confirmRemoveRestr()">Remove</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
     <script>
+
       /* ══════════════════════════════════════════════
          NEXUS — Core data tables
       ══════════════════════════════════════════════ */
@@ -4207,5 +4346,277 @@
         if (data.statusEffects) {
           statusEffects = JSON.parse(JSON.stringify(data.statusEffects));
           ['poison','blinded','hypnotized'].forEach(e => renderStatusEffect(e));
-          if (statusEf
+          if (statusEffects.poison.level) {
+            document.getElementById('poison-level-val').textContent = statusEffects.poison.level;
+            document.getElementById('poison-dmg-preview').textContent = `Level ${statusEffects.poison.level} → ${statusEffects.poison.level} wound${statusEffects.poison.level > 1 ? 's' : ''} per tick`;
+          }
+        }
+        if (data.blindedSeverity) setEffectSeverity('blinded', data.blindedSeverity);
+        if (data.hypnotizedSeverity) setEffectSeverity('hypnotized', data.hypnotizedSeverity);
+        document.getElementById('blinded-notes').value = data.blindedNotes || '';
+        document.getElementById('hypnotized-notes').value = data.hypnotizedNotes || '';
 
+        customTraits = data.customTraits ? JSON.parse(JSON.stringify(data.customTraits)) : [];
+        renderCustomTraits();
+        updateAllStatOptions();
+        updateTypeSummary();
+        renderTrainingPools();
+      }
+
+      /* ══════════════════════════════════════════════
+         SLOT SYSTEM — dynamic, unlimited slots
+      ══════════════════════════════════════════════ */
+      function getSlotCount() {
+        try { return parseInt(localStorage.getItem(STORAGE_KEY + 'count') || '3', 10); }
+        catch(e) { return 3; }
+      }
+      function setSlotCount(n) {
+        try { localStorage.setItem(STORAGE_KEY + 'count', String(n)); } catch(e) {}
+      }
+
+      function getSlotData(n) {
+        try { const raw = localStorage.getItem(STORAGE_KEY + n); return raw ? JSON.parse(raw) : null; }
+        catch (e) { return null; }
+      }
+
+      function refreshSlotLabels() {
+        const label = document.getElementById('active-slot-label');
+        if (label) label.textContent = activeSlot + 1;
+      }
+
+      function openSlotsModal() {
+        renderSlotsModal();
+        document.getElementById('slots-modal').style.display = 'flex';
+      }
+      function closeSlotsModal() {
+        document.getElementById('slots-modal').style.display = 'none';
+      }
+
+      function renderSlotsModal() {
+        const body = document.getElementById('slots-modal-body');
+        body.innerHTML = '';
+        const count = getSlotCount();
+        for (let i = 0; i < count; i++) {
+          const data = getSlotData(i);
+          const isActive = i === activeSlot;
+          const row = document.createElement('div');
+          row.className = 'slot-row' + (isActive ? ' slot-row-active' : '');
+          const nameText = data ? (data.charname || 'Unnamed') : '';
+          row.innerHTML = `
+            <div class="slot-row-info">
+              <div class="slot-row-num">Slot ${i + 1}${isActive ? ' · active' : ''}</div>
+              <div class="slot-row-name${!data ? ' slot-empty' : ''}">${data ? nameText : 'Empty'}</div>
+            </div>
+            <button class="slot-row-btn btn-load-slot" onclick="selectSlot(${i});closeSlotsModal()">Load</button>
+            <button class="slot-row-btn btn-save-slot" onclick="saveToSlot(${i})">Save</button>
+            <button class="slot-row-btn btn-clear-slot" onclick="clearSlotN(${i})">Clear</button>
+          `;
+          body.appendChild(row);
+        }
+        const addBtn = document.createElement('button');
+        addBtn.className = 'slots-modal-add';
+        addBtn.textContent = '+ Add slot';
+        addBtn.onclick = () => { setSlotCount(getSlotCount() + 1); renderSlotsModal(); };
+        body.appendChild(addBtn);
+      }
+
+      function selectSlot(n) {
+        activeSlot = n;
+        refreshSlotLabels(); // slot label in save bar
+        const data = getSlotData(n);
+        if (data) { deserializeSheet(data); toast('Slot ' + (n + 1) + ' loaded — ' + (data.charname || 'Unnamed'), 'var(--blue)'); }
+        else { deserializeSheet({}); toast('Slot ' + (n + 1) + ' is empty', 'var(--text-muted)'); }
+      }
+
+      function saveToSlot(n) {
+        try {
+          activeSlot = n;
+          const data = serializeSheet();
+          localStorage.setItem(STORAGE_KEY + n, JSON.stringify(data));
+          refreshSlotLabels();
+          renderSlotsModal();
+          toast('Saved to slot ' + (n + 1) + ' — ' + (data.charname || 'Unnamed'));
+        } catch (e) { toast('Save failed — storage may be full', 'var(--red)'); }
+      }
+
+      function saveSheet() {
+        saveToSlot(activeSlot);
+      }
+
+      function clearSlotN(n) {
+        const data = getSlotData(n);
+        const label = data && data.charname ? '"' + data.charname + '"' : 'Slot ' + (n + 1);
+        confirmDialog('Clear ' + label + '?', 'This will erase the saved data', () => {
+          localStorage.removeItem(STORAGE_KEY + n);
+          if (n === activeSlot) {
+            customTraits = []; occTraitStates = {}; mageRestrictions = [];
+            trainingPool = 0; renderTrainingPool();
+            deserializeSheet({}); document.getElementById('f-charname').value = '';
+          }
+          refreshSlotLabels(); renderSlotsModal();
+          toast('Slot ' + (n + 1) + ' cleared', 'var(--red)');
+        });
+      }
+
+      function confirmDialog(msg, sub, onConfirm) {
+        const overlay = document.getElementById('confirm-overlay');
+        document.getElementById('confirm-msg').textContent = msg;
+        document.getElementById('confirm-sub').textContent = sub || 'This cannot be undone';
+        overlay.style.display = 'flex';
+        const yes = document.getElementById('confirm-yes');
+        const no = document.getElementById('confirm-no');
+        const newYes = yes.cloneNode(true); const newNo = no.cloneNode(true);
+        yes.parentNode.replaceChild(newYes, yes); no.parentNode.replaceChild(newNo, no);
+        function close() { overlay.style.display = 'none'; }
+        newYes.addEventListener('click', () => { close(); onConfirm(); });
+        newNo.addEventListener('click', () => { close(); });
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); }, { once: true });
+      }
+
+      function clearSlot() { clearSlotN(activeSlot); }
+
+      /* ── EXPORT: use data URI so it works outside Claude ── */
+      function exportJSON() {
+        try {
+          const data = serializeSheet();
+          const jsonStr = JSON.stringify(data, null, 2);
+
+          let name = (data.charname || 'nexus-character')
+            .replace(/\s+/g, '-')
+            .toLowerCase()
+            .replace(/[^a-z0-9\-]/g, '');
+
+          if (!name) name = 'nexus-character';
+
+          const filename = name + '.json';
+
+          const blob = new Blob([jsonStr], { type: 'application/json' });
+
+          const a = document.createElement('a');
+          const url = URL.createObjectURL(blob);
+
+          a.href = url;
+          a.download = filename;
+          a.style.display = 'none';
+
+          document.body.appendChild(a);
+
+          //  THIS is the key fix
+          a.dispatchEvent(new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+            view: window
+          }));
+
+          setTimeout(() => {
+            URL.revokeObjectURL(url);
+            a.remove();
+          }, 200);
+
+          toast('Exported: ' + filename, 'var(--purple)');
+        } catch (e) {
+          console.error(e);
+
+          //  Fallback: open JSON manually
+          const win = window.open();
+          win.document.write('<pre>' + JSON.stringify(serializeSheet(), null, 2) + '</pre>');
+
+          toast('Download blocked — opened JSON manually', 'var(--red)');
+        }
+      }
+function importJSON(fileInputOrFile) {
+  const file =
+    fileInputOrFile instanceof File
+      ? fileInputOrFile
+      : fileInputOrFile?.target?.files?.[0];
+
+  if (!file) {
+    toast('No file selected', 'var(--red)');
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = function (e) {
+    let parsed;
+
+    try {
+      parsed = JSON.parse(e.target.result);
+    } catch (err) {
+      console.error(err);
+      toast('Import failed — invalid JSON', 'var(--red)');
+      return;
+    }
+
+    try {
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+        throw new Error('Imported file is not a valid sheet object');
+      }
+
+      // This sheet already has a full restore pipeline.
+      deserializeSheet(parsed);
+      refreshSlotLabels();
+      toast('Imported: ' + file.name, 'var(--blue)');
+    } catch (err) {
+      console.error(err);
+      toast('Import failed: ' + err.message, 'var(--red)');
+    }
+  };
+
+  reader.readAsText(file);
+}
+
+
+      /* ══════════════════════════════════════════════
+         INIT
+      ══════════════════════════════════════════════ */
+
+      /* ── Wire item library import ── */
+      (function() {
+        const importLibInput = document.getElementById('import-library-file');
+        if (importLibInput) {
+          importLibInput.addEventListener('change', function() {
+            if (this.files && this.files.length) importFromLibrary(this.files);
+            this.value = '';
+          });
+        }
+      })();
+
+      /* ── Auto-load last saved slot on open ── */
+      (function() {
+        try {
+          /* remember which slot was active across sessions */
+          const lastSlot = parseInt(localStorage.getItem('nexus-last-active-slot') || '0', 10);
+          const data = getSlotData(lastSlot);
+          if (data && data.charname !== undefined) {
+            activeSlot = lastSlot;
+            deserializeSheet(data);
+          }
+        } catch(e) { /* no saved data, start fresh */ }
+      })();
+
+      /* ── Persist active slot index whenever save happens ── */
+      const _origSaveToSlot = saveToSlot;
+      saveToSlot = function(n) {
+        _origSaveToSlot(n);
+        try { localStorage.setItem('nexus-last-active-slot', String(n)); } catch(e) {}
+      };
+
+
+      document.addEventListener("DOMContentLoaded", function() {
+      buildWeightPips(0);
+      rebuildTracks();
+      ['might','expertise','wit','insight','intuition','charm'].forEach(updateStatDie);
+      renderBoostSlots();
+      updateAllStatOptions();
+      updateTypeSummary();
+      refreshSlotLabels();
+      renderTrainingPool();
+      ['poison','blinded','hypnotized'].forEach(e => renderStatusEffect(e));
+      renderCustomTraits();
+      updateBacklashPanel();
+      });
+    </script>
+
+  </body>
+</html>
