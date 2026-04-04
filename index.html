@@ -25,8 +25,12 @@
         --font-mono: 'Share Tech Mono', monospace;
         --font-body: 'Crimson Pro', serif;
       }
-      body { background: var(--bg); color: var(--text); font-family: var(--font-display); min-height: 100vh; padding: 2rem 1.5rem 4rem; }
-      .sheet { max-width: 960px; margin: 0 auto; }
+      body { background: var(--bg); color: var(--text); font-family: var(--font-display); min-height: 100vh; padding: 2rem 1.5rem 4rem; -webkit-text-size-adjust: 100%; overflow-x: hidden; }
+      .sheet { max-width: 960px; margin: 0 auto; overflow-x: hidden; }
+      textarea { max-width: 100%; }
+      /* Better tap targets on touch devices */
+      button, .type-btn, .sbar-btn, .add-btn, .train-btn,
+      .track-box, .rest-apply-btn, .remove-btn { touch-action: manipulation; }
       .header { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); margin-bottom: 2rem; gap: 1rem; }
       .header-left { display: flex; flex-direction: column; gap: 6px; }
       .header-center { text-align: center; }
@@ -98,7 +102,7 @@
       .backlash-roll-btn:disabled { border-color: var(--border); color: var(--text-muted); cursor: not-allowed; }
       .backlash-result { font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-dim); margin-top: 0.4rem; min-height: 1.2em; text-align: center; }
 
-      .track-container { background: var(--surface); border: 1px solid var(--border); padding: 1rem 1.25rem; }
+      .track-container { background: var(--surface); border: 1px solid var(--border); padding: 1rem 1.25rem; overflow-x: hidden; }
       .track-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem; }
       .track-name { font-size: 0.9rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; }
       .track-count { font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-dim); }
@@ -523,23 +527,145 @@
       .trait-detail-input:focus { border-color: var(--teal); }
       .trait-detail-input::placeholder { color: var(--text-muted); font-style: italic; }
 
-      @media (max-width: 700px) {
-        .grid-4 { grid-template-columns: repeat(2, 1fr); }
-        .type-selector, .recovery-grid, .win-grid { grid-template-columns: repeat(2, 1fr); }
-        .occ-row { grid-template-columns: 1fr; }
-        .header { grid-template-columns: 1fr; }
-        .header-right, .header-center { text-align: left; align-items: flex-start; }
+      /* ── TABLET (≤ 900px) ── */
+      @media (max-width: 900px) {
+        body { padding: 1.5rem 1rem 3rem; }
+        .sheet { max-width: 100%; }
+        .grid-2 { grid-template-columns: 1fr; }
+        .header { grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .header-center { grid-column: 1 / -1; order: -1; flex-direction: row !important; align-items: center !important; justify-content: space-between; gap: 1rem; }
+        .header-center .nexus-logo { font-size: 2.8rem; }
+        .portrait-zone { width: 120px; height: 144px; }
+        .nexus-sub { font-size: 0.55rem; }
+        .field-input { width: 100%; }
+        .backlash-scale { flex-wrap: wrap; }
+      }
+
+      /* ── MOBILE (≤ 600px) ── */
+      @media (max-width: 600px) {
+        /* Prevent iOS zoom on input focus (font-size must be >= 16px) */
+        input, select, textarea { font-size: max(16px, 0.92rem) !important; }
+        .stat-tier-select { font-size: max(16px, 0.9rem) !important; }
+        .field-input { font-size: max(16px, 1rem) !important; }
+        body { padding: 0 0 4rem; }
+        .sheet { padding: 0; }
+
+        /* Save bar — stack vertically, full width buttons */
+        .save-bar { padding: 0.5rem 0.75rem; gap: 0.4rem; position: sticky; top: 0; }
+        .save-bar-label { width: 100%; font-size: 0.55rem; }
+        .save-bar-actions { margin-left: 0; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem; }
+        .sbar-btn { font-size: 0.58rem; padding: 0.5rem 0.25rem; text-align: center; }
+
+        /* All sections get side padding */
+        .section, .divider, .track-container, .training-panel,
+        .traits-panel, .status-effects-panel, .notes-area,
+        .occ-desc-block, .occ-details { margin-left: 0.75rem; margin-right: 0.75rem; }
+        .section { margin-bottom: 1.5rem; }
+        .section-label { margin-left: 0.75rem; margin-right: 0.75rem; }
+        .divider { margin: 1.5rem 0.75rem; }
+
+        /* Header — single column, centered */
+        .header { grid-template-columns: 1fr; gap: 0.75rem; padding: 0.75rem; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; }
+        .header-center { grid-column: 1; order: -1; flex-direction: column !important; align-items: center !important; gap: 0.5rem; }
         .nexus-logo { font-size: 2.5rem; }
-        .boost-row { grid-template-columns: 1fr; }
-        .save-bar-actions { margin-left: 0; }
-        .action-declare-row, .ability-declare-row { grid-template-columns: 1fr; }
-        .status-bar { flex-wrap: wrap; }
+        .nexus-sub { font-size: 0.52rem; text-align: center; }
+        .portrait-zone { width: 140px; height: 168px; }
+        .header-left, .header-right { width: 100%; }
+        .header-right { text-align: left; align-items: flex-start; }
+        .header-right .field-input { text-align: left !important; }
+        .field-input { width: 100%; min-width: 0; }
+
+        /* Stats — 2 columns on mobile */
+        .grid-4 { grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
+        .stat-card { padding: 0.6rem; }
+        .stat-name { font-size: 0.6rem; }
+        .stat-pillar { font-size: 0.5rem; }
+
+        /* Occupation */
+        .occ-row { grid-template-columns: 1fr; gap: 0.75rem; }
+
+        /* Type selector — 2×2 */
+        .type-selector { grid-template-columns: repeat(2, 1fr); gap: 0.4rem; }
+        .type-btn { font-size: 0.8rem; padding: 0.65rem 0.25rem; }
+
+        /* Tracks — full width */
+        .track-container { padding: 0.85rem 1rem; }
+        .track-box { width: 22px; height: 22px; }
+        .recovery-grid { grid-template-columns: repeat(2, 1fr); gap: 0.4rem; }
+        .rest-card { padding: 0.5rem 0.4rem; }
+        .rest-card-name { font-size: 0.65rem; }
+
+        /* Training */
         .training-grid { grid-template-columns: 1fr; }
-        .status-effects-grid { grid-template-columns: 1fr; }
+        .training-panel { padding: 0.85rem 1rem; }
+
+        /* Boost slots */
+        .boost-row { grid-template-columns: 1fr; }
+
+        /* Actions & Abilities */
+        .action-declare-row, .ability-declare-row { grid-template-columns: 1fr; }
         .action-meta-row { grid-template-columns: 1fr; }
-        .trait-add-row { grid-template-columns: 1fr; }
+        .action-range-row { grid-template-columns: 1fr 1fr; }
+        .action-type-row { grid-template-columns: 1fr 1fr 1fr; }
+
+        /* Status effects */
+        .status-bar { flex-wrap: wrap; gap: 0.4rem; }
+        .status-effects-grid { grid-template-columns: 1fr; gap: 0.75rem; }
+
+        /* Wins */
+        .win-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+
+        /* Traits */
+        .trait-add-row { grid-template-columns: 1fr; gap: 0.5rem; }
+        .trait-add-btn { width: 100%; }
         .trait-detail-row { grid-template-columns: 1fr; }
-        .restriction-add-row { grid-template-columns: 1fr; }
+
+        /* Restrictions */
+        .restriction-add-row { grid-template-columns: 1fr; gap: 0.5rem; }
+        .restriction-add-btn { width: 100%; }
+
+        /* Backlash */
+        .backlash-scale { flex-wrap: wrap; gap: 2px; }
+        .backlash-step { flex: 0 0 calc(25% - 2px); font-size: 0.48rem; }
+
+        /* Mind's Eye */
+        .minds-eye-row { grid-template-columns: repeat(3, 1fr); gap: 0.35rem; }
+
+        /* Passive carousel */
+        .passive-carousel { font-size: 0.9rem; }
+
+        /* Modals — full screen on mobile */
+        .modal-overlay { padding: 0; align-items: flex-end; }
+        .modal-overlay > div { max-height: 92vh; border-radius: 0; width: 100% !important; max-width: 100% !important; }
+        .slots-modal { width: 100% !important; max-width: 100% !important; max-height: 92vh; }
+
+        /* Toast */
+        .save-toast { bottom: 1rem; right: 0.75rem; left: 0.75rem; text-align: center; font-size: 0.6rem; }
+
+        /* Additive items */
+        .additive-row { grid-template-columns: 1fr; gap: 0.5rem; }
+        .cost-group { min-width: 0; }
+
+        /* Inventory */
+        .inv-top { grid-template-columns: 1fr auto auto; gap: 0.4rem; }
+        .inv-type-row { grid-template-columns: 1fr; }
+
+        /* Notes */
+        .notes-area { margin-left: 0.75rem; margin-right: 0.75rem; }
+
+        /* Boost count row */
+        .boost-count-row { flex-wrap: wrap; }
+      }
+
+      /* ── VERY SMALL (≤ 380px) ── */
+      @media (max-width: 380px) {
+        .grid-4 { grid-template-columns: repeat(2, 1fr); gap: 0.4rem; }
+        .nexus-logo { font-size: 2rem; letter-spacing: 0.2em; }
+        .type-selector { grid-template-columns: repeat(2, 1fr); }
+        .recovery-grid { grid-template-columns: repeat(2, 1fr); }
+        .win-grid { grid-template-columns: repeat(2, 1fr); }
+        .minds-eye-row { grid-template-columns: repeat(2, 1fr); }
+        .sbar-btn { font-size: 0.52rem; padding: 0.45rem 0.15rem; letter-spacing: 0.08em; }
       }
     </style>
   </head>
