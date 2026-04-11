@@ -7857,18 +7857,19 @@ document.addEventListener('keydown', function(e) {
             syncArmorWear();
           });
 
-          // Expose a forceUnwear hook so destroyArmor can reset the closure state
-          div._forceUnwear = () => {
-            if (armorWorn) {
-              armorWorn = false;
-              wearBtn.textContent = 'Wear';
-              wearStatus.textContent = '— not worn';
-              wearStatus.style.color = 'var(--text-muted)';
-              badge.style.outline = '';
-            }
-          };
-
-          // Apply on load if previously worn
+         // Expose a forceUnwear hook so destroyArmor can reset the closure state
+div._forceUnwear = () => {
+  if (armorWorn) {
+    armorWorn = false;
+    div._armorWorn = false;
+    delete wornArmor[id];       // ← removes armor from global tracking object
+    wearBtn.textContent = 'Wear';
+    wearStatus.textContent = '— not worn';
+    wearStatus.style.color = 'var(--text-muted)';
+    badge.style.outline = '';
+    rebuildTracks();             // ← collapses the extra fortitude buffer boxes
+  }
+};          // Apply on load if previously worn
           if (armorWorn) {
             const _tryWear = () => { if (_isDeserializing) setTimeout(_tryWear, 50); else syncArmorWear(); };
             setTimeout(_tryWear, 50);
@@ -9683,3 +9684,4 @@ function importJSON(fileInputOrFile) {
 </script>
 </body>
 </html>
+
