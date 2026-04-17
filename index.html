@@ -1754,6 +1754,117 @@ body.sheet-mode .sheet-nav-btn { display: block; }
       .sbar-btn.btn-load:hover { border-color: var(--blue); color: var(--blue); }
       .sbar-btn.btn-clear:hover { border-color: var(--red); color: var(--red); }
       .sbar-btn.btn-export:hover { border-color: var(--orange); color: var(--orange); }
+
+      /* ── PHASE PASS CENTER + DROPDOWN ── */
+      .phase-center {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        display: none;
+        align-items: center;
+        gap: 0;
+        flex-shrink: 0;
+      }
+      .phase-center.visible { display: flex; }
+
+      .phase-pass-main {
+        background: none;
+        border: 1px solid var(--border-bright);
+        border-right: none;
+        color: var(--text-dim);
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        letter-spacing: 0.2em;
+        padding: 0.38rem 1.1rem;
+        cursor: pointer;
+        text-transform: uppercase;
+        transition: all 0.2s;
+        white-space: nowrap;
+      }
+      .phase-pass-main:hover { border-color: var(--ice); color: var(--ice); }
+      .phase-pass-main.locked { border-color: var(--red); color: var(--red); }
+
+      .phase-drop-toggle {
+        background: none;
+        border: 1px solid var(--border-bright);
+        color: var(--text-dim);
+        font-family: var(--font-mono);
+        font-size: 0.6rem;
+        padding: 0.38rem 0.55rem;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .phase-drop-toggle:hover { border-color: var(--ice); color: var(--ice); background: var(--ice-dim); }
+      .phase-drop-toggle.open { border-color: var(--ice); color: var(--ice); background: var(--ice-dim); }
+
+      .phase-dropdown {
+        display: none;
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        right: 0;
+        background: var(--surface);
+        border: 1px solid var(--border-bright);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+        z-index: 500;
+        flex-direction: column;
+        gap: 0;
+        min-width: 220px;
+      }
+      .phase-dropdown.open { display: flex; }
+
+      .phase-drop-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem 0.85rem;
+        border-bottom: 1px solid var(--border);
+        gap: 0.5rem;
+      }
+      .phase-drop-row:last-child { border-bottom: none; }
+
+      .phase-drop-label {
+        font-family: var(--font-mono);
+        font-size: 0.52rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        flex-shrink: 0;
+      }
+      .phase-drop-value {
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        font-weight: 700;
+        color: var(--ice);
+        letter-spacing: 0.08em;
+      }
+      .phase-drop-status {
+        font-family: var(--font-mono);
+        font-size: 0.5rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--gold);
+        padding: 0.35rem 0.85rem;
+        border-bottom: 1px solid var(--border);
+        line-height: 1.5;
+        display: none;
+      }
+      .phase-drop-status.visible { display: block; }
+      .phase-scenario-btn {
+        margin: 0.5rem 0.85rem 0.6rem;
+        background: none;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        font-family: var(--font-mono);
+        font-size: 0.55rem;
+        letter-spacing: 0.15em;
+        padding: 0.4rem 0.6rem;
+        cursor: pointer;
+        text-transform: uppercase;
+        transition: all 0.2s;
+        width: calc(100% - 1.7rem);
+      }
+      .phase-scenario-btn:hover { border-color: var(--red); color: var(--red); }
       .save-toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--surface); border: 1px solid var(--accent); color: var(--accent); font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; padding: 0.6rem 1.2rem; z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
       .save-toast.show { opacity: 1; }
       .confirm-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999990; display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
@@ -2026,6 +2137,7 @@ body.sheet-mode .sheet-nav-btn { display: block; }
         .boost-row { grid-template-columns: 1fr; }
         .save-bar { flex-wrap: wrap; gap: 0.4rem; }
         .save-bar-actions { margin-left: 0; flex-wrap: wrap; }
+        .phase-center { position: static; transform: none; order: -1; width: 100%; justify-content: center; }
         .action-declare-row, .ability-declare-row { grid-template-columns: 1fr; }
         .status-bar { flex-wrap: wrap; }
         .training-grid { grid-template-columns: 1fr; }
@@ -2619,8 +2731,8 @@ body.sheet-mode .sheet-nav-btn { display: block; }
   <div class="nav-section">
     <span class="nav-section-label">Combat</span>
     <button class="nav-link nav-red" data-target="combat-overview">Combat Overview</button>
-    <button class="nav-link" data-target="your-actions">Your Actions</button>
-    <button class="nav-link" data-target="action-economy">Action Economy</button>
+    <button class="nav-link nav-red" data-target="your-actions">Memory</button>
+    <button class="nav-link" data-target="action-economy">Declaration Economy</button>
     <button class="nav-link" data-target="status-effects">Status Effects</button>
   </div>
 
@@ -2660,7 +2772,7 @@ body.sheet-mode .sheet-nav-btn { display: block; }
     </div>
     <div class="manifesto-item">
       <span class="manifesto-num">II</span>
-      <div class="manifesto-text">The actions on your sheet are your tool set. The situation ahead determines which ones you need.</div>
+      <div class="manifesto-text">What lives in your Memory is your toolkit. The situation ahead determines which of those declarations you need.</div>
     </div>
     <div class="manifesto-item">
       <span class="manifesto-num">III</span>
@@ -2677,17 +2789,17 @@ body.sheet-mode .sheet-nav-btn { display: block; }
 
   <p>The STILLPOINT rulebook tells you what exists. This guide tells you how to think about it. There's a difference between knowing the rules and knowing how to play well — and the gap between them is almost entirely about <strong>anticipation</strong>.</p>
 
-  <p>Stillpoint is a game where preparation beats improvisation. Where understanding your resource limits before a scene starts means you'll still be functional at the end of it. Where a character who walks into a building knowing exactly what three actions they might need performs dramatically better than one who figures it out mid-crisis.</p>
+  <p>Stillpoint is a game where preparation beats improvisation. Where understanding your resource limits before a scene starts means you'll still be functional at the end of it. Where a character who walks into a building knowing exactly what lies in their Memory performs dramatically better than one who figures it out mid-crisis.</p>
 
   <p>This is not a criticism of roleplaying spontaneously. It's an acknowledgment that the system rewards players who <em>think like their character would think</em> — and most of the characters in Stillpoint have reasons to think ahead. The Mage whose restrictions are carefully considered. The Psion who knows exactly how much Psi they have left. The Ordinary who loaded the right items before leaving.</p>
 
   <div class="card card-gold">
     <span class="card-label">Core Principle</span>
     <div class="card-title">Stillpoint Is a Resource Management Game Wearing a Drama Game's Coat</div>
-    <p>The fiction is the point. The character is the point. But underneath the fiction is a web of finite resources — Wounds, Fatigue, Psi, Fortitude Buffer, Restrictions, Action Slots, Carry Capacity, Training Points — that determine what you can do when it matters. Ignoring that layer doesn't make you a better roleplayer. It makes you a character who runs out of options at the worst possible moment.</p>
+    <p>The fiction is the point. The character is the point. But underneath the fiction is a web of finite resources — Wounds, Fatigue, Psi, Fortitude Buffer, Restrictions, Memory Slots, Carry Capacity, Training Points — that determine what you can do when it matters. Ignoring that layer doesn't make you a better roleplayer. It makes you a character who runs out of options at the worst possible moment.</p>
   </div>
 
-  <p>This guide covers everything players interact with: the character sheet section by section, every resource and how it depletes and recovers, combat actions and their strategic weight, preparation between sessions, and the principles of roleplay that make Stillpoint feel like Stillpoint.</p>
+  <p>This guide covers everything players interact with: the character sheet section by section, every resource and how it depletes and recovers, the declarations you can make in structured moments and their strategic weight, preparation between sessions, and the principles of roleplay that make Stillpoint feel like Stillpoint.</p>
 </section>
 
 <!-- ══ STRATEGIC FOUNDATION ══ -->
@@ -2696,7 +2808,7 @@ body.sheet-mode .sheet-nav-btn { display: block; }
   <span class="eyebrow eyebrow-gold">The Core Philosophy</span>
   <h1 class="page-title">The Game Beneath the Game</h1>
 
-  <p>Every session of Stillpoint is, at its core, a question of whether you have what you need when you need it. That question has two parts: <strong>what you have</strong> (your resources, your actions, your inventory) and <strong>what you need</strong> (the threats, demands, and challenges the session will create).</p>
+  <p>Every session of Stillpoint is, at its core, a question of whether you have what you need when you need it. That question has two parts: <strong>what you have</strong> (your resources, what lives in your Memory, your inventory) and <strong>what you need</strong> (the threats, demands, and challenges the session will create).</p>
 
   <p>The gap between those two things is where strategy lives. A player who understands the gap and manages it intelligently will consistently outperform one who doesn't — not because they're better at dice, but because they have options when it counts.</p>
 
@@ -2709,21 +2821,21 @@ body.sheet-mode .sheet-nav-btn { display: block; }
       <div class="flow-num">1</div>
       <div class="flow-content">
         <h4>The Preparation Loop</h4>
-        <p>Between sessions or between significant encounters: assess your resources, predict what's coming, configure your actions and inventory to match. This is where you decide what version of your character shows up next session.</p>
+        <p>Between sessions or between significant encounters: assess your resources, predict what's coming, shape your Memory and inventory to match. This is where you decide what version of your character shows up next session.</p>
       </div>
     </div>
     <div class="flow-step">
       <div class="flow-num">2</div>
       <div class="flow-content">
         <h4>The Expenditure Loop</h4>
-        <p>During play: spend resources deliberately. Every Wound absorbed, every Fatigue box filled, every point of Psi spent, every magic system used is a withdrawal from a finite account. Spend with intention. Spend knowing what you're saving it for.</p>
+        <p>During play: spend resources deliberately. Every Wound absorbed, every Fatigue box filled, every point of Psi spent, every magic system used is a withdrawal from a finite account. This includes melee attacks — every close-range swing costs Fatigue scaled by your Expertise. Spend with intention. Spend knowing what you're saving it for.</p>
       </div>
     </div>
     <div class="flow-step">
       <div class="flow-num">3</div>
       <div class="flow-content">
         <h4>The Recovery Loop</h4>
-        <p>Rest is a resource too. You cannot always rest when you want to. When you can, what kind of rest you take determines what comes back. A Breather doesn't save you if your Wound track is full. A Full Rest is a security risk if you can't afford the time.</p>
+        <p>Rest is a resource too. You cannot always rest when you want to. When you can, what kind of rest you take determines what comes back. A Quick Breather doesn't save you if your Wound track is full. A Slumber is a security risk if you can't afford the time.</p>
       </div>
     </div>
   </div>
@@ -2746,8 +2858,8 @@ body.sheet-mode .sheet-nav-btn { display: block; }
     </div>
     <div class="card card-gold" style="margin:0;">
       <span class="card-label">Tool Layer II</span>
-      <div class="card-title">Your Actions</div>
-      <p>The named, configured things your character can do in a structured moment. You build them between sessions. The number you can have is capped by Insight. Walk in with the right three actions for what's ahead — not the ones that felt good last time.</p>
+      <div class="card-title">Your Skills</div>
+      <p>The named, configured declarations your character can make in a structured moment. You build them in Memory between sessions. The number of Skills you can hold is capped by Insight. Walk in with the right ones for what's ahead — not the ones that felt good last time.</p>
     </div>
     <div class="card card-mage" style="margin:0;">
       <span class="card-label">Tool Layer III</span>
@@ -2794,8 +2906,8 @@ body.sheet-mode .sheet-nav-btn { display: block; }
         <div class="resource-source">Source: Vigor</div>
       </div>
       <div class="resource-detail-cell">
-        <p>Physical and mental exhaustion. Fills from movement, extended combat, and sustained effort. Clears most readily of all tracks — a Breather handles minor fatigue, a Short Rest handles significant amounts.</p>
-        <div class="resource-strategic">⚑ Strategic priority: the most flexible resource. Movement costs Fatigue, which means aggressive repositioning has a price. Factor this into your action decisions.</div>
+        <p>Physical and mental exhaustion. Fills from melee attacks, movement, sustained effort, and extended combat. Every close-range swing costs Fatigue scaled by Expertise; every movement costs Fatigue scaled by distance. Clears most readily of all tracks — a Quick Breather removes 1 Fatigue, a Short Rest removes 3, a Long Rest removes 6, Slumber clears all.</p>
+        <div class="resource-strategic">⚑ Strategic priority: the most flexible resource — and the most constant drain. Every melee attack costs Fatigue (reduced by Expertise). Every movement costs Fatigue. In a sustained fight you are always spending from this track. Managing it is the difference between being functional at round five and being out of options at round two.</div>
       </div>
     </div>
     <div class="resource-row">
@@ -2804,7 +2916,7 @@ body.sheet-mode .sheet-nav-btn { display: block; }
         <div class="resource-source">Source: Mind's Eye Stage</div>
       </div>
       <div class="resource-detail-cell">
-        <p>Psions only. Pool size: 4 / 8 / 12 / 16 by stage. Spent on active psionic abilities. At 0, no active abilities can be used — passive perception remains. Partial recovery on Short Rest; full recovery on Full Rest.</p>
+        <p>Psions only. Pool size: 4 / 8 / 12 / 16 by stage. Spent on active psionic abilities. At 0, no active abilities can be used — passive perception remains. Partial recovery on Short Rest (1 pt) and Long Rest (3 pts); full recovery on Slumber.</p>
         <div class="resource-strategic">⚑ Strategic priority: finite and slow to return. Spend it on objectives, not on convenience. Know exactly how many uses you have before committing to action.</div>
       </div>
     </div>
@@ -2834,11 +2946,11 @@ body.sheet-mode .sheet-nav-btn { display: block; }
     <p>Before every significant event, review your inventory against your best read of the situation. An antidote you aren't carrying doesn't exist when you need it. Medical supplies you left behind don't treat the Critical Wound you just took. The carry limit enforces the principle: <em>you cannot prepare for everything, so you must predict what matters.</em></p>
   </div>
 
-  <h2 class="section-head">Action Slots (Tactical Resource)</h2>
+  <h2 class="section-head">Memory Depth (Tactical Resource)</h2>
 
-  <p>Your <strong>Insight</strong> stat determines how many configured actions you can have on your sheet at once. This is not flavor — it is the size of your tactical vocabulary in any given scene. Actions are prepared between sessions. You cannot add new ones mid-encounter.</p>
+  <p>Your <strong>Insight</strong> stat determines how many Skills you can hold in Memory at once. This is not flavor — it is the breadth of your tactical vocabulary in any given scene. Skills are shaped between sessions. You cannot add new ones mid-encounter. The more Insight you carry, the more your Memory can hold, and the more options you have when the moment demands a decision.</p>
 
-  <p>Walk into every session knowing your action list and asking whether it matches what you expect. If your three actions are all melee attacks and you're headed somewhere that will require stealth, movement, or social pressure — that's a mismatch you can fix before the session starts. After, it's a constraint you'll have to work around.</p>
+  <p>Walk into every session knowing your Skills in Memory and asking whether they match what you expect. If your Skills are all melee attacks and you're headed somewhere that will require stealth, movement, or social pressure — that's a mismatch you can fix before the session starts. After, it's a constraint you'll have to work around.</p>
 </section>
 
 <!-- ══ STATS AND TIERS ══ -->
@@ -2899,7 +3011,7 @@ body.sheet-mode .sheet-nav-btn { display: block; }
       <div class="stat-pillar">Survival</div>
       <div class="stat-info">
         <div class="stat-name">Vigor</div>
-        <p class="stat-desc">Speed, endurance, agility. Determines Wound pool size (capped at 6) and Fatigue track size. Also sets the fatigue cost of Fundamentals — higher Vigor means those baseline moves cost less.</p>
+        <p class="stat-desc">Speed, endurance, agility. Determines Wound pool size (capped at 6) and Fatigue track size. Higher Vigor means more wounds you can absorb and more fatigue you can accumulate before being limited.</p>
         <div class="stat-strategic">→ Larger tracks + cheaper Fundamentals = more margin in extended encounters</div>
       </div>
       <div class="stat-die-badge" style="color:var(--red);">Survival</div>
@@ -2908,7 +3020,7 @@ body.sheet-mode .sheet-nav-btn { display: block; }
       <div class="stat-pillar">Survival</div>
       <div class="stat-info">
         <div class="stat-name">Fortitude</div>
-        <p class="stat-desc">Resilience, toughness, constitution. Determines Fortitude Buffer size — how many hits you absorb before taking real Wounds. Also the first target for Poison and Bleeding ticks. Sets the fatigue cost of Fundamentals.</p>
+        <p class="stat-desc">Resilience, toughness, constitution. Determines Fortitude Buffer size — how many hits you absorb before taking real Wounds. Also the first target for Poison and Bleeding ticks. Sets the fatigue cost of Fundamentals — higher Fortitude means those baseline moves cost less effort.</p>
         <div class="stat-strategic">→ Protects against both combat damage and status effects. The most broadly defensive stat.</div>
       </div>
       <div class="stat-die-badge" style="color:var(--red);">Survival</div>
@@ -2926,8 +3038,8 @@ body.sheet-mode .sheet-nav-btn { display: block; }
       <div class="stat-pillar">Combat</div>
       <div class="stat-info">
         <div class="stat-name">Expertise</div>
-        <p class="stat-desc">Training, precision, ranged accuracy. Used for ranged attack accuracy rolls and skilled technical tasks. Also sets the fatigue cost of Techniques — more expert fighters spend less effort on each swing.</p>
-        <div class="stat-strategic">→ Ranged characters invest here. Also reduces technique fatigue cost for melee fighters.</div>
+        <p class="stat-desc">Training, precision, ranged accuracy. Used for ranged attack accuracy rolls and skilled technical tasks. Sets the fatigue cost of all close-range attacks — every melee swing costs Fatigue, and higher Expertise reduces that cost per swing (Deficient: 5, Average: 4, Proficient: 3, Master: 2, Legendary: 1). Heavy attacks add +2 on top of the base cost.</p>
+        <div class="stat-strategic">→ Every melee fighter wants this. Ranged characters need it for accuracy rolls. Expertise is the stat that makes sustained combat viable.</div>
       </div>
       <div class="stat-die-badge" style="color:var(--gold);">Combat</div>
     </div>
@@ -2944,8 +3056,8 @@ body.sheet-mode .sheet-nav-btn { display: block; }
       <div class="stat-pillar">Tactics</div>
       <div class="stat-info">
         <div class="stat-name">Insight</div>
-        <p class="stat-desc">Pattern recognition, analysis. Directly determines your <em>maximum action slots</em> — how many actions you can have prepared at once.</p>
-        <div class="stat-strategic">→ Action vocabulary size. Every tier increase is a new tool you can carry into scenes</div>
+        <p class="stat-desc">Pattern recognition, analysis. Directly determines your <em>maximum Memory slots</em> — how many Skills you can have prepared at once.</p>
+        <div class="stat-strategic">→ Memory depth. Every tier is another declaration you can carry into the world</div>
       </div>
       <div class="stat-die-badge" style="color:var(--ice);">Tactics</div>
     </div>
@@ -2971,7 +3083,7 @@ body.sheet-mode .sheet-nav-btn { display: block; }
 
   <div class="insight-box">
     <span class="insight-label">Key Relationship</span>
-    <p><strong>Insight controls your action slots.</strong> This is the single most strategically significant stat connection in the game. A character with higher Insight can carry more prepared actions — which means more options in any given scene. Investing in Insight isn't just about pattern recognition rolls. It's about expanding your tactical vocabulary.</p>
+    <p><strong>Insight controls your Memory slots.</strong> This is the single most strategically significant stat connection in the game. A character with higher Insight can carry more prepared Skills — which means more options in any given scene. Investing in Insight isn't just about pattern recognition rolls. It's about expanding your tactical vocabulary.</p>
   </div>
 </section>
 
@@ -3014,9 +3126,9 @@ body.sheet-mode .sheet-nav-btn { display: block; }
 
   <h2 class="section-head">Fatigue — The Second Track</h2>
 
-  <p>Fatigue is separate from wounds. It fills from movement, sustained effort, and combat actions. A fully fatigued character is not necessarily injured — but they are limited. Fatigue builds fast and clears faster than wounds, but it still needs attention.</p>
+  <p>Fatigue is separate from wounds. It fills from melee attacks, movement, and sustained effort — every close-range swing and every step costs from this track. A fully fatigued character is not necessarily injured — but they are limited in what they can do. Fatigue builds fast in active fights and clears faster than wounds, but it still needs active attention.</p>
 
-  <p>Movement costs Fatigue. Long distances cost more. This means aggressive repositioning in combat — crossing the room to flank, retreating to cover, sprinting to an exit — has a price. Plan your movement. Every step you take is an entry in your fatigue account.</p>
+  <p>Movement costs Fatigue. Long distances cost more. So does every melee attack — each close-range swing draws from the same fatigue track, scaled by Expertise. This means aggressive combat and aggressive repositioning both have a price, and they share the same budget. Plan your movement and your attack frequency together. Every step and every swing is an entry in your fatigue account.</p>
 </section>
 
 <!-- ══ REST & RECOVERY ══ -->
@@ -3029,31 +3141,31 @@ body.sheet-mode .sheet-nav-btn { display: block; }
 
   <div class="rest-spectrum">
     <div class="rest-tier rest-breather">
-      <div class="rest-name">Breather</div>
-      <div class="rest-time">Moments · Seconds to a minute</div>
-      <p class="rest-heals">Clears minor fatigue only. Does not restore Wounds, Psi, or Fortitude Buffer. No healing at all.</p>
+      <div class="rest-name">Quick Breather</div>
+      <div class="rest-time">Moments · locks declarations 1 phase</div>
+      <p class="rest-heals">Removes 1 Fatigue. Nothing else. No wound healing, no Psi recovery, no buffer restore. A pause, not a recovery.</p>
     </div>
     <div class="rest-tier rest-short">
       <div class="rest-name">Short Rest</div>
-      <div class="rest-time">30–60 minutes</div>
-      <p class="rest-heals">Significant Fatigue recovery. Partial Psi pool restored. Fortitude Buffer recovers. No wound healing.</p>
+      <div class="rest-time">30–60 minutes · locks 2 phases</div>
+      <p class="rest-heals">Removes 3 Fatigue. Heals 1 Wound. Restores 1 Psi (if Psion). Fortitude Buffer recovers.</p>
     </div>
     <div class="rest-tier rest-long">
       <div class="rest-name">Long Rest</div>
-      <div class="rest-time">Several hours</div>
-      <p class="rest-heals">Most tracks restored. Partial wound pool recovery. Most status effects clear. Significant Psi recovery.</p>
+      <div class="rest-time">Several hours · locks 3 phases</div>
+      <p class="rest-heals">Removes 6 Fatigue. Heals 2 Wounds. Restores 3 Psi (if Psion). Most status effects ease.</p>
     </div>
     <div class="rest-tier rest-full">
-      <div class="rest-name">Full Rest</div>
-      <div class="rest-time">Full sleep cycle</div>
-      <p class="rest-heals">All tracks fully restored including wound pool. Status effects cleared.</p>
+      <div class="rest-name">Slumber</div>
+      <div class="rest-time">Full sleep cycle · locks 5 phases</div>
+      <p class="rest-heals">Removes all Fatigue. Heals all Wounds. Restores all Psi. Full recovery — but costs the most time.</p>
     </div>
   </div>
 
   <div class="strategy-banner">
     <span class="strategy-banner-label">The Rest Calculus</span>
     <div class="strategy-banner-title">Match Your Rest to What You Need Back</div>
-    <p>Before resting, know what you're trying to restore. Fatigue? A Short Rest handles it. Wounds? You need at minimum a Long Rest for partial recovery, a Full Rest for full recovery. Psi? Factor in which stage you're at and what fraction of your pool you've spent. Don't take a Full Rest when a Short Rest would get you what you need — unless time is not the constraint.</p>
+    <p>Before resting, know what you're trying to restore. Fatigue? A Short Rest handles it. Wounds? You need at minimum a Short Rest for 1 wound, a Long Rest for 2, a Slumber for full recovery. Psi? Factor in which stage you're at and how much pool you've spent. Don't take a Slumber when a Short Rest would get you what you need — unless time is not the constraint.</p>
   </div>
 
   <h2 class="section-head">When You Can't Rest</h2>
@@ -3063,8 +3175,8 @@ body.sheet-mode .sheet-nav-btn { display: block; }
   <div class="grid-2">
     <div class="card card-ice">
       <span class="card-label">Constrained Rest Principle I</span>
-      <div class="card-title">Don't Spend What You Can't Get Back</div>
-      <p>When you know rest is scarce, your spending behavior must change. Don't use your heaviest abilities in early encounters expecting to recover before the next one. Assume you will not recover. Plan accordingly.</p>
+      <div class="card-title">Every Attack Is a Withdrawal</div>
+      <p>When rest is scarce, every melee swing matters. You cannot swing freely and expect to be functional four encounters later. Count your Fatigue. Prioritise heavy strikes and high-damage declarations over volume. Fewer, better hits drain less than sustained pressure. Ranged attacks cost no Fatigue — when you have range and the option, use it to preserve the track.</p>
     </div>
     <div class="card card-gold">
       <span class="card-label">Constrained Rest Principle II</span>
@@ -3085,79 +3197,69 @@ body.sheet-mode .sheet-nav-btn { display: block; }
   <div class="sheet-section-list">
     <div class="sheet-section-item">
       <div class="sheet-section-name">Header</div>
-      <p class="sheet-section-desc">Character identity: name, type, occupation, background. These anchor every roleplay decision you make — not mechanical, but load-bearing.</p>
+      <p class="sheet-section-desc">Character identity: name, player, concept, campaign, pronouns, background — plus a portrait upload slot and a Character Notes button for longer narrative details. These anchor every roleplay decision you make — not mechanical, but load-bearing.</p>
       <div class="sheet-section-tag tag-config">Config</div>
     </div>
     <div class="sheet-section-item">
-      <div class="sheet-section-name">Type Selector</div>
-      <p class="sheet-section-desc">Mage / Psion / Meta / Ordinary. Types can overlap. Each active type unlocks its own configuration panel below.</p>
+      <div class="sheet-section-name">Occupation</div>
+      <p class="sheet-section-desc">Select an occupation from the grouped list to see its starting items, starting declarations, recommended stats, and a description. Occupation traits appear automatically in the Traits section. This is your character's entry point into the fiction and their mechanical baseline.</p>
       <div class="sheet-section-tag tag-config">Config</div>
     </div>
     <div class="sheet-section-item">
-      <div class="sheet-section-name">Stats Block</div>
-      <p class="sheet-section-desc">All eight stats with tier selectors and die displays. Train button allows spending Training Points directly from here. Insight shows your action slot count in real time.</p>
+      <div class="sheet-section-name">Stats & Training</div>
+      <p class="sheet-section-desc">All eight stats with tier selectors and die displays — grouped by pillar (Survivability, Combat, Tactics, Sociability). Each stat has a Train button to spend points directly. The Training pool sits here too, with Solo / Area / Master earn buttons and a live cost reference. Insight shows your Memory slot count in real time.</p>
       <div class="sheet-section-tag tag-tracking">Tracking</div>
     </div>
     <div class="sheet-section-item">
-      <div class="sheet-section-name">Health Tracks</div>
-      <p class="sheet-section-desc">Wound pool (up to 6, set by Vigor), Fortitude Buffer (set by Fortitude), Fatigue — all bar-click. Click a box to fill to that point; click the last filled box to clear. The most active section during combat. Know it without looking.</p>
-      <div class="sheet-section-tag tag-live">Live</div>
+      <div class="sheet-section-name">Metaphysical Types</div>
+      <p class="sheet-section-desc">Toggle Mage / Psion / Meta / Ordinary independently — types can overlap. Each active type expands its own configuration panel: Mage shows Magic Weight and Systems; Psion shows Mind's Eye stages and Psi abilities; Meta shows ability cards; Ordinary shows a note panel.</p>
+      <div class="sheet-section-tag tag-config">Config</div>
     </div>
     <div class="sheet-section-item">
-      <div class="sheet-section-name">Fundamentals</div>
-      <p class="sheet-section-desc">Five universal actions every character has — Punch, Kick, Sprint, Block, Dodge. Each ranks up independently via Training Points (Average → Master). Fatigue cost scales with Fortitude. Always available, no configuration needed.</p>
-      <div class="sheet-section-tag tag-live">Live</div>
-    </div>
-    <div class="sheet-section-item">
-      <div class="sheet-section-name">Techniques</div>
-      <p class="sheet-section-desc">Auto-populated from equipped weapons. Equip a weapon in Inventory and its action cards appear here. Close range weapons show a vigor-locked fatigue cost and a Declare button. Ranged weapons roll Wit + Expertise for accuracy.</p>
-      <div class="sheet-section-tag tag-live">Live</div>
-    </div>
-    <div class="sheet-section-item">
-      <div class="sheet-section-name">Actions List</div>
-      <p class="sheet-section-desc">Your prepared action cards. Each one has a type (Attack / Movement / Reaction), a name, sub-options, and roll buttons. The number of cards you can have is set by Insight. Configure before sessions.</p>
+      <div class="sheet-section-name">Traits</div>
+      <p class="sheet-section-desc">Three layers: occupation traits (auto-populated), equipped enchantment traits (live, from inventory), and acquired traits (earned through play). Acquired traits are Simple (stat boost), Complex (specific mechanical effect), or Compound (multiple staged effects including granted declarations). Complex and Compound traits can feed directly into Memory as Augments.</p>
       <div class="sheet-section-tag tag-live">Live + Config</div>
     </div>
     <div class="sheet-section-item">
-      <div class="sheet-section-name">Inventory</div>
-      <p class="sheet-section-desc">Items with quantity, weight, type tags, and expandable details. Total weight tracked against carry limit. This is your preparation layer — fill it with intent.</p>
-      <div class="sheet-section-tag tag-tracking">Tracking</div>
-    </div>
-    <div class="sheet-section-item">
-      <div class="sheet-section-name">Mage Panel</div>
-      <p class="sheet-section-desc">Magic Weight rank (0–5 pips, each absorbs 1 Backlash), Magic Systems, Restrictions chain. Only visible when Mage type is active.</p>
-      <div class="sheet-section-tag tag-live">Live</div>
-    </div>
-    <div class="sheet-section-item">
-      <div class="sheet-section-name">Psion Panel</div>
-      <p class="sheet-section-desc">Mind's Eye stage selector, Psi pool, passive ability carousel. Only visible when Psion type is active.</p>
-      <div class="sheet-section-tag tag-live">Live</div>
-    </div>
-    <div class="sheet-section-item">
       <div class="sheet-section-name">Status Effects</div>
-      <p class="sheet-section-desc">Toggle panel for all conditions: Poison, Bleeding, Slowed, Blinded, Charmed, Hypnotized. Keep this accurate. Status effects interact with resources.</p>
+      <p class="sheet-section-desc">Toggle cards for all six conditions: Poison, Bleeding, Slowed, Blinded, Charmed, and Void-Exposed. Each has level or severity controls, a duration tracker with Phase tick button, and a notes field. Keep this accurate — status effects interact directly with the resource tracks above.</p>
       <div class="sheet-section-tag tag-live">Live</div>
     </div>
     <div class="sheet-section-item">
-      <div class="sheet-section-name">Training Points</div>
-      <p class="sheet-section-desc">Current pool, spend buttons per stat, and special advancement costs. Review between sessions, not during play.</p>
+      <div class="sheet-section-name">Wounds & Fatigue</div>
+      <p class="sheet-section-desc">Wound pool (set by Vigor, with a live threshold bar: Healthy → Down → Dead), Fortitude Buffer (set by Fortitude), and Fatigue — all bar-click. Armor HP is tracked here too when armor is equipped. This is the most active section during combat. Know it without looking.</p>
+      <div class="sheet-section-tag tag-live">Live</div>
+    </div>
+    <div class="sheet-section-item">
+      <div class="sheet-section-name">Recovery</div>
+      <p class="sheet-section-desc">One-click rest buttons for all four rest types: Quick Breather, Short Rest, Long Rest, and Slumber. Each shows exactly what it restores and how many phases it locks declarations for. The sheet updates all affected tracks automatically. A rest-lock banner displays when declarations are locked after a rest.</p>
+      <div class="sheet-section-tag tag-live">Live</div>
+    </div>
+    <div class="sheet-section-item">
+      <div class="sheet-section-name">Memory</div>
+      <p class="sheet-section-desc">The declaration sidebar, opened via the ⊙ Open Memory button. Organized into five sections: Fundamentals (Punch, Kick, Sprint, Block, Dodge — rank up via Training Points), Techniques (auto-populated from equipped weapons; fatigue cost scales with Expertise), Augments (active while a granting trait or enchantment is present), Skills (your prepared declaration cards, capped by Insight), and Arts (Metaphysical abilities declared from the Metaphysical tab). Each strike card has a commitment mode selector — Standard or Full Commitment — and a configurable FC wound bonus for Full Commitment declares. Configure before sessions.</p>
+      <div class="sheet-section-tag tag-live">Live + Config</div>
+    </div>
+    <div class="sheet-section-item">
+      <div class="sheet-section-name">Items (Inventory)</div>
+      <p class="sheet-section-desc">Opened via the ⊞ Open Inventory button. Items with quantity, weight, type tags, and expandable details. Weapons auto-populate Techniques in Memory when equipped. Enchantments push their traits into the Traits section when equipped. Total weight tracked against carry limit (set by Might). This is your preparation layer — fill it with intent.</p>
       <div class="sheet-section-tag tag-tracking">Tracking</div>
     </div>
     <div class="sheet-section-item">
-      <div class="sheet-section-name">Recovery Panel</div>
-      <p class="sheet-section-desc">One-click rest buttons for all four rest types. Apply them when appropriate — the sheet will update all affected tracks automatically.</p>
+      <div class="sheet-section-name">Declaration Phase</div>
+      <p class="sheet-section-desc">The combat coordination layer. Begin Scenario sets a scene description and win conditions. The Phase Bar shows the current phase, a Phase Pass button to advance time, a declaration budget display, and a live pass-status indicator. Win conditions (Survive, Extract, Escape, Protect, etc.) are tracked here and can be toggled as the scene develops.</p>
       <div class="sheet-section-tag tag-live">Live</div>
     </div>
     <div class="sheet-section-item">
       <div class="sheet-section-name">Save / Load</div>
-      <p class="sheet-section-desc">Three character slots plus export/import. Save before major decisions. Use multiple slots if you're exploring character builds.</p>
+      <p class="sheet-section-desc">Multiple named character slots accessed via the Characters button. Save, Clear, Export JSON, and Import JSON controls sit in the persistent save bar. Save before major decisions. Use multiple slots for different builds or characters in the same campaign.</p>
       <div class="sheet-section-tag tag-config">Config</div>
     </div>
   </div>
 
   <div class="insight-box">
     <span class="insight-label">Session Prep Ritual</span>
-    <p>Before each session, open your sheet and do this in order: check your resource tracks (are any dangerously low?), review your actions (do they match what's ahead?), check your inventory (do you have what you'll need?), and look at your Training Points (is there anything worth spending before the session starts?). This takes two minutes. It changes how you play the entire session.</p>
+    <p>Before each session, open your sheet and do this in order: check your resource tracks (are any dangerously low?), open Memory and review your Skills (do they match what's ahead?), open Inventory (do you have what you'll need?), and look at your Training pool in Stats (is there anything worth spending before the session starts?). This takes two minutes. It changes how you play the entire session.</p>
   </div>
 </section>
 
@@ -3263,7 +3365,7 @@ body.sheet-mode .sheet-nav-btn { display: block; }
     </div>
     <div class="deviant-panel-body">
       <p>No metaphysical capacity. No Weight, no Mind's Eye, no inherent ability sitting at the edge of reality. Just a person. In a game about people with extraordinary capabilities, the Ordinary is not a lesser choice — it is a <em>different strategic posture</em>. Every resource point and every training point goes into the same tracks everyone has. No second track to maintain. No restrictions to honor.</p>
-      <p>The Ordinary out-prepares everyone else because they have to. Their inventory and their actions are their entire toolkit. If any character type needs to nail the preparation loop, it's this one.</p>
+      <p>The Ordinary out-prepares everyone else because they have to. Their inventory and their Memory are their entire toolkit. If any character type needs to nail the preparation loop, it's this one.</p>
     </div>
   </div>
 </section>
@@ -3375,7 +3477,7 @@ body.sheet-mode .sheet-nav-btn { display: block; }
     <div class="card card-psion">
       <span class="card-label">Don't Use Psi For</span>
       <div class="card-title">Things You Can Do Without It</div>
-      <p>Psi spent on convenience is Psi unavailable for necessity. If the question can be answered by asking, ask. If the action can be done without your Mind's Eye, do it. Spend Psi on problems that have no other solution.</p>
+      <p>Psi spent on convenience is Psi unavailable for necessity. If the question can be answered by asking, ask. If the declaration can be made without your Mind's Eye, make it. Spend Psi on problems that have no other solution.</p>
     </div>
   </div>
 </section>
@@ -3422,12 +3524,12 @@ body.sheet-mode .sheet-nav-btn { display: block; }
     <div class="combat-step">
       <span class="combat-step-num">01</span>
       <div class="combat-step-name">Assess</div>
-      <p>What's in the room? What are the threats? Who has what status effects? What's your current resource state? This takes a second if you've been tracking properly. It takes much longer if you haven't.</p>
+      <p>What's in the room? What are the threats? Who has what status effects? What's your current resource state? Crucially: is this a moment where Full Commitment is worth it — or will being locked for 4 phases after destroy you? This takes a second if you've been tracking properly. It takes much longer if you haven't.</p>
     </div>
     <div class="combat-step">
       <span class="combat-step-num">02</span>
       <div class="combat-step-name">Choose</div>
-      <p>Select one action from your prepared list. Attack, move, or react to conditions. You know what's on your list because you prepared it. You know which one fits this moment because you assessed the room.</p>
+      <p>Open Memory. Choose your declaration — strike, move, or react. You know what's there because you shaped it before the session. You know which one fits this moment because you just assessed the room.</p>
     </div>
     <div class="combat-step">
       <span class="combat-step-num">03</span>
@@ -3447,122 +3549,202 @@ body.sheet-mode .sheet-nav-btn { display: block; }
     <div class="combat-step">
       <span class="combat-step-num">06</span>
       <div class="combat-step-name">End of Round</div>
-      <p>React to others' actions if applicable. Apply round-end effects. Reassess your resource state. Are you still functional? Is the fight winnable? Is there an exit that doesn't cost you more than continuing?</p>
+      <p>React to others' declarations if applicable. Apply round-end effects. Reassess your resource state. Are you still functional? Is the fight winnable? Is there an exit that doesn't cost you more than continuing?</p>
     </div>
   </div>
 </section>
 
-<!-- ══ YOUR ACTIONS ══ -->
+<!-- ══ MEMORY ══ -->
 <section class="page reveal" id="your-actions">
-  <div class="page-num">Actions</div>
-  <span class="eyebrow">The Three Types</span>
-  <h1 class="page-title">Your Actions</h1>
+  <div class="page-num">Memory</div>
+  <span class="eyebrow">Techniques Held in the Body</span>
+  <h1 class="page-title">Memory</h1>
 
-  <p>Actions in Stillpoint fall into three types. Every action you create on your sheet is one of these three, and each type has its own mechanics, timing, and strategic weight. Know the difference. Build your list deliberately.</p>
+  <p>Memory is the declaration sidebar — opened via the <strong>⊙ Open Memory</strong> button on the sheet. It is not a list of things your character knows abstractly. It is a live interface of everything they can <em>declare</em> in a structured moment: every strike they can throw, every move they can make, every ability they can spend. Five sections, each with its own logic.</p>
+
+  <div class="card card-gold">
+    <span class="card-label">Core Principle</span>
+    <div class="card-title">Memory Is Finite. Configure It With Intent.</div>
+    <p>The breadth of Memory is not unlimited. The Skills section — your primary prepared declarations — is hard-capped by your Insight tier. Everything else is either fixed (Fundamentals), automatic (Techniques, Augments, Arts), or manually locked in (Arts). Walk into every session knowing what's in each section and why.</p>
+  </div>
+
+  <h2 class="section-head">I · Fundamentals</h2>
+
+  <p>The five universal declarations every character carries from day one, regardless of type, occupation, or preparation. They live at the top of Memory permanently and require no configuration. What changes over time is how good they are.</p>
+
+  <div class="grid-2">
+    <div class="card card-red" style="margin:0;">
+      <span class="card-label">Attack · Fundamentals</span>
+      <div class="card-title">Punch &amp; Kick</div>
+      <p>Unarmed strikes. Punch starts at 1 damage, Kick at 2. Each ranks up independently via Training Points: Average → Trained → Exceptional → Expert → Master, adding +1 damage per rank. Both cost Fatigue scaled by Fortitude. Both support Standard and Full Commitment declare modes.</p>
+    </div>
+    <div class="card card-mage" style="margin:0;">
+      <span class="card-label">Movement · Fundamental</span>
+      <div class="card-title">Sprint</div>
+      <p>A burst of full-speed movement. Starts at 15ft, adding +5ft per rank. Costs Fatigue scaled by Fortitude. The only movement option available without a prepared Skill — do not neglect it.</p>
+    </div>
+  </div>
+  <div class="grid-2" style="margin-top:0;">
+    <div class="card card-ice" style="margin:0;">
+      <span class="card-label">Reaction · Fundamentals</span>
+      <div class="card-title">Block &amp; Dodge</div>
+      <p>Block absorbs incoming damage (starts at 1 reduction, +1/rank). Dodge reduces hit chance (starts at -1, +1/rank). Both cost Fatigue scaled by Fortitude and can only be declared once per round without a trait or ability that extends reaction capacity.</p>
+    </div>
+    <div class="card card-gold" style="margin:0;">
+      <span class="card-label">Ranking Up</span>
+      <div class="card-title">Training Point Costs</div>
+      <p>Each Fundamental ranks up independently: Average (free) → Trained (2pts) → Exceptional (4pts) → Expert (6pts) → Master (8pts). A Master-ranked Kick deals 6 damage. A Master Block absorbs 5. These are not cosmetic upgrades. Invest in them deliberately.</p>
+    </div>
+  </div>
+
+  <div class="insight-box">
+    <span class="insight-label">Fatigue Cost by Fortitude</span>
+    <p>All five Fundamentals draw from the same Fortitude-scaled fatigue cost: Deficient 4, Average/Capable 3, Proficient/Expert 2, Master and above 1. A character with Master Fortitude punches, kicks, sprints, blocks, and dodges at nearly no fatigue cost. Fortitude investment pays dividends on every declaration in this section.</p>
+  </div>
+
+  <h2 class="section-head">II · Techniques</h2>
+
+  <p>Weapon-based attack cards. Close-range weapons populate Techniques automatically when equipped in Inventory — equip a weapon, its card appears. You can also add Techniques manually via the <em>+ add technique</em> button, defining a weapon requirement, declaration type, wounds, fatigue cost, and notes.</p>
+
+  <div class="grid-2">
+    <div class="card card-red" style="margin:0;">
+      <span class="card-label">Close Range</span>
+      <div class="card-title">Fatigue-Scaled by Expertise</div>
+      <p>Every close-range attack costs Fatigue. The cost scales with Expertise tier (Deficient: 5 → Legendary: 1). Heavy attack variants cost +2 on top of the base. Each Technique card has a commitment mode dropdown — set to Standard or <strong>Full Commitment</strong>. Full Commitment zeroes your declaration budget, applies a configurable FC wound bonus, and locks all declarations for 4 phases.</p>
+    </div>
+    <div class="card card-ice" style="margin:0;">
+      <span class="card-label">Ranged</span>
+      <div class="card-title">Wit + Expertise Accuracy Roll</div>
+      <p>Ranged weapon Techniques cost no Fatigue. Instead they roll Wit + Expertise for accuracy — a miss wastes the declaration entirely. On a critical hit, +5 wounds. Ranged Techniques also support Full Commitment for heightened damage at the same phase-lock cost.</p>
+    </div>
+  </div>
+
+  <p>Techniques do not use Insight slots. They sit outside the Skill cap entirely. A character with a full Skill list and two equipped weapons has all of those cards simultaneously available.</p>
+
+  <h2 class="section-head">III · Augments</h2>
+
+  <p>Augments are declarations granted by active traits or equipped enchantments. They appear automatically in Memory when the granting source is present and disappear when it is removed. You cannot add them manually — they are earned, not configured. The Augments section is hidden when none are active.</p>
+
+  <div class="card card-psion">
+    <span class="card-label">How Augments Arrive</span>
+    <div class="card-title">Traits &amp; Enchantments</div>
+    <p>A Compound or Complex trait with a <em>Grant Action</em> effect pushes its action into Augments when the trait is applied. An enchantment equipped from Inventory does the same if it carries a grant-action effect. Remove the trait or unequip the enchantment and the Augment vanishes. This means Augments are a live layer that changes based on what your character currently has active — not a fixed list.</p>
+  </div>
+
+  <h2 class="section-head">IV · Skills</h2>
+
+  <p>Your prepared declarations — the core of Memory and the most strategically significant section. Skills are built by you, configured by you, and capped by your Insight tier. Every tier of Insight is one more Skill slot. A character at Average Insight carries fewer possibilities than one at Master. Invest in Insight if you find yourself wishing you had more cards available.</p>
+
+  <p>Each Skill is one of three types:</p>
 
   <div class="action-trio">
     <div class="action-card action-attack">
-      <span class="action-type-tag">Type I</span>
-      <div class="action-name">Attack</div>
-      <p>Directed at another creature or object with intent to cause harm, impede, or alter their state. Range is specified: Close or Ranged. Melee attacks scale with <strong>Might</strong> — the higher your Might, the more Wounds you deal. Ranged attacks require an <strong>Expertise</strong> accuracy roll first.</p>
-      <span class="stat-tag">Might / Expertise</span>
+      <span class="action-type-tag">Attack</span>
+      <div class="action-name">Close or Ranged</div>
+      <p>Specify range, wounds dealt, fatigue cost, weapon requirement, and notes. Close attacks support Full Commitment. Ranged attacks roll Wit + Expertise for accuracy. Each attack Skill carries its own commitment mode selector and FC wound bonus field.</p>
+      <span class="stat-tag">Might (wounds) · Expertise (fatigue / accuracy)</span>
     </div>
     <div class="action-card action-movement">
-      <span class="action-type-tag">Type II</span>
-      <div class="action-name">Movement</div>
-      <p>Repositioning in the scene. Distance is determined and generates <strong>Fatigue</strong> proportional to how far you go. Long movement is expensive. Terrain and obstacles may require additional rolls. Every movement costs something — spend it on purpose.</p>
-      <span class="stat-tag">Vigor (track size) · Might (cost reduction)</span>
+      <span class="action-type-tag">Movement</span>
+      <div class="action-name">Repositioning</div>
+      <p>Specify distance. Generates Fatigue proportional to how far you go. Every movement costs something — spend it on purpose. Prepared movement Skills let you declare specific distances immediately without re-specifying each time.</p>
+      <span class="stat-tag">Vigor (track size)</span>
     </div>
     <div class="action-card action-reaction">
-      <span class="action-type-tag">Type III</span>
-      <div class="action-name">Reaction</div>
-      <p>An action taken in response to someone else's action or a change in the scene. Can interrupt normal turn order. Rolls against <strong>Wit + Expertise</strong>. A character can typically only react once per round unless a trait or ability says otherwise. High Wit makes this devastating.</p>
+      <span class="action-type-tag">Reaction</span>
+      <div class="action-name">Interrupt</div>
+      <p>A declaration made in response to someone else's move. Rolls Wit + Expertise. One reaction per round without a trait extending that limit. High Wit makes this devastating. Build it for the specific response you most often need — not a generic one.</p>
       <span class="stat-tag">Wit + Expertise</span>
     </div>
   </div>
 
-  <h2 class="section-head">Building Your Action List</h2>
-
-  <p>You have a maximum number of action slots set by your Insight tier. The question isn't "what can I put here?" — the question is "what do I <em>need</em> here given what I know about the upcoming sessions?"</p>
-
   <div class="strategy-banner">
-    <span class="strategy-banner-label">Action List Philosophy</span>
+    <span class="strategy-banner-label">The Skills Philosophy</span>
     <div class="strategy-banner-title">Don't Optimize for Last Session. Optimize for Next One.</div>
-    <p>The actions that saved you in the last fight might be the wrong actions for what's coming. A list heavy in close-range attacks is wrong for a stealth infiltration. A list with no movement action is wrong for an open environment with multiple threats. Review your list between sessions. Change it to match your best read of what the table is heading toward.</p>
+    <p>The Skills that saved you in the last fight might be wrong for what's coming. A list heavy on close-range attacks is wrong for a stealth infiltration. A list with no movement Skill is wrong for open terrain with multiple threats. Open Memory between sessions. Rebuild your Skills list around your best read of what's ahead — not what felt good last time.</p>
   </div>
 
-  <h2 class="section-head">Fundamentals & Techniques</h2>
+  <h2 class="section-head">V · Arts</h2>
 
-  <p>Your prepared action list is not your only resource in a fight. Two additional action layers exist outside the Insight slot cap and don't need pre-configuration.</p>
+  <p>Arts are Mage, Psion, and Meta abilities locked in from the Metaphysical tab. They only appear in Memory once locked — you define the ability on the Metaphysical tab, set its cost, then lock it to Memory. The Arts section is hidden when nothing has been locked in.</p>
 
   <div class="grid-2">
-    <div class="card card-ice" style="margin:0;">
-      <span class="card-label">Fundamentals</span>
-      <div class="card-title">Always Available</div>
-      <p>Punch, Kick, Sprint, Block, and Dodge are available to every character regardless of type or preparation. They start at base values and rank up via Training Points (Average → Master). Their fatigue cost scales with Fortitude — a tougher character burns less effort on basic moves. They are your fallback when your prepared actions don't fit the moment.</p>
+    <div class="card card-mage" style="margin:0;">
+      <span class="card-label">Mage &amp; Meta Arts</span>
+      <div class="card-title">Cost: Fatigue</div>
+      <p>Mage and Meta Arts spend from the Fatigue track when declared, not Psi. They carry a configurable Fatigue cost set at lock time. Mage Arts also carry Backlash risk — the act of declaring them is still subject to the magic system's Backlash rules. Declaring does not bypass those consequences.</p>
     </div>
-    <div class="card card-red" style="margin:0;">
-      <span class="card-label">Techniques</span>
-      <div class="card-title">Auto-Populated from Inventory</div>
-      <p>Equip a weapon in Inventory and its attack card appears automatically. Close range weapons pay a fatigue cost scaled by Expertise — a more practiced fighter spends less effort per swing. Ranged weapons roll Wit + Expertise for accuracy. These don't use Insight slots and don't need to be manually configured.</p>
+    <div class="card card-psion" style="margin:0;">
+      <span class="card-label">Psion Arts</span>
+      <div class="card-title">Cost: Psi</div>
+      <p>Psion Arts drain from the Psi pool when declared. The cost is set at lock time. If the pool is insufficient, the ability partially fails — the sheet notes the shortfall. Passive psionic perception costs nothing; only active Arts drain Psi. Conserve accordingly.</p>
     </div>
   </div>
+
+  <p>Arts do not use Insight slots. They sit outside the Skill cap just like Techniques. A Psion with a full Skill list still has access to every locked Psi Art simultaneously.</p>
+
 </section>
 
 <!-- ══ ACTION ECONOMY ══ -->
 <section class="page reveal" id="action-economy">
-  <div class="page-num">Action Economy</div>
+  <div class="page-num">Declaration Economy</div>
   <span class="eyebrow">The Mathematics of Your Turn</span>
-  <h1 class="page-title">Action Economy</h1>
+  <h1 class="page-title">Declaration Economy</h1>
 
-  <p>Action economy is the principle that who gets more done per round wins. In Stillpoint, this isn't just about combat — it's about the full session. Every action you take has a cost attached. The player who understands those costs and minimizes waste in their decision chain will outperform the one who doesn't.</p>
+  <p>Declaration economy is the principle that whoever gets more done per phase wins. In Stillpoint this isn't just about combat — it's about the full session. Every declaration you make has a cost attached. The player who understands those costs and minimises waste in their decision chain will consistently outperform one who doesn't. At the extreme end sits Full Commitment: trading everything you have left in a phase for maximum damage output. Know when that trade is worth it.</p>
 
   <table class="threat-table">
     <thead>
-      <tr><th>Action</th><th>Costs</th><th>Returns</th><th>When to Use</th></tr>
+      <tr><th>Declaration</th><th>Costs</th><th>Returns</th><th>When to Use</th></tr>
     </thead>
     <tbody>
       <tr>
         <td>Melee Attack</td>
-        <td>None (resources)</td>
-        <td>Wounds to target</td>
-        <td>Against targets in reach when Might is high. Best return per action slot.</td>
+        <td>Fatigue (scaled by Expertise) · Heavy: +2 Fatigue</td>
+        <td>Wounds to target (scaled by Might)</td>
+        <td>Against targets in reach when Might is high. Every swing costs Fatigue — sustained melee drains you. Higher Expertise reduces cost per swing.</td>
+      </tr>
+      <tr>
+        <td style="color:var(--red);">⚠ Full Commitment</td>
+        <td style="color:var(--red);">All remaining declarations in the phase · locks 4 phases</td>
+        <td style="color:var(--red);">Base wounds + Might + FC bonus</td>
+        <td>Declare on any strike. Spends your entire declaration budget — nothing else this phase. Deals heightened damage via a configurable FC wound bonus. Locks all declarations for 4 phases after.</td>
       </tr>
       <tr>
         <td>Ranged Attack</td>
-        <td>Accuracy roll (Expertise)</td>
-        <td>Wounds if accurate</td>
-        <td>At distance. Requires both the accuracy roll and the damage roll to land. More variance than melee.</td>
+        <td>Wit + Expertise accuracy roll · No Fatigue</td>
+        <td>Wounds if accurate (scaled by Might)</td>
+        <td>At distance. No Fatigue cost, but requires the accuracy roll to land at all. Miss the roll and the declaration is wasted. More variance than melee.</td>
       </tr>
       <tr>
         <td>Movement</td>
         <td>Fatigue (scales with distance)</td>
         <td>Position change</td>
-        <td>When your current position is a liability. Don't move just to move — every step costs Fatigue.</td>
+        <td>When your current position is a liability. Don't move without purpose — every step costs Fatigue.</td>
       </tr>
       <tr>
         <td>Reaction</td>
         <td>One reaction per round</td>
-        <td>Interrupt opponent's action</td>
-        <td>Against high-value threats. Don't spend your reaction on a minor action when a more dangerous one is coming.</td>
+        <td>Interrupt another's declaration</td>
+        <td>Against high-value threats. Don't spend your reaction on a minor threat when something more dangerous is still coming.</td>
       </tr>
       <tr>
-        <td>Essential Action</td>
+        <td>Fundamental</td>
         <td>Fatigue (scaled by Fortitude)</td>
         <td>Base damage / distance / reduction</td>
-        <td>Fallback when prepared actions don't fit. Rank these up over time — Master Punch is not nothing.</td>
+        <td>Fallback when prepared Skills don't fit the moment. Rank these up over time — Master Punch is not nothing.</td>
       </tr>
       <tr>
-        <td>Weapon Action</td>
-        <td>Fatigue (scaled by Expertise) · Ranged: none</td>
-        <td>Weapon damage + Might bonus · Ranged: accuracy roll</td>
-        <td>Your primary offensive action when carrying a weapon. No slot cost, auto-available when equipped.</td>
+        <td>Technique</td>
+        <td>Close: Fatigue (scaled by Expertise) · Ranged: Wit + Expertise accuracy roll, no Fatigue</td>
+        <td>Weapon damage + Might bonus</td>
+        <td>Primary strike when carrying a weapon. Auto-available from inventory, no Memory slot cost. Same fatigue rules as melee — higher Expertise reduces cost.</td>
       </tr>
       <tr>
         <td>Psi Use (Psion)</td>
         <td>Psi Pool points</td>
         <td>Variable psionic effect</td>
-        <td>When non-psionic options are insufficient. Do not spend pool on problems you can solve for free.</td>
+        <td>When nothing else will reach the problem. Do not spend pool on things a strike or movement can handle — those cost fatigue, not Psi, and fatigue recovers faster.</td>
       </tr>
       <tr>
         <td>Magic Use (Mage)</td>
@@ -3575,7 +3757,12 @@ body.sheet-mode .sheet-nav-btn { display: block; }
 
   <div class="insight-box">
     <span class="insight-label">The Reaction Economy</span>
-    <p>Reactions are scarce — one per round without special traits. This means your reaction is a limited commodity. Don't spend it reflexively — spend it strategically. If you know a more dangerous action is coming later in the round, hold your reaction for that. A reaction saved for the right moment can prevent wounds that would drain your pool and cost you a rest to recover.</p>
+    <p>Reactions are scarce — one per round without special traits. That makes your reaction a limited and precious thing. Don't spend it reflexively — spend it deliberately. If you know something more dangerous is still coming later in the round, hold your reaction for that. A reaction saved for the right moment can prevent wounds that would drain your pool and cost you a rest to recover.</p>
+  </div>
+
+  <div class="warning-box">
+    <span class="warning-label">Full Commitment</span>
+    <p>Every strike in Memory — both Skills and Techniques — can be declared as a <strong>Full Commitment</strong>. Selecting it on the commitment mode dropdown before declaring turns the card red and changes the button to <em>⚠ Declare Full Commitment</em>. When confirmed: the strike deals its base wounds plus your Might bonus plus a configurable <strong>FC wound bonus</strong> you set on the card — but it zeroes out your entire declaration budget for the phase and <strong>locks all declarations for 4 phases</strong> afterward. No reactions. No follow-ups. Nothing. You are committed. Use it when the damage output justifies that price — not as a default, and never when you will need to declare anything in the next four phases.</p>
   </div>
 </section>
 
@@ -3590,7 +3777,7 @@ body.sheet-mode .sheet-nav-btn { display: block; }
   <div class="status-grid">
     <div class="status-card">
       <div class="status-name">☠ Poison</div>
-      <p>Drains Fortitude Buffer boxes each tick equal to the poison level. Overflow past the buffer goes directly into the wound pool. Higher levels escalate quickly. Stacks <em>independently</em> with Bleeding — both apply in the same round. Cleared by antidote or medical treatment.</p>
+      <p>Drains Fortitude Buffer boxes each tick equal to the poison level. Overflow past the buffer goes directly into the wound pool. Higher levels escalate quickly. Stacks <em>independently</em> with Bleeding — both apply in the same round. Cleared by an Aid item configured to clear Poison, or by medical treatment.</p>
       <div class="status-priority" style="color:var(--red);">⚑ Priority: Immediate. Eats your buffer fast, then your wound pool.</div>
     </div>
     <div class="status-card">
@@ -3599,24 +3786,24 @@ body.sheet-mode .sheet-nav-btn { display: block; }
       <div class="status-priority" style="color:var(--red);">⚑ Priority: Immediate. Combine with Poison and your buffer collapses in rounds.</div>
     </div>
     <div class="status-card">
-      <div class="status-name">⟳ Slowed</div>
-      <p>Movement reduced. Actions involving speed or repositioning are hindered. May affect initiative order and reaction timing. The longer the fight lasts while Slowed, the worse your positioning becomes.</p>
+      <div class="status-name">⧖ Slowed</div>
+      <p>Movement and declaration capacity are both impaired. Blacks out fatigue slots from the right, reducing how much you can do each turn. The number of slots blacked out is adjustable (default 2). A heavily Slowed character cannot sprint, cannot make multiple moves, and has fewer declarations available per round. Cleared by the source being removed.</p>
       <div class="status-priority" style="color:var(--gold);">⚑ Priority: Medium. Dangerous in open environments. Less critical in close quarters.</div>
     </div>
     <div class="status-card">
-      <div class="status-name">◌ Blinded</div>
-      <p>Visual input compromised or eliminated. Attacks against unseen targets suffer penalties. Navigation becomes uncertain. Duration and severity vary by cause — know the source to know when it ends.</p>
-      <div class="status-priority" style="color:var(--gold);">⚑ Priority: Medium. High in environments where vision is the primary sense.</div>
+      <div class="status-name">◉ Blinded</div>
+      <p>Cannot perceive targets visually. Comes in three severity levels — Partial, Full, and Total. Ranged attacks fail at Full and Total severity; melee attacks suffer severe disadvantage. A notes field tracks the cause and expected duration.</p>
+      <div class="status-priority" style="color:var(--gold);">⚑ Priority: Medium. Severe in ranged-heavy encounters; devastating if at Total severity.</div>
     </div>
     <div class="status-card">
-      <div class="status-name">◈ Charmed</div>
-      <p>Social and attitudinal alteration — disposition toward the source is modified. Does not override self-preservation instinct. Does alter willingness to cooperate. Psionic in origin. Visible only to other Psions.</p>
-      <div class="status-priority" style="color:var(--psion);">⚑ Priority: Situational. In social encounters, this is critical. In combat, less immediately dangerous.</div>
+      <div class="status-name">✦ Charmed</div>
+      <p>Under psionic or social compulsion. Roll Intuition + Wit to resist acting against the compulsion — failure means compliance. The sheet displays your current resist roll total live. A notes field tracks the source and what you're compelled toward.</p>
+      <div class="status-priority" style="color:var(--psion);">⚑ Priority: High. You may not be able to act against the compulsion without a successful resist roll.</div>
     </div>
     <div class="status-card">
-      <div class="status-name">◈ Hypnotized</div>
-      <p>Deep psionic override. Character may receive and act on suggestions. More invasive than Charm. Ethically significant when used deliberately. Requires Mind's Eye at Reach or Beyond. Invisible to all but Psions.</p>
-      <div class="status-priority" style="color:var(--psion);">⚑ Priority: Critical when active. If you're hypnotized, you may not realize it.</div>
+      <div class="status-name">🕳 Void-Exposed</div>
+      <p>The self is eroding. Abstract thought dims; identity and meaning fade. Comes in three stages — Early, Mid, Late — each representing deeper loss of selfhood. The character rarely notices, because the faculty being consumed is what would allow them to recognise the loss. Caused by chaos casting and similar reality-distorting events. Recovery requires grounding with trusted people.</p>
+      <div class="status-priority" style="color:var(--psion);">⚑ Priority: Critical and insidious. Unlike other conditions, the affected character may actively resist help.</div>
     </div>
   </div>
 
@@ -3652,8 +3839,8 @@ body.sheet-mode .sheet-nav-btn { display: block; }
     <div class="flow-step">
       <div class="flow-num" style="border-color:var(--gold);color:var(--gold);">3</div>
       <div class="flow-content">
-        <h4>Configure Your Actions</h4>
-        <p>Open your action list. Does it match your prediction for this session? If you're heading into a social-heavy session with three attack actions and no movement — reconfigure. You have the time to do it now. You don't have the time when the scene is in front of you.</p>
+        <h4>Configure Your Memory (Skills)</h4>
+        <p>Open Memory. Does your Skills list match your prediction for this session? If you're heading into a social-heavy session with three attack Skills and no movement — reconfigure. You have the time to do it now. You don't have the time when the scene is in front of you.</p>
       </div>
     </div>
     <div class="flow-step">
@@ -3693,8 +3880,8 @@ body.sheet-mode .sheet-nav-btn { display: block; }
   <div class="grid-3">
     <div class="card card-red" style="margin:0;">
       <span class="card-label">Medical</span>
-      <div class="card-title">Bandages, Antidotes, Medical Kits</div>
-      <p>The items that treat Bleeding and Poison. Without these, ticking status effects will fill your wound track whether or not you win the fight. Consider carrying at least minimal medical supplies at all times. Running out of antidote mid-session is entirely preventable.</p>
+      <div class="card-title">Aid Items, Bandages, Antidotes</div>
+      <p>The dedicated healing layer. <strong>Aid</strong> is a consumable kind that heals a set number of wounds <em>and</em> clears specific status effects in a single use — configure which effects it clears when you add it to inventory. Without these, ticking status effects will fill your wound track whether or not you win the fight. Running out mid-session is entirely preventable.</p>
     </div>
     <div class="card card-gold" style="margin:0;">
       <span class="card-label">Utility</span>
@@ -3706,6 +3893,11 @@ body.sheet-mode .sheet-nav-btn { display: block; }
       <div class="card-title">Backup Options</div>
       <p>The item you reach for when your primary approach is gone. The second weapon when the first is lost. The extra option that kept you functional at the end of the fight. A carry limit of one weapon is a single point of failure. Plan for that.</p>
     </div>
+  </div>
+
+  <div class="insight-box">
+    <span class="insight-label">Aid Items</span>
+    <p>The <strong>Aid</strong> consumable kind combines wound healing and status effect removal into a single use. When building an Aid item in inventory, set how many wounds it heals and tick which status effects it clears — Poison, Bleeding, Slowed, Blinded, Charmed, Void-Exposed, or any combination. One well-configured Aid item can end a multi-condition crisis in a single declaration. The tradeoff: specificity. An Aid item built to clear Poison won't help with Void-Exposed. Configure your Aid items to match the threats you predict. Carry more than one if the session suggests you'll need variety.</p>
   </div>
 
   <div class="strategy-banner">
@@ -3731,7 +3923,7 @@ body.sheet-mode .sheet-nav-btn { display: block; }
       <tr>
         <td>Stat (1 tier)</td>
         <td style="color:var(--gold);">2 pts</td>
-        <td>Scales die, improves track sizes (Vigor/Fortitude), increases action slots (Insight), improves carry limit (Might). Compounding returns.</td>
+        <td>Scales die, improves track sizes (Vigor/Fortitude), increases Memory slots (Insight), improves carry limit (Might). Compounding returns.</td>
       </tr>
       <tr>
         <td>Stat — Meta boosted</td>
@@ -3739,9 +3931,9 @@ body.sheet-mode .sheet-nav-btn { display: block; }
         <td>Same as above, but for Meta-locked stats. Higher cost, fixed starting point.</td>
       </tr>
       <tr>
-        <td>Insight → more action slots</td>
+        <td>Insight → more Memory slots</td>
         <td style="color:var(--gold);">2 pts</td>
-        <td>Every tier of Insight is one more action slot. This is among the highest-value investments in the game for most characters.</td>
+        <td>Every tier of Insight is one more Skill slot in Memory. This is among the highest-value investments in the game for most characters.</td>
       </tr>
       <tr>
         <td>Magic Weight rank</td>
@@ -3759,9 +3951,9 @@ body.sheet-mode .sheet-nav-btn { display: block; }
         <td>Emergency expenditure. This is what chain breaks cost you. Avoid it — but have the points available if it happens.</td>
       </tr>
       <tr>
-        <td>Essential Action rank</td>
+        <td>Fundamental rank</td>
         <td style="color:var(--teal);">2 / 4 / 6 / 8 / 10 pts</td>
-        <td>Ranks Punch, Kick, Sprint, Block, or Dodge from Average to Master. Each rank adds +1 damage/reduction or +5ft. Scales independently per action.</td>
+        <td>Ranks Punch, Kick, Sprint, Block, or Dodge from Average to Master. Each rank adds +1 damage/reduction or +5ft. Scales independently per Fundamental.</td>
       </tr>
     </tbody>
   </table>
@@ -3921,23 +4113,41 @@ body.sheet-mode .sheet-nav-btn { display: block; }
 <!-- SHEET TAB -->
 <div id="sheet-tab">
       <!-- Save/Load Bar — full width, outside .sheet -->
-      <div class="save-bar">
+      <div class="save-bar" style="position:relative;">
         <span class="save-bar-label">Slot <span id="active-slot-label" style="color:var(--accent);">1</span></span>
         <button class="sbar-btn" onclick="openSlotsModal()" style="border-color:var(--accent-dim);color:var(--accent);">Characters ▾</button>
+
+        <!-- ══ PHASE PASS — centered absolutely ══ -->
+        <div class="phase-center" id="phase-bar">
+          <!-- Phase Pass button -->
+          <button class="phase-pass-main" id="phase-pass-btn" onclick="applyPhasePass()">⧖ Phase Pass</button>
+          <!-- Dropdown toggle -->
+          <button class="phase-drop-toggle" id="phase-drop-toggle" onclick="togglePhaseDropdown()" title="Phase info">▾</button>
+          <!-- Dropdown panel — positioned relative to the full .phase-center width -->
+          <div class="phase-dropdown" id="phase-dropdown">
+            <!-- Pass status (appears briefly after phase pass) -->
+            <div class="phase-drop-status" id="phase-pass-status"></div>
+            <!-- Phase counter -->
+            <div class="phase-drop-row">
+              <span class="phase-drop-label">Phase</span>
+              <span class="phase-drop-value" id="phase-counter-display" style="color:var(--ice);">—</span>
+            </div>
+            <!-- Declarations remaining -->
+            <div class="phase-drop-row">
+              <span class="phase-drop-label">Declarations</span>
+              <span class="phase-drop-value" id="phase-pass-badge" style="color:var(--text-dim);">—</span>
+            </div>
+            <!-- Scenario button -->
+            <button class="phase-scenario-btn" id="scenario-fab-btn" onclick="handleScenarioBtn()">⚑ Begin Scenario</button>
+          </div>
+        </div>
+
+        <!-- Save actions — right side -->
         <div class="save-bar-actions">
           <button class="sbar-btn btn-save" onclick="saveSheet()">Save</button>
           <button class="sbar-btn btn-clear" onclick="clearSlot()">Clear slot</button>
           <button class="sbar-btn btn-export" onclick="exportJSON()">Export JSON</button>
           <label class="sbar-btn" style="cursor:pointer;">Import JSON<input type="file" accept=".json" style="display:none;" onchange="importJSON(this.files[0])" /></label>
-        </div>
-        <!-- ══ PHASE BAR — integrated ══ -->
-        <div id="phase-bar" style="display:none;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-left:auto;">
-          <div id="phase-pass-status" style="font-family:var(--font-mono);font-size:0.5rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);line-height:1.4;display:none;padding:0.2rem 0.4rem;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2);"></div>
-          <div id="phase-counter-display" style="font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--ice);border:1px solid rgba(168,216,234,0.2);padding:0.2rem 0.5rem;display:none;"></div>
-          <div id="phase-pass-badge" style="font-family:var(--font-mono);font-size:0.5rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-dim);border:1px solid var(--border);padding:0.2rem 0.5rem;"></div>
-          <button id="phase-pass-btn" onclick="applyPhasePass()" style="background:none;border:1px solid var(--border-bright);color:var(--text-dim);font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.2em;padding:0.3rem 0.9rem;cursor:pointer;text-transform:uppercase;transition:all 0.2s;">⧖ Phase Pass</button>
-          <div id="action-budget-display" style="font-family:var(--font-mono);font-size:0.48rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);"></div>
-          <button onclick="handleScenarioBtn()" id="scenario-fab-btn" style="background:none;border:1px solid var(--border);color:var(--text-muted);font-family:var(--font-mono);font-size:0.5rem;letter-spacing:0.15em;padding:0.25rem 0.7rem;cursor:pointer;text-transform:uppercase;transition:all 0.2s;">⚑ Begin Scenario</button>
         </div>
       </div>
 
@@ -4089,7 +4299,7 @@ body.sheet-mode .sheet-nav-btn { display: block; }
               No occupation selected
             </div>
             <div class="occ-items" id="occ-items">
-              Select an occupation to see starting items and actions.
+              Select an occupation to see starting items and declarations.
             </div>
             <div class="occ-actions-text" id="occ-actions"></div>
           </div>
@@ -4662,7 +4872,7 @@ body.sheet-mode .sheet-nav-btn { display: block; }
                 <span class="se-name se-name-slowed">⧖ Slowed</span>
                 <div class="se-toggle" id="se-toggle-slowed" onclick="toggleStatusEffect('slowed')"></div>
               </div>
-              <div class="se-desc">Movement and action are impaired. Blacks out fatigue slots from the right — reducing how much you can do each turn.</div>
+              <div class="se-desc">Movement and declaration capacity are both impaired. Blacks out fatigue slots from the right — reducing how much you can do each turn.</div>
               <div class="se-inactive-note" id="se-note-slowed">— inactive —</div>
               <div class="simple-effect-controls" id="slowed-controls">
                 <div class="sub-label" style="margin-bottom:4px;">Fatigue slots blocked</div>
@@ -4969,7 +5179,7 @@ body.sheet-mode .sheet-nav-btn { display: block; }
 
       <!-- Action Phase -->
       <div class="section">
-        <div class="section-label">Action phase</div>
+        <div class="section-label">Declaration phase</div>
         <div class="phase-banner" id="phase-banner">
           <span class="phase-text" id="phase-text">Inactive — normal scene</span>
           <div class="phase-indicator" id="phase-indicator"></div>
@@ -5663,7 +5873,7 @@ function switchTab(tab) {
     document.body.classList.remove('sheet-mode');
     closeSheetPanel();
     updateNav();
-    const pb = document.getElementById('phase-bar'); if (pb) pb.style.display = 'none';
+    const pb = document.getElementById('phase-bar'); if (pb) pb.classList.remove('visible');
     const td = document.getElementById('take-damage-fab'); if (td) td.style.display = 'none';
   } else {
     guideTab.style.display = 'none';
@@ -5673,7 +5883,7 @@ function switchTab(tab) {
     btnSheet.classList.add('tab-active');
     if (sidebarSub) sidebarSub.textContent = "Character Sheet";
     document.body.classList.add('sheet-mode');
-    const pb = document.getElementById('phase-bar'); if (pb) pb.style.display = 'flex'; pb && (pb.style.alignItems = 'center');
+    const pb = document.getElementById('phase-bar'); if (pb) pb.classList.add('visible');
     const td = document.getElementById('take-damage-fab'); if (td) td.style.display = 'flex';
     if (window.innerWidth < 900) {
       document.getElementById('sidebar').classList.remove('open');
@@ -6248,9 +6458,9 @@ document.addEventListener('keydown', function(e) {
         } else if (type === 'grant-action') {
           const paramsDiv = document.getElementById('compound-effect-params');
           const readData = paramsDiv?._readActionData;
-          if (!readData) { toast('Configure the action first', 'var(--text-muted)'); return; }
+          if (!readData) { toast('Configure the declaration first', 'var(--text-muted)'); return; }
           const actionData = readData();
-          if (!actionData?.name || actionData.name === 'Action') { toast('Enter an action name', 'var(--text-muted)'); return; }
+          if (!actionData?.name || actionData.name === 'Action') { toast('Enter a declaration name', 'var(--text-muted)'); return; }
           effect = { type: 'grant-action', ...actionData };
         } else if (type === 'note') {
           const text = document.getElementById('cmpd-note-text')?.value.trim() || '';
@@ -7885,7 +8095,7 @@ document.addEventListener('keydown', function(e) {
       function togglePhase() {
         phaseActive = !phaseActive;
         document.getElementById('phase-banner').classList.toggle('active', phaseActive);
-        document.getElementById('phase-text').textContent = phaseActive ? 'Action phase — active' : 'Inactive — normal scene';
+        document.getElementById('phase-text').textContent = phaseActive ? 'Declaration phase — active' : 'Inactive — normal scene';
         if (!phaseActive) document.querySelectorAll('.win-check.checked').forEach(c => c.classList.remove('checked'));
       }
       function toggleWin(item) { item.querySelector('.win-check').classList.toggle('checked'); }
@@ -7930,8 +8140,8 @@ document.addEventListener('keydown', function(e) {
         // Style the Phase Pass button to reflect lock state
         const ppBtn = document.getElementById('phase-pass-btn');
         if (ppBtn) {
-          ppBtn.style.borderColor = locked ? 'var(--red)' : 'var(--border-bright)';
-          ppBtn.style.color = locked ? 'var(--red)' : 'var(--text-dim)';
+          if (locked) ppBtn.classList.add('locked');
+          else ppBtn.classList.remove('locked');
         }
         updateRestLockBanner();
       }
@@ -8021,7 +8231,7 @@ document.addEventListener('keydown', function(e) {
         // Activate phase banner
         phaseActive = true;
         document.getElementById('phase-banner').classList.add('active');
-        document.getElementById('phase-text').textContent = 'Action phase — active';
+        document.getElementById('phase-text').textContent = 'Declaration phase — active';
 
         // Update FAB button
         const fab = document.getElementById('scenario-fab-btn');
@@ -8042,7 +8252,7 @@ document.addEventListener('keydown', function(e) {
       }
 
       function scenarioOver() {
-        confirmDialog('Scenario Over?', 'This will reset the phase counter and deactivate the action phase', () => {
+        confirmDialog('Scenario Over?', 'This will reset the phase counter and deactivate the declaration phase', () => {
           _scenarioActive = false;
           _scenarioDesc = '';
           _phaseCounter = 0;
@@ -8074,16 +8284,34 @@ document.addEventListener('keydown', function(e) {
         // Now a no-op — phase controlled via Begin/End Scenario
       }
 
+      function togglePhaseDropdown() {
+        const panel = document.getElementById('phase-dropdown');
+        const toggle = document.getElementById('phase-drop-toggle');
+        if (!panel) return;
+        const isOpen = panel.classList.contains('open');
+        panel.classList.toggle('open', !isOpen);
+        if (toggle) toggle.classList.toggle('open', !isOpen);
+      }
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        const panel = document.getElementById('phase-dropdown');
+        const toggle = document.getElementById('phase-drop-toggle');
+        if (!panel || !panel.classList.contains('open')) return;
+        if (!panel.contains(e.target) && e.target !== toggle && !toggle?.contains(e.target)) {
+          panel.classList.remove('open');
+          if (toggle) toggle.classList.remove('open');
+        }
+      });
+
       let _phaseCounter = 0;
 
       function updatePhaseCounterDisplay() {
         const el = document.getElementById('phase-counter-display');
         if (!el) return;
-        if (_phaseCounter === 0) { el.style.display = 'none'; return; }
-        el.style.display = '';
+        if (_phaseCounter === 0) { el.textContent = '—'; el.style.color = 'var(--text-dim)'; return; }
         el.textContent = 'Phase ' + _phaseCounter;
         el.style.color = _phaseCounter >= 10 ? 'var(--gold)' : 'var(--ice)';
-        el.style.borderColor = _phaseCounter >= 10 ? 'rgba(201,168,76,0.3)' : 'rgba(168,216,234,0.2)';
       }
 
       function applyPhasePass() {
@@ -8131,14 +8359,9 @@ document.addEventListener('keydown', function(e) {
         // Update status line
         const statusEl = document.getElementById('phase-pass-status');
         if (statusEl) {
-          if (msgs.length === 0) {
-            statusEl.textContent = 'Phase passed — no active effects';
-            statusEl.style.display = 'block';
-          } else {
-            statusEl.textContent = msgs.join(' · ');
-            statusEl.style.display = 'block';
-          }
-          setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 3000);
+          statusEl.textContent = msgs.length === 0 ? 'Phase passed — no active effects' : msgs.join(' · ');
+          statusEl.classList.add('visible');
+          setTimeout(() => { if (statusEl) statusEl.classList.remove('visible'); }, 3000);
         }
       }
 
@@ -8325,7 +8548,7 @@ document.addEventListener('keydown', function(e) {
         if (_actionBudgetUsed >= getActionBudget()) {
           const msg = window._grappleVulnerable
             ? 'Grapple failed — exposed and vulnerable · Phase locked'
-            : 'No actions remaining this phase — press ⧖ Phase Pass to reset';
+            : 'No declarations remaining this phase — press ⧖ Phase Pass to reset';
           toast(msg, 'var(--red)');
           return true;
         }
@@ -8337,7 +8560,7 @@ document.addEventListener('keydown', function(e) {
         updateActionBudgetDisplay();
         const remaining = getRemainingActions();
         if (remaining === 0) {
-          toast((name || 'Action') + ' declared · Phase full — no actions remaining', 'var(--red)');
+          toast((name || 'Declaration') + ' declared · Phase full — no declarations remaining', 'var(--red)');
         }
       }
 
@@ -8350,16 +8573,17 @@ document.addEventListener('keydown', function(e) {
         const budget = getActionBudget();
         const used = Math.min(_actionBudgetUsed, budget);
         const remaining = budget - used;
-        const el = document.getElementById('action-budget-display');
-        if (!el) return;
-        el.textContent = remaining + ' / ' + budget + ' actions remaining';
-        el.style.color = remaining === 0 ? 'var(--red)' : remaining <= 1 ? 'var(--gold)' : 'var(--text-muted)';
-        // Update the FAB badge
+        // Update badge in dropdown
         const badge = document.getElementById('phase-pass-badge');
         if (badge) {
-          badge.textContent = remaining + '/' + budget;
+          badge.textContent = remaining + ' / ' + budget;
           badge.style.color = remaining === 0 ? 'var(--red)' : remaining <= 1 ? 'var(--gold)' : 'var(--text-dim)';
-          badge.style.borderColor = remaining === 0 ? 'rgba(196,92,74,0.5)' : remaining <= 1 ? 'rgba(201,168,76,0.3)' : 'var(--border)';
+        }
+        // Style the Phase Pass button to reflect exhaustion
+        const ppBtn = document.getElementById('phase-pass-btn');
+        if (ppBtn) {
+          if (remaining === 0) { ppBtn.classList.add('locked'); }
+          else { ppBtn.classList.remove('locked'); }
         }
       }
 
@@ -8474,7 +8698,7 @@ document.addEventListener('keydown', function(e) {
         const req = item.querySelector('[data-key="weaponReq"]')?.value || 'unarmed';
         if (!isWeaponReqMet(req)) { toast(name + ' requires ' + weaponReqLabel(req) + ' equipped', 'var(--red)'); return; }
         const baseCost = parseInt(item.dataset.computedFatigue || '0', 10);
-        if (isNaN(baseCost) || baseCost <= 0) { toast('Lock the action first to set fatigue cost', 'var(--text-muted)'); return; }
+        if (isNaN(baseCost) || baseCost <= 0) { toast('Lock the declaration first to set fatigue cost', 'var(--text-muted)'); return; }
         const actionType = item.dataset.actionType;
         const range      = item.dataset.attackRange || 'close';
         const baseWounds = parseInt(item.dataset.computedWounds || '0', 10);
@@ -8765,7 +8989,7 @@ document.addEventListener('keydown', function(e) {
 
         // Flash lock button
         const lockBtn = src.querySelector('.ability-lock-btn');
-        if (lockBtn) { lockBtn.textContent = '✓ Locked'; setTimeout(() => { lockBtn.textContent = '⚿ Lock to Actions'; }, 1600); }
+        if (lockBtn) { lockBtn.textContent = '✓ Locked'; setTimeout(() => { lockBtn.textContent = '⚿ Lock to Memory'; }, 1600); }
         toast(name + ' locked to Arts', ac);
       }
 
@@ -8868,7 +9092,7 @@ document.addEventListener('keydown', function(e) {
               <div><div class="sub-label">Ability name</div><input class="additive-input" data-key="name" type="text" placeholder="Name this ability…" /></div>
               <div><div class="sub-label">Description</div><input class="additive-input" data-key="desc" type="text" placeholder="Brief effect summary…" /></div>
             </div>
-            <div class="sub-label" style="margin-bottom:4px;">Action type</div>
+            <div class="sub-label" style="margin-bottom:4px;">Declaration type</div>
             <div class="action-type-row">
               <button class="action-type-btn" data-atype="attack" onclick="selectActionType('${id}','attack')">⚔ Attack</button>
               <button class="action-type-btn" data-atype="movement" onclick="selectActionType('${id}','movement')">↗ Movement</button>
@@ -9400,7 +9624,7 @@ document.addEventListener('keydown', function(e) {
               <div><div class="sub-label">Action name</div><input class="additive-input" data-key="name" type="text" placeholder="Name of this action…" /></div>
               <div><div class="sub-label">Description</div><input class="additive-input" data-key="desc" type="text" placeholder="What this action does…" /></div>
             </div>
-            <div class="sub-label" style="margin-bottom:4px;">Action type</div>
+            <div class="sub-label" style="margin-bottom:4px;">Declaration type</div>
             <div class="action-type-row">
               <button class="action-type-btn" data-atype="attack" onclick="selectActionType('${id}','attack')">⚔ Attack</button>
               <button class="action-type-btn" data-atype="movement" onclick="selectActionType('${id}','movement')">↗ Movement</button>
@@ -9840,7 +10064,7 @@ document.addEventListener('keydown', function(e) {
                 <optgroup label="Fusion"><option value="fusion">⟁ Fusion (any)</option></optgroup>
               </select>
             </div>
-            <div class="sub-label" style="margin-bottom:4px;">Action type</div>
+            <div class="sub-label" style="margin-bottom:4px;">Declaration type</div>
             <div class="action-type-row">
               <button class="action-type-btn" data-atype="attack"   onclick="selectActionType('${id}','attack')">⚔ Attack</button>
               <button class="action-type-btn" data-atype="movement" onclick="selectActionType('${id}','movement')">↗ Movement</button>
@@ -10148,9 +10372,9 @@ document.addEventListener('keydown', function(e) {
           else if (type === 'passive-defense') effect = { type, amount: parseInt(nums[0]?.value||'1',10) };
           else if (type === 'grant-action') {
             const readData = effParamPanel._readActionData;
-            if (!readData) { toast('Configure the action first', 'var(--text-muted)'); return; }
+            if (!readData) { toast('Configure the declaration first', 'var(--text-muted)'); return; }
             const actionData = readData();
-            if (!actionData?.name || actionData.name === 'Action') { toast('Enter an action name', 'var(--text-muted)'); return; }
+            if (!actionData?.name || actionData.name === 'Action') { toast('Enter a declaration name', 'var(--text-muted)'); return; }
             effect = { type:'grant-action', ...actionData };
           } else if (type === 'note') {
             const text = texts[0]?.value.trim() || '';
@@ -10283,7 +10507,7 @@ document.addEventListener('keydown', function(e) {
           b.addEventListener('click',()=>{ activeType=t; syncType(); });
           typeBtns[t]=b; typeRow.appendChild(b);
         });
-        app(cell('Action type', typeRow, '0.5rem'));
+        app(cell('Declaration type', typeRow, '0.5rem'));
 
         // ── ATTACK PANEL ──
         const attackPanel=document.createElement('div');
@@ -10871,7 +11095,7 @@ document.addEventListener('keydown', function(e) {
 
           function updateEquipBarState() {
             equipStatus.textContent = weaponEquipped
-              ? (linkedActionIds.length > 0 ? '⚔ unsheathed — ' + linkedActionIds.length + ' action' + (linkedActionIds.length!==1?'s':'') + ' ready' : '⚔ unsheathed')
+              ? (linkedActionIds.length > 0 ? '⚔ unsheathed — ' + linkedActionIds.length + ' declaration' + (linkedActionIds.length!==1?'s':'') + ' ready' : '⚔ unsheathed')
               : '— sheathed';
             equipStatus.style.color = weaponEquipped ? 'var(--red)' : 'var(--text-muted)';
             equipBtn.textContent = weaponEquipped ? 'Sheathe' : 'Unsheathe';
@@ -10968,11 +11192,11 @@ document.addEventListener('keydown', function(e) {
 
                 div._linkedActionIds = linkedActionIds;
                 const count = linkedActionIds.length;
-                equipStatus.textContent = '⚔ unsheathed — Fusion [' + (fusionMode === 'constant' ? 'Constant' : 'Mode '+fusionActiveMode) + '] — ' + count + ' action' + (count !== 1 ? 's' : '') + ' ready';
+                equipStatus.textContent = '⚔ unsheathed — Fusion [' + (fusionMode === 'constant' ? 'Constant' : 'Mode '+fusionActiveMode) + '] — ' + count + ' declaration' + (count !== 1 ? 's' : '') + ' ready';
                 equipStatus.style.color = 'var(--ice)';
                 equipBtn.textContent = 'Sheathe';
                 badge.style.outline = '1px solid var(--ice)';
-                toast(wpnName + ' equipped — Fusion ' + fusionMode + ' · ' + count + ' action' + (count !== 1 ? 's' : '') + ' added', 'var(--ice)');
+                toast(wpnName + ' equipped — Fusion ' + fusionMode + ' · ' + count + ' declaration' + (count !== 1 ? 's' : '') + ' added', 'var(--ice)');
                 refreshAllActionWeaponPickers();
                 return;
               }
@@ -11018,7 +11242,7 @@ document.addEventListener('keydown', function(e) {
               }
 
               const count = linkedActionIds.length;
-              equipStatus.textContent = '⚔ unsheathed — ' + count + ' action' + (count !== 1 ? 's' : '') + ' ready';
+              equipStatus.textContent = '⚔ unsheathed — ' + count + ' declaration' + (count !== 1 ? 's' : '') + ' ready';
               equipStatus.style.color = 'var(--red)';
               equipBtn.textContent = 'Sheathe';
               badge.style.outline = '1px solid var(--red)';
@@ -11342,7 +11566,7 @@ div._forceUnwear = () => {
           const kindFg = document.createElement('div'); kindFg.className = 'inv-fg';
           const kindLbl = document.createElement('div'); kindLbl.className = 'inv-sub-label'; kindLbl.textContent = 'Consumable Kind';
           const kindSel = document.createElement('select'); kindSel.className = 'inv-field-sel'; kindSel.setAttribute('data-key','conKind');
-          [['other','Other'],['food','Food (heals wounds)'],['water','Water (heals fatigue)'],['material','Material (repairs armor)'],['ammo','Ammo (ranged weapons)']].forEach(([v,l]) => {
+          [['other','Other'],['food','Food (heals wounds)'],['water','Water (heals fatigue)'],['aid','Aid (wounds + status)'],['material','Material (repairs armor)'],['ammo','Ammo (ranged weapons)']].forEach(([v,l]) => {
             const o = document.createElement('option'); o.value = v; o.textContent = l; kindSel.appendChild(o);
           });
           kindSel.value = d.conKind || 'other';
@@ -11368,7 +11592,43 @@ div._forceUnwear = () => {
           ammoSel.value = d.conAmmoType || 'arrows';
           ammoFg.appendChild(ammoLbl); ammoFg.appendChild(ammoSel);
 
-          // Heal amount field — shown for food/water only
+          // Aid: wounds healed + status effect clearers
+          const aidFg = document.createElement('div'); aidFg.className = 'inv-fg'; aidFg.id = 'aid-fg-' + id;
+          const aidLbl = document.createElement('div'); aidLbl.className = 'inv-sub-label'; aidLbl.textContent = 'Wounds healed';
+          const aidInp = document.createElement('input'); aidInp.className = 'inv-field-input';
+          aidInp.style.fontFamily = 'var(--font-mono)';
+          aidInp.setAttribute('data-key','conAidWounds'); aidInp.type = 'number'; aidInp.min = '0';
+          aidInp.placeholder = '0'; aidInp.value = d.conAidWounds != null ? d.conAidWounds : '1';
+          aidFg.appendChild(aidLbl); aidFg.appendChild(aidInp);
+
+          const aidStatusWrap = document.createElement('div');
+          aidStatusWrap.id = 'aid-status-wrap-' + id;
+          aidStatusWrap.style.cssText = 'grid-column:1/-1;display:none;';
+          const aidStatusLbl = document.createElement('div');
+          aidStatusLbl.className = 'inv-sub-label'; aidStatusLbl.style.marginBottom = '5px';
+          aidStatusLbl.textContent = 'Clears status effects';
+          const aidEffects = ['poison','bleeding','slowed','blinded','charmed','void-exposed'];
+          const aidLabels  = ['Poison','Bleeding','Slowed','Blinded','Charmed','Void-Exposed'];
+          const aidCheckGrid = document.createElement('div');
+          aidCheckGrid.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);gap:0.3rem 0.6rem;';
+          const savedAidClears = (() => { try { return JSON.parse(d.conAidClears || '[]'); } catch(e) { return []; } })();
+          aidEffects.forEach((eff, i) => {
+            const lbl = document.createElement('label');
+            lbl.style.cssText = 'display:flex;align-items:center;gap:0.35rem;font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.07em;color:var(--text-dim);cursor:pointer;';
+            const cb = document.createElement('input'); cb.type = 'checkbox';
+            cb.setAttribute('data-aid-effect', eff);
+            cb.style.accentColor = 'var(--mage)';
+            cb.checked = savedAidClears.includes(eff);
+            lbl.appendChild(cb); lbl.appendChild(document.createTextNode(aidLabels[i]));
+            aidCheckGrid.appendChild(lbl);
+          });
+          aidStatusWrap.appendChild(aidStatusLbl);
+          aidStatusWrap.appendChild(aidCheckGrid);
+
+          kindRow.appendChild(aidFg);
+          kindRow.appendChild(aidStatusWrap);
+
+          // Heal amount field — shown for food/water/aid
           const healFg = document.createElement('div'); healFg.className = 'inv-fg';
           const healLbl = document.createElement('div'); healLbl.className = 'inv-sub-label'; healLbl.id = 'heal-lbl-' + id; healLbl.textContent = 'Amount healed';
           const healInp = document.createElement('input'); healInp.className = 'inv-field-input';
@@ -11397,19 +11657,26 @@ div._forceUnwear = () => {
           function updateKindUI() {
             const kind = kindSel.value;
             const isAuto = kind === 'food' || kind === 'water';
+            const isAid  = kind === 'aid';
             const isMaterial = kind === 'material';
             const isAmmo = kind === 'ammo';
             matFg.style.display = isMaterial ? '' : 'none';
             ammoFg.style.display = isAmmo ? '' : 'none';
             healFg.style.display = isAuto ? '' : 'none';
-            effectWrap.style.display = (isAuto || isMaterial || isAmmo) ? 'none' : '';
-            autoDesc.style.display = (isAuto || isMaterial || isAmmo) ? '' : 'none';
+            const aidFgEl = document.getElementById('aid-fg-' + id);
+            if (aidFgEl) aidFgEl.style.display = isAid ? '' : 'none';
+            const aidSwEl = document.getElementById('aid-status-wrap-' + id);
+            if (aidSwEl) aidSwEl.style.display = isAid ? '' : 'none';
+            effectWrap.style.display = (isAuto || isAid || isMaterial || isAmmo) ? 'none' : '';
+            autoDesc.style.display = (isAuto || isAid || isMaterial || isAmmo) ? '' : 'none';
             if (kind === 'food') {
               healLbl.textContent = 'Wounds healed';
               autoDesc.textContent = '▸ On use: heals wounds from wound pool (filled → cleared)';
             } else if (kind === 'water') {
               healLbl.textContent = 'Fatigue healed';
               autoDesc.textContent = '▸ On use: removes fatigue slots (filled → cleared)';
+            } else if (isAid) {
+              autoDesc.textContent = '▸ On use: heals wounds, then clears each checked status effect';
             } else if (isMaterial) {
               autoDesc.textContent = '▸ On use: opens repair dialog — requires matching armor material & Improvised Repair trait or a mechanic/blacksmith.';
             } else if (isAmmo) {
@@ -11540,6 +11807,58 @@ div._forceUnwear = () => {
               fatFilled.slice(-fatHeal).forEach(b => b.classList.remove('filled-fatigue'));
               updateCounts();
               toast(name + ' drunk — ' + fatHeal + ' fatigue cleared', 'var(--green)');
+            } else if (kind === 'aid') {
+              // ── Aid: heal wounds then clear checked status effects ──
+              const aidWounds = parseInt(aidInp.value, 10) || 0;
+              const msgs = [];
+
+              // 1. Heal wounds
+              if (aidWounds > 0) {
+                let toHeal = aidWounds;
+                const wpoolFilled = [...document.querySelectorAll('#wpool-boxes .track-box.filled-wpool')];
+                const healed = Math.min(toHeal, wpoolFilled.length);
+                wpoolFilled.slice(-healed).forEach(b => b.classList.remove('filled-wpool'));
+                updateCounts(); updateWoundStatus(); syncWoundsToFatigue();
+                if (healed > 0) msgs.push(healed + ' wound' + (healed !== 1 ? 's' : '') + ' healed');
+              }
+
+              // 2. Clear checked status effects
+              const checkboxes = aidCheckGrid.querySelectorAll('[data-aid-effect]:checked');
+              const cleared = [];
+              checkboxes.forEach(cb => {
+                const eff = cb.getAttribute('data-aid-effect');
+                // normalise void-exposed → hypnotized (internal key)
+                const internalKey = eff === 'void-exposed' ? 'hypnotized' : eff;
+                if (!statusEffects[internalKey] || !statusEffects[internalKey].active) return;
+                statusEffects[internalKey].active = false;
+
+                // Toggle UI off
+                const togId = { poison:'se-toggle-poison', bleeding:'se-toggle-bleeding', slowed:'se-toggle-slowed', blinded:'se-toggle-blinded', charmed:'se-toggle-charmed', hypnotized:'se-toggle-hypnotized' }[internalKey];
+                const cardId = { poison:'se-card-poison', bleeding:'se-card-bleeding', slowed:'se-card-slowed', blinded:'se-card-blinded', charmed:'se-card-charmed', hypnotized:'se-card-hypnotized' }[internalKey];
+                const noteId = { poison:'se-note-poison', bleeding:'se-note-bleeding', slowed:'se-note-slowed', blinded:'se-note-blinded', charmed:'se-note-charmed', hypnotized:'se-note-hypnotized' }[internalKey];
+                const ctrlId = { poison:'poison-controls', bleeding:'bleeding-controls', slowed:'slowed-controls', blinded:'blinded-controls', charmed:'charmed-controls', hypnotized:'hypnotized-controls' }[internalKey];
+                const tog  = document.getElementById(togId);  if (tog)  { tog.className = 'se-toggle'; }
+                const card = document.getElementById(cardId); if (card) { card.className = 'status-effect-card'; }
+                const note = document.getElementById(noteId); if (note) { note.style.display = ''; }
+                const ctrl = document.getElementById(ctrlId); if (ctrl) { ctrl.style.display = 'none'; }
+
+                // Special cleanup for slowed
+                if (internalKey === 'slowed') {
+                  statusEffects.slowed.amount = 2;
+                  const sv = document.getElementById('slowed-val'); if (sv) sv.textContent = '2';
+                  const sp = document.getElementById('slowed-preview'); if (sp) sp.textContent = '2 fatigue slots blacked out';
+                  applySlowedOverlay();
+                }
+                // Remove fortitude-buffer lock for poison / bleeding ticks display refresh
+                updateCounts();
+
+                const displayLabels = { poison:'Poison', bleeding:'Bleeding', slowed:'Slowed', blinded:'Blinded', charmed:'Charmed', hypnotized:'Void-Exposed' };
+                cleared.push(displayLabels[internalKey] || internalKey);
+              });
+              if (cleared.length) msgs.push('clears: ' + cleared.join(', '));
+
+              if (msgs.length === 0) msgs.push('used');
+              toast(name + ' — ' + msgs.join(' · '), 'var(--mage)');
             }
             // 'other' — effect is just descriptive, no automatic mechanic
 
@@ -11809,7 +12128,7 @@ div._forceUnwear = () => {
           function updateCapNote() {
             const cap = parseInt(sizeSel.value, 10);
             const stored = el.querySelectorAll('.archive-action-entry').length;
-            capNote.textContent = stored + ' / ' + cap + ' action' + (cap !== 1 ? 's' : '') + ' stored';
+            capNote.textContent = stored + ' / ' + cap + ' declaration' + (cap !== 1 ? 's' : '') + ' stored';
             capNote.style.color = stored >= cap ? 'var(--psion)' : 'var(--text-muted)';
           }
           sizeSel.addEventListener('change', updateCapNote);
@@ -11847,14 +12166,14 @@ div._forceUnwear = () => {
             const studyBtn = document.createElement('button');
             studyBtn.style.cssText = 'background:none;border:1px solid var(--gold);color:var(--gold);font-family:var(--font-mono);font-size:0.52rem;letter-spacing:0.1em;padding:2px 8px;cursor:pointer;text-transform:uppercase;transition:all 0.15s;flex-shrink:0;';
             studyBtn.textContent = '★ Study';
-            studyBtn.title = 'Grant this action to your ' + (isTechnique ? 'Techniques' : 'Skills');
+            studyBtn.title = 'Grant this declaration to your ' + (isTechnique ? 'Techniques' : 'Skills');
             studyBtn.addEventListener('click', () => {
               if (isTechnique) {
                 addTechnique(actData);
-                toast((actData.name || 'Action') + ' learned — added to Techniques', 'var(--gold)');
+                toast((actData.name || 'Declaration') + ' learned — added to Techniques', 'var(--gold)');
               } else {
                 addAction(actData);
-                toast((actData.name || 'Action') + ' learned — added to Skills', 'var(--gold)');
+                toast((actData.name || 'Declaration') + ' learned — added to Skills', 'var(--gold)');
               }
             });
 
@@ -11863,7 +12182,7 @@ div._forceUnwear = () => {
             restoreBtn.textContent = 'Restore';
             restoreBtn.addEventListener('click', () => {
               addAction(actData);
-              toast((actData.name || 'Action') + ' restored from archive', 'var(--psion)');
+              toast((actData.name || 'Declaration') + ' restored from archive', 'var(--psion)');
             });
 
             const removeBtn = document.createElement('button');
@@ -11888,7 +12207,7 @@ div._forceUnwear = () => {
 
           const actionPickSel = document.createElement('select'); actionPickSel.className = 'inv-field-sel'; actionPickSel.style.flex = '1';
           const refreshActionPick = () => {
-            actionPickSel.innerHTML = '<option value="">— Pick an action to archive —</option>';
+            actionPickSel.innerHTML = '<option value="">— Pick a declaration to archive —</option>';
             const skillGroup = document.createElement('optgroup'); skillGroup.label = 'Skills';
             document.querySelectorAll('#actions-list .additive-item').forEach(item => {
               if (item.dataset.grantSource) return;
@@ -11938,7 +12257,7 @@ div._forceUnwear = () => {
           const refreshBtn = document.createElement('button');
           refreshBtn.style.cssText = 'background:none;border:1px solid var(--border-bright);color:var(--text-muted);font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.1em;padding:0.35rem 0.5rem;cursor:pointer;transition:all 0.15s;flex-shrink:0;';
           refreshBtn.textContent = '↻';
-          refreshBtn.title = 'Refresh action list';
+          refreshBtn.title = 'Refresh declaration list';
           refreshBtn.addEventListener('click', refreshActionPick);
           storeRow.appendChild(refreshBtn);
           el.appendChild(storeRow);
@@ -12115,6 +12434,8 @@ div._forceUnwear = () => {
           conUses:gv('conUses'), conAction:gv('conAction'), conDuration:gv('conDuration'),
           conEffect:gv('conEffect'), conDrawback:gv('conDrawback'), conRenewable:gv('conRenewable'),
           conKind:gv('conKind'), conHealAmt:gv('conHealAmt'), conMatType:gv('conMatType'), conAmmoType:gv('conAmmoType'),
+          conAidWounds:gv('conAidWounds'),
+          conAidClears:(()=>{ const cbs = item.querySelectorAll('[data-aid-effect]:checked'); return JSON.stringify([...cbs].map(c=>c.getAttribute('data-aid-effect'))); })(),
           conUsesRemaining:(()=>{ const el = item.querySelector('.con-uses-remaining'); return el ? el.dataset.remaining : null; })(),
           arcWeight:gv('arcWeight'), arcSystem:gv('arcSystem'), arcEffect:gv('arcEffect'),
           arcAttune:gv('arcAttune'), arcTags:getTags('arcTags'),
@@ -12778,7 +13099,7 @@ div._forceUnwear = () => {
         if (!occ) {
           document.getElementById('occ-name').textContent = 'No occupation selected';
           document.getElementById('occ-name').style.color = 'var(--text-muted)';
-          document.getElementById('occ-items').textContent = 'Select an occupation to see starting items and actions.';
+          document.getElementById('occ-items').textContent = 'Select an occupation to see starting items and declarations.';
           document.getElementById('occ-actions').textContent = '';
           descBlock.classList.remove('visible');
           renderOccTraits(null);
@@ -13465,9 +13786,9 @@ function importJSON(fileInputOrFile) {
         const current = document.querySelectorAll('#actions-list .additive-item').length;
         if (current >= max) {
           // Pokémon-style: must remove one first
-          toast('Action slots full (' + max + '/' + max + ' — Insight ' +
+          toast('Memory full (' + max + '/' + max + ' — Insight ' +
             (getEffectiveTier('insight')) +
-            ') · Remove an action to add another', 'var(--red)');
+            ') · Remove a Skill to add another', 'var(--red)');
           // Flash all remove buttons to draw attention
           document.querySelectorAll('#actions-list .remove-btn').forEach(btn => {
             btn.style.borderColor = 'var(--red)';
@@ -13963,7 +14284,7 @@ function importJSON(fileInputOrFile) {
         const costWrap = document.createElement('div');
         const costLbl = document.createElement('div');
         costLbl.className = 'sub-label';
-        costLbl.textContent = 'Uses full action budget';
+        costLbl.textContent = 'Uses full declaration budget';
         const costNote = document.createElement('div');
         costNote.style.cssText = 'font-family:var(--font-mono);font-size:0.6rem;color:var(--red);letter-spacing:0.05em;';
         costNote.textContent = 'Rolls your Might die';
@@ -14853,4 +15174,3 @@ function importJSON(fileInputOrFile) {
 </script>
 </body>
 </html>
-
