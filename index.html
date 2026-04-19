@@ -1280,6 +1280,7 @@
 .tab-btn:hover { color: var(--text); background: var(--ice-dim); }
 .tab-btn.tab-active { color: var(--ice); background: var(--ice-dim); border-bottom: 2px solid var(--ice); }
 .tab-btn.tab-active.tab-sheet { color: var(--gold); background: var(--gold-dim); border-bottom-color: var(--gold); }
+.tab-btn.tab-active.tab-shop { color: var(--mage); background: var(--mage-dim); border-bottom-color: var(--mage); }
 
 /* ══ TAB PANELS ══ */
 #sheet-tab { display: none; font-family: var(--font-display, 'Cinzel', serif); padding: 0 0 4rem; min-height: 100vh; box-sizing: border-box; width: 100%; transition: margin-left 0.25s ease; }
@@ -1865,7 +1866,7 @@ body.sheet-mode .sheet-nav-btn { display: block; }
         width: calc(100% - 1.7rem);
       }
       .phase-scenario-btn:hover { border-color: var(--red); color: var(--red); }
-      .save-toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--surface); border: 1px solid var(--accent); color: var(--accent); font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; padding: 0.6rem 1.2rem; z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+      .save-toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--surface); border: 1px solid var(--accent); color: var(--accent); font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; padding: 0.6rem 1.2rem; z-index: 99999999; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
       .save-toast.show { opacity: 1; }
       .confirm-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999990; display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
       .confirm-box { background: var(--surface); border: 1px solid var(--red); padding: 1.25rem 1.5rem; max-width: 340px; width: 100%; }
@@ -2700,6 +2701,7 @@ body.sheet-mode .sheet-nav-btn { display: block; }
   <div class="tab-switcher">
     <button class="tab-btn tab-active" id="tab-btn-guide" onclick="switchTab('guide')">Guide</button>
     <button class="tab-btn tab-sheet" id="tab-btn-sheet" onclick="switchTab('sheet')">Sheet</button>
+    <button class="tab-btn tab-shop" id="tab-btn-shop" onclick="switchTab('shop')">Shop</button>
   </div>
 
   <!-- Guide Nav -->
@@ -2740,6 +2742,7 @@ body.sheet-mode .sheet-nav-btn { display: block; }
     <span class="nav-section-label">Preparation</span>
     <button class="nav-link nav-gold" data-target="pre-session">Pre-Session Thinking</button>
     <button class="nav-link" data-target="inventory-strategy">Inventory & Items</button>
+    <button class="nav-link nav-mage" data-target="shop-mechanics">The Item Shop</button>
     <button class="nav-link" data-target="training-strategy">Spending Training Points</button>
   </div>
 
@@ -3029,7 +3032,7 @@ body.sheet-mode .sheet-nav-btn { display: block; }
       <div class="stat-pillar">Combat</div>
       <div class="stat-info">
         <div class="stat-name">Might</div>
-        <p class="stat-desc">Raw strength, physical force. Scales melee attack wounds. Also determines carry capacity — your inventory size.</p>
+        <p class="stat-desc">Raw strength, physical force. Scales melee attack wounds. Also determines carry weight limit — how much you can carry before becoming encumbered.</p>
         <div class="stat-strategic">→ Dual-purpose: combat output AND preparation depth. Don't neglect this.</div>
       </div>
       <div class="stat-die-badge" style="color:var(--gold);">Combat</div>
@@ -3242,7 +3245,7 @@ body.sheet-mode .sheet-nav-btn { display: block; }
     </div>
     <div class="sheet-section-item">
       <div class="sheet-section-name">Items (Inventory)</div>
-      <p class="sheet-section-desc">Opened via the ⊞ Open Inventory button. Items with quantity, weight, type tags, and expandable details. Weapons auto-populate Techniques in Memory when equipped. Enchantments push their traits into the Traits section when equipped. Total weight tracked against carry limit (set by Might). This is your preparation layer — fill it with intent.</p>
+      <p class="sheet-section-desc">Opened via the ⊞ Open Inventory button. Three sections: Hands (2 slots for weapons and held items), Body (Helm, Body, Legs, Feet armor slots plus Accessories), and Bag (upgradeable item slots). Each item has a Weight value (1–4). Might sets your weight limit — carry over that limit and Slowed activates, scaling harder the more overweight you are. Bag slots are upgraded via the + button in the Bag header. This is your preparation layer — fill it with intent.</p>
       <div class="sheet-section-tag tag-tracking">Tracking</div>
     </div>
     <div class="sheet-section-item">
@@ -3908,7 +3911,77 @@ body.sheet-mode .sheet-nav-btn { display: block; }
 </section>
 
 <!-- ══ TRAINING POINTS ══ -->
-<section class="page reveal" id="training-strategy">
+<section class="page reveal" id="shop-mechanics">
+  <div class="page-num">The Item Shop</div>
+  <span class="eyebrow">Acquisition & Economy</span>
+  <h1 class="page-title">The Item Shop</h1>
+
+  <p>The Item Shop is a live catalog your GM loads before or during a session. It shows what's available to acquire in your current situation — a black market contact, a scavenged cache, a vendor working out of a storage unit. Items don't appear out of nowhere. They reflect what exists in the fiction right now.</p>
+
+  <p>Every item in the shop has one or more acquisition paths. Some cost currency. Some are trade-only. Some are both. And some, if you're willing to accept the risk, can simply be taken.</p>
+
+  <h2 class="section-head">How to Load a Catalog</h2>
+
+  <p>The GM generates items using the STILLPOINT Item Library tool and exports them as a JSON file. You import that file into the Shop tab using the upload button. Once loaded, the catalog filters by item type and shows everything available. Items stay in the catalog until you clear it — the shop persists across sessions if you don't wipe it.</p>
+
+  <h2 class="section-head">Three Ways to Acquire</h2>
+
+  <div class="grid-2">
+    <div class="card card-mage">
+      <span class="card-label">◈ Buy</span>
+      <div class="card-title">Currency Purchase</div>
+      <p>If an item has a price, the Buy tab shows how much it costs and what currency it requires. Currency is tracked as a consumable item in your inventory — each use is one unit. The shop reads your current balance and blocks the purchase if you're short. If the item's price names a specific currency (like "40 red chroma"), only that currency counts. Generic currency items of a different name won't satisfy it.</p>
+    </div>
+    <div class="card card-gold">
+      <span class="card-label">⇌ Trade</span>
+      <div class="card-title">Barter Offer</div>
+      <p>Items without a price — or items you can't afford — can be acquired through trade. The shop calculates what a fair offer looks like based on the item's type and rarity, then scans everything you're carrying for qualifying items. Consumables expand by use count: three uses of a food item means three individual units available to offer. Select enough items to meet the requirement and confirm.</p>
+    </div>
+  </div>
+
+  <div class="card card-red" style="margin-bottom:1.5rem;">
+    <span class="card-label">⚠ Steal</span>
+    <div class="card-title">Theft Attempt</div>
+    <p>Always available. Always risky. The Steal tab rolls your Wit and Expertise together against a threshold. A high combined roll means a clean lift. A middling result means you got it — but someone may have seen something. A low result means you're caught empty-handed. The roll is one attempt only. You can't retry. What happens after getting caught is a matter for the table, not the system.</p>
+  </div>
+
+  <h2 class="section-head">Currency</h2>
+
+  <p>Currency is a consumable item in your inventory with its kind set to <strong>Currency</strong>. Each remaining use is one unit — so a currency item with 40 uses represents 40 marks, or credits, or whatever denomination is in play. When you buy something, the shop deducts from your matching currency stack and removes the item if it hits zero.</p>
+
+  <p>The shop matches currency by name. If an item costs "red chroma," only currency items named "red chroma" in your inventory will count. This means different economies can coexist — you can carry marks, chroma, and favors simultaneously, and the shop will draw from the correct pool for each purchase automatically.</p>
+
+  <h2 class="section-head">Trade Valuation</h2>
+
+  <p>Trade offers scale with the rarity of what you're trying to acquire. A common item might want a handful of food or a basic tool. A rare item will ask for a weapon of equivalent tier, supplies, and materials. Legendary items are expensive in kind — expect to give up something rare to get something rare. The shop shows you exactly what satisfies the offer before you commit, and tracks how much of the requirement you've filled as you select items.</p>
+
+  <table class="ref-table" style="margin-bottom:1.5rem;">
+    <thead><tr><th>Rarity</th><th>Typical Trade Ask</th></tr></thead>
+    <tbody>
+      <tr><td>Common</td><td>A few food or consumable items</td></tr>
+      <tr><td>Uncommon</td><td>A weapon or armor of same category + basic supplies</td></tr>
+      <tr><td>Rare</td><td>Uncommon or better gear + aid kits or materials</td></tr>
+      <tr><td>Legendary</td><td>Rare gear + armor + multiple consumables</td></tr>
+    </tbody>
+  </table>
+
+  <h2 class="section-head">Theft Outcomes</h2>
+
+  <table class="ref-table">
+    <thead><tr><th>Result</th><th>Threshold</th><th>What Happens</th></tr></thead>
+    <tbody>
+      <tr><td style="color:var(--mage);">Perfect Lift</td><td>Both dice at maximum</td><td>Item taken without a trace</td></tr>
+      <tr><td style="color:var(--ice);">Success</td><td>≥ 65% of max total</td><td>Clean — item added, no flags</td></tr>
+      <tr><td style="color:var(--gold);">Close</td><td>Between thresholds</td><td>Item taken, but someone may have noticed</td></tr>
+      <tr><td style="color:var(--red);">Caught</td><td>≤ 30% of max total</td><td>Fumbled — nothing gained, eyes on you</td></tr>
+    </tbody>
+  </table>
+
+  <blockquote class="bq-ice">The shop doesn't enforce the fiction. It tracks the transaction. What "caught" means for your character in this scene is a question for the table.</blockquote>
+
+</section>
+
+
   <div class="page-num">Advancement</div>
   <span class="eyebrow">Growing Your Character</span>
   <h1 class="page-title">Spending Training Points</h1>
@@ -4095,6 +4168,7 @@ body.sheet-mode .sheet-nav-btn { display: block; }
   <p>These are not cosmetic backstory differences. They are the foundation of how your character relates to power, to danger, to other Deviants, and to the ordinary world they're still operating inside. Carry that origin with you into every scene. Let it inflect what you say and how you say it. That's what makes Stillpoint feel like Stillpoint.</p>
 </section>
 
+
 <!-- ══ CLOSING ══ -->
 <div class="closing reveal">
   <span class="closing-glyph">❄</span>
@@ -4108,6 +4182,197 @@ body.sheet-mode .sheet-nav-btn { display: block; }
 </div>
 
 </div><!-- /main -->
+</div>
+
+<!-- SHOP TAB -->
+<div id="shop-tab">
+<div style="display:flex;flex-direction:column;height:100vh;overflow:hidden;">
+
+  <!-- Shop header bar -->
+  <div style="flex-shrink:0;background:rgba(6,6,16,0.95);border-bottom:1px solid rgba(126,200,160,0.12);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+    <div style="display:flex;align-items:baseline;gap:1.25rem;">
+      <span style="font-family:var(--font-display);font-size:0.95rem;font-weight:900;letter-spacing:0.3em;color:var(--mage);text-shadow:0 0 24px rgba(126,200,160,0.2);">ITEM SHOP</span>
+      <span style="font-family:var(--font-ui);font-size:0.58rem;font-weight:300;letter-spacing:0.45em;text-transform:uppercase;color:var(--text-muted);">Browse · Spend · Equip</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:0.75rem;">
+      <!-- Currency display -->
+      <div id="shop-currency-display" style="font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.12em;color:var(--mage);background:rgba(126,200,160,0.06);border:1px solid rgba(126,200,160,0.2);padding:0.35rem 0.85rem;display:none;">
+        ◈ <span id="shop-currency-amount">0</span> <span id="shop-currency-name" style="color:var(--text-muted);">marks</span>
+      </div>
+      <button onclick="switchTab('guide')" style="background:none;border:1px solid var(--border-bright);color:var(--text-muted);font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;padding:0.45rem 0.85rem;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--ice)';this.style.color='var(--ice)'" onmouseout="this.style.borderColor='var(--border-bright)';this.style.color='var(--text-muted)'">← Guide</button>
+      <button onclick="switchTab('sheet')" style="background:none;border:1px solid var(--border-bright);color:var(--text-muted);font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;padding:0.45rem 0.85rem;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border-bright)';this.style.color='var(--text-muted)'">← Sheet</button>
+      <label style="background:none;border:1px solid var(--border-bright);color:var(--text-muted);font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;padding:0.45rem 0.85rem;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--mage)';this.style.color='var(--mage)'" onmouseout="this.style.borderColor='var(--border-bright)';this.style.color='var(--text-muted)'">&uarr; Load Catalog
+        <input type="file" accept=".json" style="display:none;" onchange="shopLoadCatalog(this.files[0])">
+      </label>
+      <button onclick="shopClearCatalog()" id="shop-clear-btn" style="display:none;background:none;border:1px solid var(--border-bright);color:var(--text-muted);font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;padding:0.45rem 0.85rem;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--red)';this.style.color='var(--red)'" onmouseout="this.style.borderColor='var(--border-bright)';this.style.color='var(--text-muted)'">✕ Clear Catalog</button>
+    </div>
+  </div>
+
+  <!-- Body: filter sidebar + item grid -->
+  <div style="flex:1;display:grid;grid-template-columns:220px 1fr;overflow:hidden;">
+
+    <!-- Left filter panel -->
+    <div style="border-right:1px solid rgba(126,200,160,0.08);background:var(--surface);display:flex;flex-direction:column;overflow:hidden;">
+      <div style="padding:0.85rem 1rem;border-bottom:1px solid var(--border);flex-shrink:0;">
+        <div style="font-family:var(--font-ui);font-size:0.58rem;font-weight:600;letter-spacing:0.45em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.6rem;">Search</div>
+        <input id="shop-search" type="text" placeholder="Filter items…" oninput="shopRenderCatalog()" style="width:100%;background:var(--surface2);border:1px solid var(--border-bright);color:var(--text);font-family:var(--font-mono);font-size:0.68rem;padding:0.35rem 0.5rem;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--mage)'" onblur="this.style.borderColor='var(--border-bright)'">
+      </div>
+      <div style="padding:0.85rem 1rem;border-bottom:1px solid var(--border);flex-shrink:0;">
+        <div style="font-family:var(--font-ui);font-size:0.58rem;font-weight:600;letter-spacing:0.45em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.5rem;">Type</div>
+        <div id="shop-type-filters" style="display:flex;flex-direction:column;gap:0.2rem;">
+          <button class="shop-filter-btn shop-filter-active" data-filter="all" onclick="shopSetFilter('all',this)">All Items</button>
+          <button class="shop-filter-btn" data-filter="weapon" onclick="shopSetFilter('weapon',this)">⚔ Weapons</button>
+          <button class="shop-filter-btn" data-filter="armor" onclick="shopSetFilter('armor',this)">🛡 Armor</button>
+          <button class="shop-filter-btn" data-filter="tool" onclick="shopSetFilter('tool',this)">⚙ Tools</button>
+          <button class="shop-filter-btn" data-filter="consumable" onclick="shopSetFilter('consumable',this)">⬡ Consumables</button>
+          <button class="shop-filter-btn" data-filter="key" onclick="shopSetFilter('key',this)">⚿ Key Items</button>
+          <button class="shop-filter-btn" data-filter="misc" onclick="shopSetFilter('misc',this)">◈ Misc</button>
+          <button class="shop-filter-btn" data-filter="archive" onclick="shopSetFilter('archive',this)">📜 Archives</button>
+        </div>
+      </div>
+      <div style="padding:0.85rem 1rem;flex-shrink:0;">
+        <div style="font-family:var(--font-ui);font-size:0.58rem;font-weight:600;letter-spacing:0.45em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.5rem;">Rarity</div>
+        <div style="display:flex;flex-direction:column;gap:0.2rem;">
+          <button class="shop-filter-btn shop-filter-active" data-rarity="all" onclick="shopSetRarity('all',this)">All Rarities</button>
+          <button class="shop-filter-btn" data-rarity="common" onclick="shopSetRarity('common',this)">Common</button>
+          <button class="shop-filter-btn" data-rarity="uncommon" onclick="shopSetRarity('uncommon',this)">Uncommon</button>
+          <button class="shop-filter-btn" data-rarity="rare" onclick="shopSetRarity('rare',this)">Rare</button>
+          <button class="shop-filter-btn" data-rarity="legendary" onclick="shopSetRarity('legendary',this)">Legendary</button>
+        </div>
+      </div>
+      <!-- Currency selector -->
+      <div style="padding:0.85rem 1rem;border-top:1px solid var(--border);margin-top:auto;flex-shrink:0;" id="shop-currency-selector-panel" style="display:none;">
+        <div style="font-family:var(--font-ui);font-size:0.58rem;font-weight:600;letter-spacing:0.45em;text-transform:uppercase;color:var(--mage);margin-bottom:0.5rem;">Active Currency</div>
+        <div id="shop-currency-list" style="display:flex;flex-direction:column;gap:0.3rem;">
+          <div style="font-family:var(--font-fell);font-style:italic;font-size:0.78rem;color:var(--text-muted);">No currency in inventory.<br>Add a consumable of kind "Currency" to your bag.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main catalog area -->
+    <div style="display:flex;flex-direction:column;overflow:hidden;">
+      <!-- Empty state -->
+      <div id="shop-empty-state" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem;text-align:center;">
+        <div style="font-size:2.5rem;color:var(--border-bright);margin-bottom:1.5rem;filter:drop-shadow(0 0 20px rgba(126,200,160,0.1));">⊞</div>
+        <div style="font-family:var(--font-display);font-size:0.85rem;letter-spacing:0.15em;color:var(--text-dim);margin-bottom:0.75rem;">No Catalog Loaded</div>
+        <div style="font-family:var(--font-fell);font-style:italic;color:var(--text-muted);font-size:0.95rem;max-width:420px;line-height:1.7;">Load a JSON catalog exported from the Item Library to browse and purchase items. Currency in your inventory will be spent automatically when you buy.</div>
+      </div>
+      <!-- Catalog grid -->
+      <div id="shop-catalog-grid" style="display:none;flex:1;overflow-y:auto;padding:1.25rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:0.85rem;align-content:start;">
+      </div>
+      <div id="shop-no-results" style="display:none;flex:1;align-items:center;justify-content:center;padding:3rem;text-align:center;">
+        <div style="font-family:var(--font-fell);font-style:italic;color:var(--text-muted);font-size:0.95rem;">No items match your filters.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Purchase confirm modal -->
+<div id="shop-purchase-modal" style="display:none;position:fixed;inset:0;background:rgba(6,6,16,0.88);backdrop-filter:blur(4px);z-index:5000;align-items:center;justify-content:center;" onclick="if(event.target===this)shopClosePurchaseModal()">
+  <div style="background:var(--surface);border:1px solid var(--border-bright);max-width:520px;width:90%;position:relative;display:flex;flex-direction:column;max-height:85vh;">
+
+    <!-- Modal header -->
+    <div style="padding:1.25rem 1.5rem 0;flex-shrink:0;">
+      <div id="shop-modal-item-name" style="font-family:var(--font-display);font-size:1rem;font-weight:600;letter-spacing:0.08em;color:var(--text);margin-bottom:0.25rem;"></div>
+      <div id="shop-modal-item-meta" style="font-family:var(--font-mono);font-size:0.5rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);"></div>
+    </div>
+
+    <!-- Tab switcher -->
+    <div style="display:flex;border-bottom:1px solid var(--border);margin:0.85rem 1.5rem 0;flex-shrink:0;">
+      <button id="shop-tab-buy-btn" onclick="shopSwitchPurchaseTab('buy')" style="background:none;border:none;border-bottom:2px solid var(--mage);color:var(--mage);font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;padding:0.45rem 1rem 0.55rem;cursor:pointer;margin-bottom:-1px;transition:all 0.15s;">◈ Buy</button>
+      <button id="shop-tab-trade-btn" onclick="shopSwitchPurchaseTab('trade')" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--text-muted);font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;padding:0.45rem 1rem 0.55rem;cursor:pointer;margin-bottom:-1px;transition:all 0.15s;">⇌ Trade</button>
+      <button id="shop-tab-theft-btn" onclick="shopSwitchPurchaseTab('theft')" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--text-muted);font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;padding:0.45rem 1rem 0.55rem;cursor:pointer;margin-bottom:-1px;transition:all 0.15s;">⚠ Steal</button>
+    </div>
+
+    <!-- BUY tab -->
+    <div id="shop-tab-buy" style="padding:1.25rem 1.5rem;flex:1;overflow-y:auto;">
+      <div id="shop-purchase-body" style="font-family:var(--font-body);font-size:1rem;color:var(--text-dim);line-height:1.7;margin-bottom:1.25rem;"></div>
+      <div style="display:flex;gap:0.65rem;justify-content:flex-end;">
+        <button onclick="shopClosePurchaseModal()" style="background:none;border:1px solid var(--border-bright);color:var(--text-muted);font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.2em;padding:0.45rem 1rem;cursor:pointer;text-transform:uppercase;">Cancel</button>
+        <button id="shop-purchase-confirm-btn" onclick="shopConfirmPurchase()" style="background:none;border:1px solid var(--mage);color:var(--mage);font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.2em;padding:0.45rem 1.25rem;cursor:pointer;text-transform:uppercase;transition:all 0.2s;" onmouseover="this.style.background='rgba(126,200,160,0.1)'" onmouseout="this.style.background='none'">◈ Buy</button>
+      </div>
+    </div>
+
+    <!-- TRADE tab -->
+    <div id="shop-tab-trade" style="display:none;padding:1.25rem 1.5rem;flex:1;overflow-y:auto;min-height:0;">
+      <div id="shop-trade-offer" style="font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.1em;color:var(--gold);background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.2);padding:0.65rem 0.85rem;margin-bottom:1rem;line-height:1.7;"></div>
+      <div style="font-family:var(--font-ui);font-size:0.6rem;font-weight:600;letter-spacing:0.35em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.5rem;">Your inventory — select items to offer</div>
+      <div id="shop-trade-inventory" style="display:flex;flex-direction:column;gap:0.3rem;margin-bottom:1rem;max-height:220px;overflow-y:auto;"></div>
+      <div id="shop-trade-selected-summary" style="font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.08em;color:var(--text-muted);min-height:1.2em;margin-bottom:1rem;"></div>
+      <div style="display:flex;gap:0.65rem;justify-content:flex-end;">
+        <button onclick="shopClosePurchaseModal()" style="background:none;border:1px solid var(--border-bright);color:var(--text-muted);font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.2em;padding:0.45rem 1rem;cursor:pointer;text-transform:uppercase;">Cancel</button>
+        <button id="shop-trade-confirm-btn" onclick="shopConfirmTrade()" disabled style="background:none;border:1px solid var(--gold);color:var(--gold);font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.2em;padding:0.45rem 1.25rem;cursor:pointer;text-transform:uppercase;transition:all 0.2s;opacity:0.4;" onmouseover="if(!this.disabled)this.style.background='rgba(201,168,76,0.1)'" onmouseout="this.style.background='none'">⇌ Confirm Trade</button>
+      </div>
+    </div>
+
+    <!-- THEFT tab -->
+    <div id="shop-tab-theft" style="display:none;padding:1.25rem 1.5rem;flex:1;overflow-y:auto;">
+      <div style="font-family:var(--font-body);font-style:italic;font-size:0.88rem;color:var(--text-muted);line-height:1.6;margin-bottom:1.25rem;border-left:2px solid rgba(196,92,74,0.4);padding-left:0.75rem;">Attempt to steal the item. Rolls Wit + Expertise — a combined high roll succeeds. Getting caught is on you.</div>
+      <div id="shop-theft-result" style="font-family:var(--font-mono);font-size:0.72rem;letter-spacing:0.08em;min-height:3rem;margin-bottom:1.25rem;line-height:1.8;"></div>
+      <div style="display:flex;gap:0.65rem;justify-content:flex-end;">
+        <button onclick="shopClosePurchaseModal()" style="background:none;border:1px solid var(--border-bright);color:var(--text-muted);font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.2em;padding:0.45rem 1rem;cursor:pointer;text-transform:uppercase;">Cancel</button>
+        <button id="shop-theft-roll-btn" onclick="shopRollTheft()" style="background:none;border:1px solid var(--red);color:var(--red);font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.2em;padding:0.45rem 1.25rem;cursor:pointer;text-transform:uppercase;transition:all 0.2s;" onmouseover="this.style.background='rgba(196,92,74,0.1)'" onmouseout="this.style.background='none'">⚠ Roll Theft</button>
+      </div>
+    </div>
+
+    <button onclick="shopClosePurchaseModal()" style="position:absolute;top:0.75rem;right:0.9rem;background:none;border:none;color:var(--text-muted);font-size:1rem;cursor:pointer;line-height:1;">✕</button>
+  </div>
+</div>
+
+<div id="shop-toast-el" style="position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(10px);background:var(--surface);border:1px solid var(--mage);color:var(--mage);font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;padding:0.45rem 1.1rem;opacity:0;transition:all 0.25s;z-index:5100;pointer-events:none;"></div>
+
+<style>
+.shop-filter-btn {
+  width:100%;text-align:left;background:none;border:none;
+  color:var(--text-muted);font-family:var(--font-mono);font-size:0.6rem;
+  letter-spacing:0.08em;text-transform:uppercase;padding:0.3rem 0.5rem;
+  cursor:pointer;transition:all 0.15s;border-left:2px solid transparent;
+}
+.shop-filter-btn:hover { color:var(--text); border-left-color:var(--border-bright); }
+.shop-filter-btn.shop-filter-active { color:var(--mage); border-left-color:var(--mage); }
+
+.shop-catalog-card {
+  background:var(--surface);border:1px solid var(--border-bright);
+  position:relative;transition:border-color 0.2s,box-shadow 0.2s;
+  display:flex;flex-direction:column;
+}
+.shop-catalog-card:hover { border-color:var(--mage); box-shadow:0 0 20px rgba(126,200,160,0.06); }
+.shop-catalog-card::before {
+  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+}
+.shop-card-weapon::before  { background:var(--red); }
+.shop-card-armor::before   { background:#5a9dc4; }
+.shop-card-tool::before    { background:#5ab4a0; }
+.shop-card-consumable::before { background:#7ec87e; }
+.shop-card-key::before     { background:var(--gold); }
+.shop-card-archive::before { background:var(--psion); }
+.shop-card-misc::before    { background:var(--text-muted); }
+
+.shop-card-header { padding:0.85rem 1rem 0.65rem; border-bottom:1px solid var(--border); }
+.shop-card-name { font-family:var(--font-display);font-size:0.95rem;font-weight:600;letter-spacing:0.06em;color:var(--text);line-height:1.2;margin-bottom:0.3rem; }
+.shop-card-badges { display:flex;gap:0.35rem;flex-wrap:wrap; }
+.shop-card-badge { font-family:var(--font-mono);font-size:0.5rem;letter-spacing:0.12em;text-transform:uppercase;padding:1px 6px;border:1px solid currentColor; }
+.shop-card-body { padding:0.75rem 1rem;flex:1; }
+.shop-card-desc { font-family:var(--font-fell);font-style:italic;font-size:0.88rem;color:var(--text-dim);line-height:1.6;margin-bottom:0.65rem; }
+.shop-card-stats { display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:0.65rem; }
+.shop-card-stat { background:var(--surface2);border:1px solid var(--border);padding:0.3rem 0.5rem; }
+.shop-card-stat-label { font-family:var(--font-mono);font-size:0.44rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-muted); }
+.shop-card-stat-value { font-family:var(--font-display);font-size:0.78rem;font-weight:600;color:var(--text); }
+.shop-card-footer { padding:0.65rem 1rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:0.5rem; }
+.shop-card-value { font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.12em;color:var(--gold); }
+.shop-buy-btn {
+  background:none;border:1px solid var(--mage);color:var(--mage);
+  font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.2em;
+  text-transform:uppercase;padding:0.35rem 0.85rem;cursor:pointer;transition:all 0.2s;
+}
+.shop-buy-btn:hover { background:rgba(126,200,160,0.1); }
+.shop-buy-btn:disabled { opacity:0.35;cursor:not-allowed;border-color:var(--border);color:var(--text-muted); }
+.shop-buy-btn.free { border-color:var(--ice);color:var(--ice); }
+.shop-buy-btn.free:hover { background:var(--ice-dim); }
+.shop-buy-btn.shop-trade-btn { border-color:var(--gold);color:var(--gold); }
+.shop-buy-btn.shop-trade-btn:hover { background:rgba(201,168,76,0.1); }
+</style>
 </div>
 
 <!-- SHEET TAB -->
@@ -5858,28 +6123,33 @@ function switchTab(tab) {
   if (invModal) invModal.style.display = 'none';
   const guideTab = document.getElementById('guide-tab');
   const sheetTab = document.getElementById('sheet-tab');
+  const shopTab  = document.getElementById('shop-tab');
   const guideNav = document.getElementById('guide-nav');
   const btnGuide = document.getElementById('tab-btn-guide');
   const btnSheet = document.getElementById('tab-btn-sheet');
+  const btnShop  = document.getElementById('tab-btn-shop');
   const sidebarSub = document.getElementById('sidebar-sub');
+
+  // Reset all
+  [btnGuide, btnSheet, btnShop].forEach(b => { if (b) b.classList.remove('tab-active'); });
+  document.body.classList.remove('sheet-mode', 'shop-mode');
 
   if (tab === 'guide') {
     guideTab.style.display = '';
     sheetTab.style.display = 'none';
+    if (shopTab) shopTab.style.display = 'none';
     guideNav.style.display = '';
     btnGuide.classList.add('tab-active');
-    btnSheet.classList.remove('tab-active');
     if (sidebarSub) sidebarSub.textContent = "Player's Guide";
-    document.body.classList.remove('sheet-mode');
     closeSheetPanel();
     updateNav();
     const pb = document.getElementById('phase-bar'); if (pb) pb.classList.remove('visible');
     const td = document.getElementById('take-damage-fab'); if (td) td.style.display = 'none';
-  } else {
+  } else if (tab === 'sheet') {
     guideTab.style.display = 'none';
     sheetTab.style.display = 'block';
+    if (shopTab) shopTab.style.display = 'none';
     guideNav.style.display = 'none';
-    btnGuide.classList.remove('tab-active');
     btnSheet.classList.add('tab-active');
     if (sidebarSub) sidebarSub.textContent = "Character Sheet";
     document.body.classList.add('sheet-mode');
@@ -5888,9 +6158,962 @@ function switchTab(tab) {
     if (window.innerWidth < 900) {
       document.getElementById('sidebar').classList.remove('open');
     }
+  } else if (tab === 'shop') {
+    guideTab.style.display = 'none';
+    sheetTab.style.display = 'none';
+    if (shopTab) shopTab.style.display = 'block';
+    guideNav.style.display = 'none';
+    if (btnShop) btnShop.classList.add('tab-active');
+    if (sidebarSub) sidebarSub.textContent = "Item Shop";
+    document.body.classList.add('shop-mode');
+    const pb = document.getElementById('phase-bar'); if (pb) pb.classList.remove('visible');
+    const td = document.getElementById('take-damage-fab'); if (td) td.style.display = 'none';
+    if (window.innerWidth < 900) {
+      document.getElementById('sidebar').classList.remove('open');
+    }
+    // Refresh currency list when entering shop
+    shopRefreshCurrencyPanel();
   }
   try { localStorage.setItem('stillpoint-tab', tab); } catch(e) {}
 }
+
+/* ══════════════════════════════════════════════
+   ITEM SHOP LOGIC
+══════════════════════════════════════════════ */
+let shopCatalog = [];         // full loaded catalog
+let shopFilterType = 'all';   // current type filter
+let shopFilterRarity = 'all'; // current rarity filter
+let shopPendingItem = null;   // item being purchased
+
+// Type colors matching inventory
+const SHOP_CARD_COLS = {
+  weapon:'#c45c4a', armor:'#5a9dc4', tool:'#5ab4a0',
+  consumable:'#7ec87e', key:'#c9a84c', misc:'#7a7490', archive:'#b89fd4'
+};
+
+function shopLoadCatalog(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      let parsed = JSON.parse(e.target.result);
+      if (!Array.isArray(parsed)) parsed = [parsed];
+      shopCatalog = parsed.filter(i => i && typeof i === 'object' && (i.name || i.type));
+      document.getElementById('shop-empty-state').style.display = shopCatalog.length ? 'none' : '';
+      document.getElementById('shop-clear-btn').style.display = shopCatalog.length ? '' : 'none';
+      shopRenderCatalog();
+      shopRefreshCurrencyPanel();
+      shopShowToast('Catalog loaded — ' + shopCatalog.length + ' item' + (shopCatalog.length !== 1 ? 's' : ''), 'var(--mage)');
+    } catch(err) {
+      shopShowToast('Invalid JSON', 'var(--red)');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function shopClearCatalog() {
+  shopCatalog = [];
+  document.getElementById('shop-empty-state').style.display = '';
+  document.getElementById('shop-catalog-grid').style.display = 'none';
+  document.getElementById('shop-no-results').style.display = 'none';
+  document.getElementById('shop-clear-btn').style.display = 'none';
+  shopShowToast('Catalog cleared', 'var(--red)');
+}
+
+function shopSetFilter(type, btn) {
+  shopFilterType = type;
+  document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('shop-filter-active'));
+  if (btn) btn.classList.add('shop-filter-active');
+  shopRenderCatalog();
+}
+
+function shopSetRarity(rarity, btn) {
+  shopFilterRarity = rarity;
+  document.querySelectorAll('[data-rarity]').forEach(b => b.classList.remove('shop-filter-active'));
+  if (btn) btn.classList.add('shop-filter-active');
+  shopRenderCatalog();
+}
+
+function shopRenderCatalog() {
+  if (!shopCatalog.length) return;
+  const grid = document.getElementById('shop-catalog-grid');
+  const noResults = document.getElementById('shop-no-results');
+  const searchVal = (document.getElementById('shop-search')?.value || '').toLowerCase().trim();
+
+  let items = shopCatalog;
+  if (shopFilterType !== 'all') items = items.filter(i => i.type === shopFilterType);
+  if (shopFilterRarity !== 'all') items = items.filter(i => i.rarity === shopFilterRarity);
+  if (searchVal) items = items.filter(i =>
+    (i.name||'').toLowerCase().includes(searchVal) ||
+    (i.description||'').toLowerCase().includes(searchVal) ||
+    (i.type||'').toLowerCase().includes(searchVal)
+  );
+
+  if (!items.length) {
+    grid.style.display = 'none';
+    grid.innerHTML = '';
+    noResults.style.display = 'flex';
+    return;
+  }
+
+  noResults.style.display = 'none';
+  grid.style.display = 'grid';
+  grid.innerHTML = '';
+
+  // Get all currency items once for value label fallback
+  const { currencyItems: allCurrencyItems } = shopGetCurrencyState();
+
+  items.forEach(item => {
+    // Currency items matching this item's required currency (for label display only)
+    const itemCurrName = item.currencyName ? item.currencyName.toLowerCase() : null;
+    const currencyItems = itemCurrName
+      ? allCurrencyItems.filter(c => c.name.toLowerCase() === itemCurrName)
+      : allCurrencyItems;
+    const card = document.createElement('div');
+    card.className = 'shop-catalog-card shop-card-' + (item.type || 'misc');
+
+    // Header
+    const hdr = document.createElement('div');
+    hdr.className = 'shop-card-header';
+
+    const name = document.createElement('div');
+    name.className = 'shop-card-name';
+    name.textContent = item.name || 'Unnamed Item';
+    hdr.appendChild(name);
+
+    const badges = document.createElement('div');
+    badges.className = 'shop-card-badges';
+    if (item.type) {
+      const tb = document.createElement('span');
+      tb.className = 'shop-card-badge';
+      tb.style.color = SHOP_CARD_COLS[item.type] || 'var(--text-muted)';
+      tb.style.borderColor = SHOP_CARD_COLS[item.type] || 'var(--border)';
+      tb.textContent = item.type;
+      badges.appendChild(tb);
+    }
+    if (item.rarity) {
+      const rb = document.createElement('span');
+      rb.className = 'shop-card-badge';
+      const rarityCol = {common:'var(--text-muted)',uncommon:'var(--mage)',rare:'var(--ice)',legendary:'var(--gold)'}[item.rarity] || 'var(--text-muted)';
+      rb.style.color = rarityCol; rb.style.borderColor = rarityCol;
+      rb.textContent = item.rarity;
+      badges.appendChild(rb);
+    }
+    hdr.appendChild(badges);
+    card.appendChild(hdr);
+
+    // Body
+    const body = document.createElement('div');
+    body.className = 'shop-card-body';
+
+    if (item.description) {
+      const desc = document.createElement('div');
+      desc.className = 'shop-card-desc';
+      desc.textContent = item.description.length > 120 ? item.description.slice(0, 117) + '…' : item.description;
+      body.appendChild(desc);
+    }
+
+    // Quick stats
+    const stats = shopGetCardStats(item);
+    if (stats.length) {
+      const statsRow = document.createElement('div');
+      statsRow.className = 'shop-card-stats';
+      stats.forEach(s => {
+        const sb = document.createElement('div');
+        sb.className = 'shop-card-stat';
+        sb.innerHTML = `<div class="shop-card-stat-label">${s.label}</div><div class="shop-card-stat-value">${s.value}</div>`;
+        statsRow.appendChild(sb);
+      });
+      body.appendChild(statsRow);
+    }
+    card.appendChild(body);
+
+    // Footer
+    const footer = document.createElement('div');
+    footer.className = 'shop-card-footer';
+
+    const hasValue = item.value && item.value.toString().trim() !== '';
+
+    const valEl = document.createElement('div');
+    valEl.className = 'shop-card-value';
+    if (!hasValue) {
+      valEl.style.color = 'var(--gold)';
+      valEl.style.fontFamily = 'var(--font-mono)';
+      valEl.style.fontSize = '0.58rem';
+      valEl.style.letterSpacing = '0.1em';
+      valEl.textContent = '⇌ trade only';
+    } else {
+      const numOnly = item.value.toString().replace(/[^\d.]+/g,'').trim();
+      const _parsedLabel = item.value.toString().replace(/^[\d.,\s◈]+/, '').trim();
+      const currLabel = item.currencyName || _parsedLabel || (currencyItems.length ? currencyItems[0].name.toLowerCase() : '');
+      valEl.textContent = '◈ ' + numOnly + (currLabel ? ' ' + currLabel : '');
+    }
+    footer.appendChild(valEl);
+
+    const buyBtn = document.createElement('button');
+    if (!hasValue) {
+      buyBtn.className = 'shop-buy-btn shop-trade-btn';
+      buyBtn.textContent = '⇌ Trade';
+      buyBtn.title = 'Offer items from your inventory to acquire this';
+    } else {
+      buyBtn.className = 'shop-buy-btn';
+      buyBtn.textContent = '◈ Buy';
+      buyBtn.title = 'Purchase with ' + (item.currencyName || 'currency');
+    }
+    buyBtn.onclick = () => shopInitiatePurchase(item);
+    footer.appendChild(buyBtn);
+
+    card.appendChild(footer);
+    grid.appendChild(card);
+  });
+}
+
+function shopGetCardStats(item) {
+  const stats = [];
+  if (item.type === 'weapon') {
+    if (item.wpnType)   stats.push({label:'Type',   value:item.wpnType});
+    if (item.wpnWounds) stats.push({label:'Wounds', value:'+'+item.wpnWounds});
+    const _shopRangedTypes = new Set(['shortbow','bow','longbow','crossbow','pistol','auto-pistol','auto-rifle','rifle']);
+    if (item.wpnType) stats.push({label:'Range', value: _shopRangedTypes.has(item.wpnType) ? 'ranged' : 'close'});
+  } else if (item.type === 'armor') {
+    if (item.armFortitude) stats.push({label:'Defense', value:item.armFortitude+' DP'});
+    if (item.armSlot)      stats.push({label:'Slot',    value:item.armSlot});
+    if (item.armMaterial)  stats.push({label:'Material',value:item.armMaterial});
+  } else if (item.type === 'consumable') {
+    const kl={food:'Food',water:'Water',aid:'Aid Kit',ammo:'Ammo',material:'Material',general:'General',other:'Other',currency:'Currency'};
+    if (item.conKind) stats.push({label:'Kind', value:kl[item.conKind]||item.conKind});
+    if (item.conUses) stats.push({label:'Uses', value:item.conUses});
+  } else if (item.type === 'tool') {
+    if (item.tlStat) stats.push({label:'Stat', value:item.tlStat});
+  }
+  const wl={'0':'Feather','1':'Light','2':'Normal','3':'Heavy','4':'Massive'};
+  if (item.itemSize && item.itemSize !== '2') stats.push({label:'Weight', value:wl[item.itemSize]||item.itemSize});
+  return stats.slice(0, 4);
+}
+
+function shopGetCurrencyState(currencyName) {
+  const _allInvSelectors = [
+    '#inventory-list', '#hand-list', '#sheath-list',
+    '#body-slot-helm', '#body-slot-body', '#body-slot-legs', '#body-slot-feet',
+    '#accessories-rings', '#accessories-necklaces', '#accessories-mask', '#accessories-charms'
+  ];
+  const allItems = _allInvSelectors.flatMap(sel =>
+    [...document.querySelectorAll(sel + ' .inventory-item')]
+  );
+  const currencyItems = [];
+  allItems.forEach(div => {
+    const kindEl = div.querySelector('[data-key="conKind"]');
+    if (!kindEl || kindEl.value !== 'currency') return;
+    const nameEl = div.querySelector('[data-key="name"]');
+    const usesEl = div.querySelector('.con-uses-remaining');
+    if (!usesEl) return;
+    const name = nameEl?.value || 'Currency';
+    // If a specific currency name is required, skip non-matching items
+    if (currencyName && name.toLowerCase() !== currencyName.toLowerCase()) return;
+    const remaining = parseInt(usesEl.dataset.remaining, 10) || 0;
+    const max = parseInt(usesEl.dataset.max, 10) || 1;
+    currencyItems.push({
+      div, nameEl,
+      name,
+      remaining, max,
+      usesEl
+    });
+  });
+  const total = currencyItems.reduce((s, c) => s + c.remaining, 0);
+  return { total, currencyItems };
+}
+
+function shopRefreshCurrencyPanel() {
+  const panel = document.getElementById('shop-currency-selector-panel');
+  const display = document.getElementById('shop-currency-display');
+  const list = document.getElementById('shop-currency-list');
+  if (!panel || !list) return;
+
+  const { total, currencyItems } = shopGetCurrencyState();
+
+  if (!currencyItems.length) {
+    list.innerHTML = '<div style="font-family:var(--font-fell);font-style:italic;font-size:0.78rem;color:var(--text-muted);">No currency in inventory.<br>Add a consumable of kind "Currency" to your bag.</div>';
+    if (display) display.style.display = 'none';
+  } else {
+    list.innerHTML = '';
+    currencyItems.forEach(c => {
+      const row = document.createElement('div');
+      row.style.cssText = 'font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.08em;color:var(--mage);display:flex;align-items:center;justify-content:space-between;padding:0.25rem 0;';
+      row.innerHTML = `<span style="color:var(--text-dim);">${c.name}</span><span>◈ ${c.remaining}</span>`;
+      list.appendChild(row);
+    });
+    if (display) {
+      display.style.display = '';
+      // Show first currency type name
+      document.getElementById('shop-currency-amount').textContent = total;
+      document.getElementById('shop-currency-name').textContent = currencyItems[0].name.toLowerCase();
+    }
+  }
+}
+
+let shopPendingCost = 0;
+let shopTradeSelectedIds = new Set();
+
+function shopSwitchPurchaseTab(tab) {
+  const buyBtn    = document.getElementById('shop-tab-buy-btn');
+  const tradeBtn  = document.getElementById('shop-tab-trade-btn');
+  const theftBtn  = document.getElementById('shop-tab-theft-btn');
+  const buyPanel  = document.getElementById('shop-tab-buy');
+  const tradePanel = document.getElementById('shop-tab-trade');
+  const theftPanel = document.getElementById('shop-tab-theft');
+
+  // Reset all tabs
+  [buyBtn, tradeBtn, theftBtn].forEach(b => { if (b) { b.style.borderBottomColor = 'transparent'; b.style.color = 'var(--text-muted)'; } });
+  [buyPanel, tradePanel, theftPanel].forEach(p => { if (p) p.style.display = 'none'; });
+
+  if (tab === 'buy') {
+    buyBtn.style.borderBottomColor = 'var(--mage)'; buyBtn.style.color = 'var(--mage)';
+    buyPanel.style.display = '';
+  } else if (tab === 'trade') {
+    tradeBtn.style.borderBottomColor = 'var(--gold)'; tradeBtn.style.color = 'var(--gold)';
+    tradePanel.style.display = '';
+    shopBuildTradePanel(shopPendingItem);
+  } else if (tab === 'theft') {
+    theftBtn.style.borderBottomColor = 'var(--red)'; theftBtn.style.color = 'var(--red)';
+    theftPanel.style.display = '';
+    // Reset result and re-enable roll button on each visit
+    const resultEl = document.getElementById('shop-theft-result');
+    const rollBtn  = document.getElementById('shop-theft-roll-btn');
+    if (resultEl) resultEl.textContent = '';
+    if (rollBtn)  { rollBtn.disabled = false; rollBtn.textContent = '⚠ Roll Theft'; rollBtn.style.opacity = '1'; }
+  }
+}
+
+function shopInitiatePurchase(item) {
+  shopPendingItem = item;
+  shopTradeSelectedIds = new Set();
+
+  const hasValue = item.value && item.value.toString().trim() !== '';
+  const isTradeOnly = !hasValue;
+
+  // Populate modal header
+  const nameEl = document.getElementById('shop-modal-item-name');
+  const metaEl = document.getElementById('shop-modal-item-meta');
+  if (nameEl) nameEl.textContent = item.name || 'Item';
+  if (metaEl) {
+    const parts = [item.type, item.rarity].filter(Boolean);
+    if (isTradeOnly) parts.push('⇌ trade only');
+    else parts.push('◈ ' + item.value);
+    metaEl.textContent = parts.join(' · ');
+  }
+
+  // Hide Buy tab for trade-only items
+  const buyTabBtn = document.getElementById('shop-tab-buy-btn');
+  if (buyTabBtn) buyTabBtn.style.display = isTradeOnly ? 'none' : '';
+
+  const modal = document.getElementById('shop-purchase-modal');
+  const body = document.getElementById('shop-purchase-body');
+  const confirmBtn = document.getElementById('shop-purchase-confirm-btn');
+
+  // Trade-only: skip straight to trade tab
+  if (isTradeOnly) {
+    shopSwitchPurchaseTab('trade');
+    modal.style.display = 'flex';
+    return;
+  }
+
+  // Normal buy flow
+  shopSwitchPurchaseTab('buy');
+
+  // Derive required currency name: explicit field first, then parsed from value string
+  const _rawValue = item.value ? item.value.toString().trim() : '';
+  const _parsedCurrName = _rawValue.replace(/^[\d.,\s◈]+/, '').trim() || null;
+  const _requiredCurrency = item.currencyName || _parsedCurrName;
+
+  // Only look for currency items matching this item's required currency name
+  const { total, currencyItems } = shopGetCurrencyState(_requiredCurrency);
+  const hasCurrency = currencyItems.length > 0;
+
+  let cost = 0;
+  if (hasValue) {
+    const match = item.value.toString().match(/[\d.]+/);
+    cost = match ? parseFloat(match[0]) : 0;
+  }
+  shopPendingCost = cost;
+
+  const itemName = `<span style="font-family:var(--font-display);font-weight:600;color:var(--text);">${item.name || 'Item'}</span>`;
+  const currName = _requiredCurrency || (currencyItems.length ? currencyItems[0].name : 'currency');
+
+  if (!hasValue || (cost === 0 && !_requiredCurrency)) {
+    // Truly free / no price set
+    body.innerHTML = `Add ${itemName} to your inventory?`;
+    confirmBtn.textContent = '+ Add to Inventory';
+    confirmBtn.style.borderColor = 'var(--ice)'; confirmBtn.style.color = 'var(--ice)';
+    confirmBtn.onmouseover = () => { confirmBtn.style.background = 'var(--ice-dim)'; };
+    confirmBtn.onmouseout = () => { confirmBtn.style.background = 'none'; };
+    shopPendingCost = 0;
+  } else if (!hasCurrency) {
+    // Has a price but player has no matching currency at all
+    const costDisplay = cost > 0 ? `◈ ${cost} ${currName}` : currName;
+    body.innerHTML = `${itemName} costs <span style="color:var(--mage);">${costDisplay}</span>, but you have no <span style="color:var(--mage);">${currName}</span> in your inventory.<br><br>You need a consumable of kind <span style="color:var(--gold);">Currency</span> named <span style="color:var(--gold);">${currName}</span>. Try the <span style="color:var(--gold);">Trade</span> tab instead.`;
+    confirmBtn.textContent = 'OK';
+    confirmBtn.style.borderColor = 'var(--border-bright)'; confirmBtn.style.color = 'var(--text-muted)';
+    confirmBtn.onclick = shopClosePurchaseModal;
+    modal.style.display = 'flex';
+    return;
+  } else if (cost > total) {
+    body.innerHTML = `You need <span style="color:var(--mage);">◈ ${cost} ${currName}</span> to buy ${itemName}, but you only have <span style="color:var(--red);">◈ ${total} ${currName}</span>.<br><br>Try the <span style="color:var(--gold);">Trade</span> tab instead.`;
+    confirmBtn.textContent = 'OK';
+    confirmBtn.style.borderColor = 'var(--border-bright)'; confirmBtn.style.color = 'var(--text-muted)';
+    confirmBtn.onclick = shopClosePurchaseModal;
+    modal.style.display = 'flex';
+    return;
+  } else {
+    body.innerHTML = `Buy ${itemName} for <span style="color:var(--mage);">◈ ${cost} ${currName}</span>?<br><br><span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-muted);">You have ◈ ${total} ${currName} — ◈ ${total - cost} remaining after purchase.</span>`;
+    confirmBtn.textContent = '◈ Buy';
+    confirmBtn.style.borderColor = 'var(--mage)'; confirmBtn.style.color = 'var(--mage)';
+    confirmBtn.onmouseover = () => { confirmBtn.style.background = 'rgba(126,200,160,0.1)'; };
+    confirmBtn.onmouseout = () => { confirmBtn.style.background = 'none'; };
+  }
+
+  confirmBtn.onclick = shopConfirmPurchase;
+  modal.style.display = 'flex';
+}
+
+/* ══════════════════════════════════════════════
+   THEFT — Wit + Expertise roll
+══════════════════════════════════════════════ */
+function shopRollTheft() {
+  const item = shopPendingItem;
+  if (!item) return;
+
+  const resultEl = document.getElementById('shop-theft-result');
+  const rollBtn  = document.getElementById('shop-theft-roll-btn');
+
+  // Read dice from the sheet stats — fall back gracefully if sheet isn't loaded
+  const witTier  = (typeof getEffectiveTier === 'function') ? getEffectiveTier('wit')       : 'average';
+  const expTier  = (typeof getEffectiveTier === 'function') ? getEffectiveTier('expertise') : 'average';
+  const witMax   = (typeof getStatDieMax    === 'function') ? getStatDieMax('wit')           : 6;
+  const expMax   = (typeof getStatDieMax    === 'function') ? getStatDieMax('expertise')     : 6;
+  const _td      = (typeof tierDice !== 'undefined') ? tierDice : {};
+  const witDie   = _td[witTier]  || 'd6';
+  const expDie   = _td[expTier]  || 'd6';
+
+  const witRoll  = Math.ceil(Math.random() * witMax);
+  const expRoll  = Math.ceil(Math.random() * expMax);
+  const total    = witRoll + expRoll;
+  const maxTotal = witMax + expMax;
+
+  // Thresholds: crit = both max, success = ≥65% of max, fail = ≤30% of max
+  const isCrit    = witRoll === witMax && expRoll === expMax;
+  const isSuccess = total >= Math.ceil(maxTotal * 0.65);
+  const isFail    = total <= Math.floor(maxTotal * 0.30);
+
+  const rollLine = `Wit (${witDie}): ${witRoll}  +  Expertise (${expDie}): ${expRoll}  =  ${total}`;
+
+  let outcome, color;
+  if (isCrit) {
+    outcome = 'PERFECT LIFT — Item taken without a trace.';
+    color = 'var(--mage)';
+  } else if (isSuccess) {
+    outcome = 'SUCCESS — You slip it away cleanly.';
+    color = 'var(--ice)';
+  } else if (isFail) {
+    outcome = 'CAUGHT — You fumble it. Eyes are on you.';
+    color = 'var(--red)';
+  } else {
+    outcome = 'CLOSE — Got it, but someone may have noticed.';
+    color = 'var(--gold)';
+  }
+
+  resultEl.innerHTML = `<span style="color:var(--text-muted);">${rollLine}</span><br><span style="color:${color};font-size:0.78rem;letter-spacing:0.06em;">${outcome}</span>`;
+
+  // On success or crit, add item to inventory
+  if (isSuccess || isCrit) {
+    if (typeof addInventoryItem === 'function') {
+      addInventoryItem({ ...item });
+    }
+    rollBtn.textContent = '✓ Taken';
+    rollBtn.disabled = true;
+    rollBtn.style.opacity = '0.5';
+    rollBtn.style.borderColor = 'var(--border-bright)';
+    rollBtn.style.color = 'var(--text-muted)';
+  } else {
+    // On fail, lock the button — can't retry
+    rollBtn.textContent = isFail ? '✕ Blown' : '✓ Taken (risky)';
+    rollBtn.disabled = true;
+    rollBtn.style.opacity = '0.5';
+    rollBtn.style.borderColor = 'var(--border-bright)';
+    rollBtn.style.color = 'var(--text-muted)';
+    if (!isFail) {
+      // "Close" — still adds the item but flags risk
+      if (typeof addInventoryItem === 'function') addInventoryItem({ ...item });
+    }
+  }
+}
+
+
+
+// Rarity base "trade weight" — used to scale what we ask for
+const TRADE_RARITY_WEIGHT = { common: 1, uncommon: 2.5, rare: 7, legendary: 20 };
+
+// Returns a human-readable trade offer description + a structured requirement
+function shopComputeTradeOffer(item) {
+  const rarity = item.rarity || 'common';
+  const type   = item.type   || 'misc';
+  const weight = TRADE_RARITY_WEIGHT[rarity] || 1;
+
+  // Enchanted items are worth more
+  const enchMult = item.hasEnchantment === 'yes' ? 1.5 : 1;
+  const effectiveWeight = weight * enchMult;
+
+  // Build a specific trade requirement based on item type + sub-type
+  // Each requirement is { label, qty, matcher: (invItem) => bool }
+  const reqs = [];
+
+  if (type === 'weapon') {
+    const wpnType = item.wpnType || '';
+    const isRanged = ['shortbow','bow','longbow','crossbow','pistol','auto-pistol','auto-rifle','rifle','fusion'].includes(wpnType);
+    const isHeavy  = ['battle-axe','war-hammer','longbow','auto-rifle','rifle'].includes(wpnType);
+
+    if (effectiveWeight <= 1.5) {
+      // Common weapon — trade for food + a tool or another weapon
+      reqs.push({ label: `${Math.ceil(effectiveWeight * 3)} common food items`, qty: Math.ceil(effectiveWeight * 3), matcher: shopMatchFood });
+    } else if (effectiveWeight <= 4) {
+      // Uncommon weapon — trade for a weapon of same range type
+      const rangeLabel = isRanged ? 'ranged weapon' : 'melee weapon';
+      reqs.push({ label: `1 ${rangeLabel} of any rarity`, qty: 1, matcher: isRanged ? shopMatchRangedWeapon : shopMatchMeleeWeapon });
+      reqs.push({ label: `${Math.ceil(effectiveWeight)} common food or water items`, qty: Math.ceil(effectiveWeight), matcher: shopMatchFoodOrWater });
+    } else if (effectiveWeight <= 10) {
+      // Rare weapon — trade for same type or better weapon + supplies
+      const typeLabel = isHeavy ? 'heavy melee weapon or rifle' : (isRanged ? 'ranged weapon' : 'one-handed weapon');
+      reqs.push({ label: `1 uncommon or rare ${typeLabel}`, qty: 1, matcher: isRanged ? shopMatchUncommonPlusRangedWeapon : shopMatchUncommonPlusMeleeWeapon });
+      reqs.push({ label: `2 aid kits or repair materials`, qty: 2, matcher: shopMatchAidOrMaterial });
+    } else {
+      // Legendary weapon — very specific trade
+      const typeLabel = isRanged ? 'ranged weapon (rare or better)' : 'melee weapon (rare or better)';
+      reqs.push({ label: `1 rare or legendary ${typeLabel}`, qty: 1, matcher: isRanged ? shopMatchRareRangedWeapon : shopMatchRareMeleeWeapon });
+      reqs.push({ label: `1 uncommon or better armor piece`, qty: 1, matcher: shopMatchUncommonPlusArmor });
+      reqs.push({ label: `3 aid kits or consumables`, qty: 3, matcher: shopMatchAidOrConsumable });
+    }
+
+  } else if (type === 'armor') {
+    const slot = item.armSlot || 'body-armor';
+    const mat  = item.armMaterial || 'metal';
+    const slotLabel = { helm:'helmet', 'body-armor':'body armor', legs:'leg armor', feet:'boots' }[slot] || slot;
+    const matLabel  = { metal:'metal', leather:'leather', cloth:'cloth' }[mat] || mat;
+
+    if (effectiveWeight <= 1.5) {
+      reqs.push({ label: `${Math.ceil(effectiveWeight * 2)} common consumables (any kind)`, qty: Math.ceil(effectiveWeight * 2), matcher: shopMatchAnyConsumable });
+      reqs.push({ label: `1 ${matLabel} repair material`, qty: 1, matcher: (inv) => shopMatchMaterialOfType(inv, mat) });
+    } else if (effectiveWeight <= 4) {
+      reqs.push({ label: `1 ${matLabel} armor piece of any slot`, qty: 1, matcher: (inv) => shopMatchArmorOfMaterial(inv, mat) });
+      reqs.push({ label: `2 ${matLabel} repair materials`, qty: 2, matcher: (inv) => shopMatchMaterialOfType(inv, mat) });
+    } else if (effectiveWeight <= 10) {
+      reqs.push({ label: `1 uncommon or better ${slotLabel}`, qty: 1, matcher: (inv) => shopMatchArmorOfSlot(inv, slot, ['uncommon','rare','legendary']) });
+      reqs.push({ label: `1 medical tool or aid kit`, qty: 1, matcher: shopMatchMedicalOrAid });
+      reqs.push({ label: `3 ${matLabel} repair materials`, qty: 3, matcher: (inv) => shopMatchMaterialOfType(inv, mat) });
+    } else {
+      reqs.push({ label: `1 rare or legendary ${slotLabel}`, qty: 1, matcher: (inv) => shopMatchArmorOfSlot(inv, slot, ['rare','legendary']) });
+      reqs.push({ label: `1 uncommon or better weapon`, qty: 1, matcher: shopMatchUncommonPlusAnyWeapon });
+      reqs.push({ label: `4 ${matLabel} repair materials`, qty: 4, matcher: (inv) => shopMatchMaterialOfType(inv, mat) });
+    }
+
+  } else if (type === 'consumable') {
+    const kind = item.conKind || 'general';
+    const kindLabel = { food:'food', water:'water', aid:'aid kit', ammo:'ammo stack', material:'repair material', general:'consumable', other:'consumable', currency:'currency' }[kind] || 'consumable';
+
+    if (effectiveWeight <= 1.5) {
+      reqs.push({ label: `${Math.ceil(effectiveWeight * 2)} common food or water items`, qty: Math.ceil(effectiveWeight * 2), matcher: shopMatchFoodOrWater });
+    } else if (effectiveWeight <= 4) {
+      reqs.push({ label: `2 ${kindLabel}s of common rarity`, qty: 2, matcher: shopMatchAnyConsumable });
+      reqs.push({ label: `1 common tool`, qty: 1, matcher: shopMatchCommonTool });
+    } else {
+      reqs.push({ label: `1 uncommon ${kindLabel} or better`, qty: 1, matcher: shopMatchUncommonPlusConsumable });
+      reqs.push({ label: `2 common aid kits or food items`, qty: 2, matcher: shopMatchAidOrFood });
+    }
+
+  } else if (type === 'tool') {
+    const tlStat = item.tlStat || '';
+    const statLabel = tlStat ? `${tlStat}-affecting tool` : 'tool';
+
+    if (effectiveWeight <= 1.5) {
+      reqs.push({ label: `2 common food or water items`, qty: 2, matcher: shopMatchFoodOrWater });
+      reqs.push({ label: `1 common tool of any kind`, qty: 1, matcher: shopMatchAnyTool });
+    } else if (effectiveWeight <= 4) {
+      reqs.push({ label: `1 common ${statLabel} or general tool`, qty: 1, matcher: shopMatchAnyTool });
+      reqs.push({ label: `2 aid kits or consumables`, qty: 2, matcher: shopMatchAidOrConsumable });
+    } else {
+      reqs.push({ label: `1 uncommon or better tool`, qty: 1, matcher: shopMatchUncommonPlusTool });
+      reqs.push({ label: `1 common weapon or armor`, qty: 1, matcher: shopMatchCommonWeaponOrArmor });
+    }
+
+  } else if (type === 'key') {
+    // Key items are story-specific — trade requires rare goods
+    if (effectiveWeight <= 2) {
+      reqs.push({ label: `3 common consumables (any kind)`, qty: 3, matcher: shopMatchAnyConsumable });
+    } else {
+      reqs.push({ label: `1 uncommon weapon or armor`, qty: 1, matcher: shopMatchUncommonPlusWeaponOrArmor });
+      reqs.push({ label: `2 aid kits`, qty: 2, matcher: shopMatchAidKit });
+    }
+
+  } else if (type === 'misc') {
+    if (item.miscIsAccessory === 'yes') {
+      const accLabel = item.miscAccType || 'accessory';
+      if (effectiveWeight <= 2) {
+        reqs.push({ label: `2 common food or water items`, qty: 2, matcher: shopMatchFoodOrWater });
+      } else {
+        reqs.push({ label: `1 uncommon ${accLabel} or misc item`, qty: 1, matcher: shopMatchUncommonPlusMisc });
+        reqs.push({ label: `2 common consumables`, qty: 2, matcher: shopMatchAnyConsumable });
+      }
+    } else {
+      reqs.push({ label: `${Math.ceil(effectiveWeight * 2)} common consumables`, qty: Math.ceil(effectiveWeight * 2), matcher: shopMatchAnyConsumable });
+    }
+
+  } else if (type === 'archive') {
+    const sizeLabel = { '1':'tablet','2':'scroll','3':'journal','4':'codex' }[item.archiveSize] || 'document';
+    reqs.push({ label: `1 archive or key item`, qty: 1, matcher: shopMatchArchiveOrKey });
+    if (effectiveWeight > 2) reqs.push({ label: `3 common consumables`, qty: 3, matcher: shopMatchAnyConsumable });
+
+  } else {
+    reqs.push({ label: `${Math.ceil(effectiveWeight * 2)} common items of any kind`, qty: Math.ceil(effectiveWeight * 2), matcher: shopMatchAnyItem });
+  }
+
+  return reqs;
+}
+
+/* ── Matchers — each returns true if an inventory item qualifies ── */
+function shopInvItemData(div) {
+  const gv = k => div.querySelector(`[data-key="${k}"]`)?.value || '';
+  return {
+    name: gv('name'), type: gv('type'), rarity: gv('rarity'),
+    conKind: gv('conKind'), wpnType: gv('wpnType'),
+    armSlot: gv('armSlot'), armMaterial: gv('armMaterial'),
+    tlStat: gv('tlStat'), miscIsAccessory: gv('miscIsAccessory'),
+    archiveSize: gv('archiveSize'),
+    conUsesRemaining: (() => {
+      const el = div.querySelector('.con-uses-remaining');
+      if (!el) return 1;
+      const r = el.dataset.remaining;
+      if (r === undefined || r === '') return parseInt(el.textContent, 10) || 1;
+      return parseInt(r, 10) || 0;
+    })()
+  };
+}
+
+const RANGED_WPN_TYPES = new Set(['shortbow','bow','longbow','crossbow','pistol','auto-pistol','auto-rifle','rifle','fusion']);
+const HEAVY_WPN_TYPES  = new Set(['battle-axe','war-hammer','longbow','auto-rifle','rifle']);
+
+function shopMatchFood(d)                    { return d.type==='consumable' && d.conKind==='food' && d.conUsesRemaining>0; }
+function shopMatchFoodOrWater(d)             { return d.type==='consumable' && (d.conKind==='food'||d.conKind==='water') && d.conUsesRemaining>0; }
+function shopMatchAidOrFood(d)               { return d.type==='consumable' && (d.conKind==='aid'||d.conKind==='food') && d.conUsesRemaining>0; }
+function shopMatchAidKit(d)                  { return d.type==='consumable' && d.conKind==='aid' && d.conUsesRemaining>0; }
+function shopMatchAidOrMaterial(d)           { return d.type==='consumable' && (d.conKind==='aid'||d.conKind==='material') && d.conUsesRemaining>0; }
+function shopMatchAidOrConsumable(d)         { return d.type==='consumable' && (d.conKind==='aid'||d.conKind==='general'||d.conKind==='other'||d.conKind==='food') && d.conUsesRemaining>0; }
+function shopMatchAnyConsumable(d)           { return d.type==='consumable' && d.conKind!=='currency' && d.conUsesRemaining>0; }
+function shopMatchUncommonPlusConsumable(d)  { return d.type==='consumable' && d.conKind!=='currency' && ['uncommon','rare','legendary'].includes(d.rarity) && d.conUsesRemaining>0; }
+function shopMatchMaterialOfType(d, mat)     { return d.type==='consumable' && d.conKind==='material' && (d.armMaterial===mat||d.conMatType===mat) && d.conUsesRemaining>0; }
+function shopMatchRangedWeapon(d)            { return d.type==='weapon' && RANGED_WPN_TYPES.has(d.wpnType); }
+function shopMatchMeleeWeapon(d)             { return d.type==='weapon' && !RANGED_WPN_TYPES.has(d.wpnType); }
+function shopMatchUncommonPlusRangedWeapon(d){ return d.type==='weapon' && RANGED_WPN_TYPES.has(d.wpnType) && ['uncommon','rare','legendary'].includes(d.rarity); }
+function shopMatchUncommonPlusMeleeWeapon(d) { return d.type==='weapon' && !RANGED_WPN_TYPES.has(d.wpnType) && ['uncommon','rare','legendary'].includes(d.rarity); }
+function shopMatchRareRangedWeapon(d)        { return d.type==='weapon' && RANGED_WPN_TYPES.has(d.wpnType) && ['rare','legendary'].includes(d.rarity); }
+function shopMatchRareMeleeWeapon(d)         { return d.type==='weapon' && !RANGED_WPN_TYPES.has(d.wpnType) && ['rare','legendary'].includes(d.rarity); }
+function shopMatchUncommonPlusAnyWeapon(d)   { return d.type==='weapon' && ['uncommon','rare','legendary'].includes(d.rarity); }
+function shopMatchCommonWeaponOrArmor(d)     { return (d.type==='weapon'||d.type==='armor') && (d.rarity==='common'||!d.rarity); }
+function shopMatchUncommonPlusWeaponOrArmor(d){ return (d.type==='weapon'||d.type==='armor') && ['uncommon','rare','legendary'].includes(d.rarity); }
+function shopMatchArmorOfMaterial(d, mat)    { return d.type==='armor' && d.armMaterial===mat; }
+function shopMatchArmorOfSlot(d, slot, rarities) { return d.type==='armor' && d.armSlot===slot && rarities.includes(d.rarity); }
+function shopMatchUncommonPlusArmor(d)       { return d.type==='armor' && ['uncommon','rare','legendary'].includes(d.rarity); }
+function shopMatchMedicalOrAid(d)            { return (d.type==='tool') || (d.type==='consumable' && d.conKind==='aid' && d.conUsesRemaining>0); }
+function shopMatchAnyTool(d)                 { return d.type==='tool'; }
+function shopMatchCommonTool(d)              { return d.type==='tool' && (d.rarity==='common'||!d.rarity); }
+function shopMatchUncommonPlusTool(d)        { return d.type==='tool' && ['uncommon','rare','legendary'].includes(d.rarity); }
+function shopMatchUncommonPlusMisc(d)        { return d.type==='misc' && ['uncommon','rare','legendary'].includes(d.rarity); }
+function shopMatchArchiveOrKey(d)            { return d.type==='archive' || d.type==='key'; }
+function shopMatchAnyItem(d)                 { return !!d.name; }
+
+function shopBuildTradePanel(item) {
+  if (!item) return;
+
+  const offerEl = document.getElementById('shop-trade-offer');
+  const invEl   = document.getElementById('shop-trade-inventory');
+  shopTradeSelectedIds = new Set();
+
+  const enchNote = item.hasEnchantment === 'yes' ? ' (enchanted — higher trade value)' : '';
+
+  // Always use the computed trade offer engine — real inventory validation
+  const reqs = shopComputeTradeOffer(item);
+
+  offerEl.innerHTML = `<span style="color:var(--text-muted);display:block;margin-bottom:0.3rem;">Trade offer for a ${item.rarity||''} ${item.type||'item'}${enchNote}:</span>` +
+    reqs.map((r,i) => `<span style="color:var(--gold);">${i>0?'<span style="color:var(--text-muted);"> + </span>':''}${r.qty}× ${r.label}</span>`).join('');
+
+  // Store reqs for confirm validation
+  document.getElementById('shop-tab-trade').dataset.reqs = JSON.stringify(reqs.map(r => ({ label: r.label, qty: r.qty })));
+
+  // Scan ALL inventory lists
+  const _allInvSelectors = [
+    '#inventory-list', '#hand-list', '#sheath-list',
+    '#body-slot-helm', '#body-slot-body', '#body-slot-legs', '#body-slot-feet',
+    '#accessories-rings', '#accessories-necklaces', '#accessories-mask', '#accessories-charms'
+  ];
+  const allInvDivs = _allInvSelectors.flatMap(sel =>
+    [...document.querySelectorAll(sel + ' .inventory-item')]
+  );
+
+
+  invEl.innerHTML = '';
+
+  if (!allInvDivs.length) {
+    invEl.innerHTML = '<div style="font-family:var(--font-fell);font-style:italic;font-size:0.82rem;color:var(--text-muted);padding:0.5rem 0;">Your inventory is empty.</div>';
+    return;
+  }
+
+  // For each inventory item, expand consumables into per-use rows (1 use = 1 tradeable unit)
+  allInvDivs.forEach(div => {
+    const d = shopInvItemData(div);
+    if (!d.type) return;
+
+    const matchingReqs = reqs.map((r, i) => r.matcher(d) ? i : -1).filter(i => i >= 0);
+    if (!matchingReqs.length) return;
+
+    const reqLabels = matchingReqs.map(i => reqs[i].label);
+    const rarityCol = {common:'var(--text-muted)',uncommon:'var(--mage)',rare:'var(--ice)',legendary:'var(--gold)'}[d.rarity] || 'var(--text-muted)';
+    const typeCol   = {weapon:'var(--red)',armor:'#5a9dc4',tool:'#5ab4a0',consumable:'#7ec87e',key:'var(--gold)',misc:'var(--text-muted)',archive:'var(--psion)'}[d.type] || 'var(--text-muted)';
+
+    // Consumables: one row per remaining use. Non-consumables: one row.
+    const units = d.type === 'consumable' ? Math.max(1, d.conUsesRemaining) : 1;
+
+    for (let useIdx = 0; useIdx < units; useIdx++) {
+      const rowKey = div.id + '::' + useIdx;
+
+      const row = document.createElement('div');
+      row.dataset.invId = div.id;
+      row.dataset.useIdx = useIdx;
+      row.dataset.rowKey = rowKey;
+      row.dataset.isConsumableUse = d.type === 'consumable' ? 'true' : 'false';
+      row.dataset.matchReqs = JSON.stringify(matchingReqs);
+      row.style.cssText = 'display:grid;grid-template-columns:auto 1fr;gap:0;align-items:center;background:var(--surface2);border:1px solid var(--border);cursor:pointer;transition:all 0.15s;';
+
+      const check = document.createElement('div');
+      check.style.cssText = 'width:28px;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:0.7rem;color:var(--text-muted);flex-shrink:0;align-self:stretch;border-right:1px solid var(--border);';
+      check.textContent = '○';
+
+      const info = document.createElement('div');
+      info.style.cssText = 'padding:0.45rem 0.65rem;min-width:0;';
+      const unitLabel = units > 1 ? ` <span style="font-family:var(--font-mono);font-size:0.45rem;color:var(--text-muted);">#${useIdx+1}</span>` : '';
+      const displayName = d.name || `[Unnamed ${d.conKind || d.type}]`;
+      info.innerHTML = `<div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.15rem;">
+        <span style="font-family:var(--font-display);font-size:0.78rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${displayName}</span>${unitLabel}
+        <span style="font-family:var(--font-mono);font-size:0.45rem;letter-spacing:0.1em;text-transform:uppercase;color:${typeCol};border:1px solid ${typeCol};padding:1px 5px;flex-shrink:0;">${d.type}</span>
+        ${d.rarity?`<span style="font-family:var(--font-mono);font-size:0.45rem;letter-spacing:0.1em;text-transform:uppercase;color:${rarityCol};flex-shrink:0;">${d.rarity}</span>`:''}
+      </div>
+      <div style="font-family:var(--font-mono);font-size:0.48rem;letter-spacing:0.08em;color:var(--text-muted);">satisfies: ${reqLabels[0]}${reqLabels.length>1?' (+ others)':''}</div>`;
+
+      row.appendChild(check);
+      row.appendChild(info);
+
+      row.addEventListener('click', () => {
+        if (shopTradeSelectedIds.has(rowKey)) {
+          shopTradeSelectedIds.delete(rowKey);
+          row.style.borderColor = 'var(--border)';
+          row.style.background = 'var(--surface2)';
+          check.textContent = '○';
+          check.style.color = 'var(--text-muted)';
+        } else {
+          shopTradeSelectedIds.add(rowKey);
+          row.style.borderColor = 'var(--gold)';
+          row.style.background = 'rgba(201,168,76,0.05)';
+          check.textContent = '●';
+          check.style.color = 'var(--gold)';
+        }
+        shopUpdateTradeSummary(reqs);
+      });
+
+      invEl.appendChild(row);
+    }
+  });
+
+  if (!invEl.children.length) {
+    invEl.innerHTML = '<div style="font-family:var(--font-fell);font-style:italic;font-size:0.82rem;color:var(--text-muted);padding:0.5rem 0;">None of your inventory items match the trade requirements.</div>';
+  }
+
+  shopUpdateTradeSummary(reqs);
+}
+
+function shopUpdateTradeSummary(reqs) {
+  const summaryEl = document.getElementById('shop-trade-selected-summary');
+  const confirmBtn = document.getElementById('shop-trade-confirm-btn');
+
+  const reqFilled = reqs.map(() => 0);
+  const invEl = document.getElementById('shop-trade-inventory');
+
+  shopTradeSelectedIds.forEach(rowKey => {
+    const row = invEl.querySelector(`[data-row-key="${rowKey}"]`);
+    if (!row) return;
+    const matchReqs = JSON.parse(row.dataset.matchReqs || '[]');
+    for (const ri of matchReqs) {
+      if (reqFilled[ri] < reqs[ri].qty) { reqFilled[ri]++; break; }
+    }
+  });
+
+  const allMet = reqs.every((r, i) => reqFilled[i] >= r.qty);
+  const lines = reqs.map((r, i) => {
+    const filled = reqFilled[i];
+    const met = filled >= r.qty;
+    const col = met ? 'var(--mage)' : 'var(--text-muted)';
+    return `<span style="color:${col};">${met?'✓':'○'} ${filled}/${r.qty}× ${r.label}</span>`;
+  });
+
+  summaryEl.innerHTML = lines.join('<br>');
+
+  confirmBtn.disabled = !allMet || shopTradeSelectedIds.size === 0;
+  confirmBtn.style.opacity = allMet && shopTradeSelectedIds.size > 0 ? '1' : '0.4';
+  confirmBtn.style.cursor  = allMet && shopTradeSelectedIds.size > 0 ? 'pointer' : 'not-allowed';
+}
+
+function shopConfirmTrade() {
+  if (!shopPendingItem || shopTradeSelectedIds.size === 0) return;
+
+  const invEl = document.getElementById('shop-trade-inventory');
+  const removed = [];
+
+  // Tally uses to consume per inventory div
+  const usesToConsume = new Map(); // divId → count
+  const divsToRemove = new Set();
+
+  shopTradeSelectedIds.forEach(rowKey => {
+    const row = invEl ? invEl.querySelector(`[data-row-key="${rowKey}"]`) : null;
+    const divId = row ? row.dataset.invId : rowKey.split('::')[0];
+    const isUse = row ? row.dataset.isConsumableUse === 'true' : false;
+    if (isUse) {
+      usesToConsume.set(divId, (usesToConsume.get(divId) || 0) + 1);
+    } else {
+      divsToRemove.add(divId);
+    }
+  });
+
+  // Decrement uses for consumable trades
+  usesToConsume.forEach((count, divId) => {
+    const div = document.getElementById(divId);
+    if (!div) return;
+    const name = div.querySelector('[data-key="name"]')?.value || 'Item';
+    removed.push(name);
+    const remEl = div.querySelector('.con-uses-remaining');
+    if (remEl) {
+      const cur = parseInt(remEl.dataset.remaining, 10) || 0;
+      const newRem = Math.max(0, cur - count);
+      remEl.dataset.remaining = newRem;
+      const max = parseInt(remEl.dataset.max, 10) || cur;
+      remEl.textContent = newRem + ' / ' + max;
+      // Disable use button if depleted
+      const useBtn = div.querySelector('.con-use-btn');
+      if (useBtn) useBtn.disabled = newRem <= 0;
+      // Remove item if depleted and single-use
+      if (newRem <= 0) {
+        const renewable = div.querySelector('[data-key="conRenewable"]')?.value || 'no';
+        if (renewable === 'no' && typeof removeItem === 'function') {
+          setTimeout(() => removeItem(divId), 400);
+        }
+      }
+    }
+  });
+
+  // Remove whole non-consumable items
+  divsToRemove.forEach(divId => {
+    const div = document.getElementById(divId);
+    if (!div) return;
+    const name = div.querySelector('[data-key="name"]')?.value || 'Item';
+    removed.push(name);
+    if (typeof removeItem === 'function') removeItem(divId);
+    else div.remove();
+  });
+
+  // Add purchased item to inventory
+  if (typeof addInventoryItem === 'function') {
+    addInventoryItem({ ...shopPendingItem });
+    const tradedList = removed.length <= 3 ? removed.join(', ') : removed.slice(0,2).join(', ') + ` + ${removed.length-2} more`;
+    shopShowToast(`Traded: ${tradedList} → ${shopPendingItem.name || 'Item'}`, 'var(--gold)');
+  } else {
+    shopShowToast('Could not add item — open Sheet tab first', 'var(--red)');
+  }
+
+  shopPendingItem = null;
+  shopTradeSelectedIds = new Set();
+  shopClosePurchaseModal();
+  shopRefreshCurrencyPanel();
+  if (shopCatalog.length) shopRenderCatalog();
+}
+
+function shopConfirmPurchase() {
+  if (!shopPendingItem) { shopClosePurchaseModal(); return; }
+  const item = shopPendingItem;
+  const cost = shopPendingCost;
+
+  // Spend currency if needed — only spend currency matching the item's required currency name
+  if (cost > 0) {
+    const _rawVal = item.value ? item.value.toString().trim() : '';
+    const _parsedCurr = _rawVal.replace(/^[\d.,\s◈]+/, '').trim() || null;
+    const _requiredCurr = item.currencyName || _parsedCurr;
+    const { currencyItems } = shopGetCurrencyState(_requiredCurr);
+    let toSpend = cost;
+    for (const c of currencyItems) {
+      if (toSpend <= 0) break;
+      const spend = Math.min(toSpend, c.remaining);
+      const newRem = c.remaining - spend;
+      c.usesEl.dataset.remaining = newRem;
+      c.usesEl.dataset.max = c.max;
+      c.usesEl.textContent = newRem + ' / ' + c.max;
+      toSpend -= spend;
+      // Trigger the use bar state update if possible
+      c.usesEl.dispatchEvent && c.usesEl.dispatchEvent(new Event('change'));
+    }
+  }
+
+  // Add item to inventory
+  if (typeof addInventoryItem === 'function') {
+    addInventoryItem({ ...item });
+    shopShowToast((cost > 0 ? '◈ ' + cost + ' spent — ' : '') + (item.name || 'Item') + ' added to inventory', 'var(--mage)');
+  } else {
+    shopShowToast('Could not add item — open Sheet tab first', 'var(--red)');
+  }
+
+  shopPendingItem = null;
+  shopPendingCost = 0;
+  shopClosePurchaseModal();
+  shopRefreshCurrencyPanel();
+  // Re-render cards to update currency totals on button labels
+  if (shopCatalog.length) shopRenderCatalog();
+}
+
+function shopClosePurchaseModal() {
+  const modal = document.getElementById('shop-purchase-modal');
+  if (modal) modal.style.display = 'none';
+  // Restore both tabs to visible for next open
+  const buyTabBtn = document.getElementById('shop-tab-buy-btn');
+  if (buyTabBtn) buyTabBtn.style.display = '';
+  shopPendingItem = null;
+}
+
+function shopShowToast(msg, color) {
+  const t = document.getElementById('shop-toast-el');
+  if (!t) return;
+  t.textContent = msg;
+  t.style.borderColor = color || 'var(--mage)';
+  t.style.color = color || 'var(--mage)';
+  t.style.opacity = '1';
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(t._shopTimer);
+  t._shopTimer = setTimeout(() => {
+    t.style.opacity = '0';
+    t.style.transform = 'translateX(-50%) translateY(10px)';
+  }, 2400);
+}
+
+// Re-render shop when switching to it (to pick up inventory changes)
+document.addEventListener('DOMContentLoaded', () => {
+  // Poll currency display when on shop tab — lightweight
+  setInterval(() => {
+    if (document.body.classList.contains('shop-mode')) {
+      shopRefreshCurrencyPanel();
+    }
+  }, 3000);
+});
 
 function toggleSheetPanel() {
   document.getElementById('sheet-switcher-panel').classList.toggle('open');
@@ -5925,6 +7148,9 @@ document.addEventListener('keydown', function(e) {
     const d = el.style.display;
     return d === 'flex' || d === 'block';
   });
+  // Close shop purchase modal first
+  const shopModal = document.getElementById('shop-purchase-modal');
+  if (shopModal && shopModal.style.display === 'flex') { shopClosePurchaseModal(); return; }
   // Close inventory modal first before propagating Escape
   const invModal = document.getElementById('inventory-modal');
   const scenModal = document.getElementById('begin-scenario-modal');
@@ -5940,8 +7166,11 @@ document.addEventListener('keydown', function(e) {
   e.stopPropagation();
 
   const inSheet = document.body.classList.contains('sheet-mode');
+  const inShop  = document.body.classList.contains('shop-mode');
 
-  if (inSheet) {
+  if (inShop) {
+    switchTab('guide');
+  } else if (inSheet) {
     switchTab('guide');
   } else {
     confirmDialog(
@@ -8705,6 +9934,15 @@ document.addEventListener('keydown', function(e) {
 
         if (actionType === 'attack') {
           const isRanged = range === 'ranged';
+          // ── AMMO GATE: block declaration if out of ammo ──
+          if (isRanged) {
+            const _gateAmmoType = getAmmoTypeForAction(item);
+            if (_gateAmmoType && countAmmo(_gateAmmoType) === 0) {
+              const _gateLabel = AMMO_LABELS[_gateAmmoType] || 'round';
+              toast('You try to fire but you realize you\'ve ran out of ammunition.', 'var(--red)');
+              return;
+            }
+          }
           let isCrit = false;
           let roll = 0, dieName = '', isMiss = false;
           if (isRanged) {
@@ -8815,6 +10053,16 @@ document.addEventListener('keydown', function(e) {
 
         let msg = name + ' — Full Commitment · Wounds: ' + totalWounds + ' (' + woundBreakdown + ') · Locked 4 phases';
         if (notes.length) msg += ' · ' + notes.join(', ');
+
+        // ── AMMO GATE: block FC declaration if out of ammo ──
+        if (isRanged) {
+          const _fcGateAmmoType = getAmmoTypeForAction(item);
+          if (_fcGateAmmoType && countAmmo(_fcGateAmmoType) === 0) {
+            const _fcGateLabel = AMMO_LABELS[_fcGateAmmoType] || 'round';
+            toast('You try to fire but you realize you\'ve ran out of ammunition.', 'var(--red)');
+            return;
+          }
+        }
 
         // ── AMMO CONSUMPTION (Full Commitment ranged) ──
         if (isRanged) {
@@ -9129,6 +10377,10 @@ document.addEventListener('keydown', function(e) {
 
             <div class="action-locked-summary" id="${id}-summary"></div>
             <div class="ranged-roll-section" style="display:none;margin-top:0.4rem;">
+              <div style="margin-bottom:0.35rem;display:flex;align-items:center;gap:0.5rem;">
+                <span style="font-family:var(--font-mono);font-size:0.52rem;letter-spacing:0.08em;color:var(--text-muted);white-space:nowrap;">Ammo</span>
+                <span class="action-ammo-stock" style="font-family:var(--font-mono);font-size:0.5rem;color:var(--text-muted);white-space:nowrap;"></span>
+              </div>
               <div class="roll-result ranged-roll-result" style="font-family:var(--font-mono);font-size:0.65rem;min-height:1em;"></div>
             </div>
 
@@ -9460,6 +10712,7 @@ document.addEventListener('keydown', function(e) {
         const rangedPanel = item.querySelector('.ranged-panel');
         if (closePanel) closePanel.style.display = range === 'close' ? 'block' : 'none';
         if (rangedPanel) rangedPanel.style.display = range === 'ranged' ? 'block' : 'none';
+        if (range === 'ranged') updateActionAmmoStock(id);
       }
 
       // ── AMMO HELPERS ──
@@ -9508,17 +10761,20 @@ document.addEventListener('keydown', function(e) {
       }
 
       // Get the ammo type required by the weapon linked to an action card
-      // Looks at all unsheathed weapons whose wpnAmmoType matches
+      // Determined entirely by weapon type — no customization
       function getAmmoTypeForAction(actionItem) {
-        // Weapon actions store their wpnType; find the equipped weapon with that type
         const wpnType = actionItem.dataset.wpnType || '';
+        if (wpnType) {
+          const typeData = WEAPON_TYPE_DATA[wpnType] || {};
+          if (typeData.defaultAmmo) return typeData.defaultAmmo;
+        }
+        // For action cards without a specific weapon type, check any equipped ranged weapon
         let ammoType = null;
-        document.querySelectorAll('#inventory-list .inventory-item').forEach(invItem => {
+        document.querySelectorAll('#inventory-list .inventory-item, #hand-list .inventory-item').forEach(invItem => {
           if (!invItem._weaponEquipped) return;
           const wt = invItem.querySelector('[data-key="wpnType"]')?.value || '';
-          if (wt !== wpnType && wpnType) return;
-          const at = invItem.querySelector('[data-key="wpnAmmoType"]')?.value || 'none';
-          if (at && at !== 'none') ammoType = at;
+          const td = WEAPON_TYPE_DATA[wt] || {};
+          if (td.defaultAmmo) ammoType = td.defaultAmmo;
         });
         return ammoType;
       }
@@ -9537,6 +10793,20 @@ document.addEventListener('keydown', function(e) {
         const resultEl = item.querySelector('.ranged-roll-result');
         resultEl.textContent = 'Accuracy: ' + dieName + ' → ' + roll + (roll === expertiseDie ? ' — CRIT HIT' : roll <= 2 ? ' — MISS' : '');
         resultEl.style.color = roll === expertiseDie ? 'var(--accent)' : roll <= 2 ? 'var(--red)' : 'var(--text-dim)';
+      }
+
+      // ── AMMO STOCK DISPLAY for action cards ──
+      function updateActionAmmoStock(id) {
+        const item = document.getElementById(id);
+        if (!item) return;
+        const stockEl = item.querySelector('.action-ammo-stock');
+        if (!stockEl) return;
+        const ammoType = getAmmoTypeForAction(item);
+        if (!ammoType) { stockEl.textContent = ''; return; }
+        const stock = countAmmo(ammoType);
+        const labels = { arrows:'arrows', 'great-arrows':'great arrows', bolts:'bolts', 'light-rounds':'light rounds', 'heavy-rounds':'heavy rounds' };
+        stockEl.textContent = stock + ' ' + (labels[ammoType] || ammoType);
+        stockEl.style.color = stock === 0 ? 'var(--red)' : stock <= 3 ? 'var(--gold)' : 'var(--text-muted)';
       }
 
       function updateMovementFatigue(id) {
@@ -9674,6 +10944,10 @@ document.addEventListener('keydown', function(e) {
 
             <!-- Ranged accuracy result (populated by Declare) -->
             <div class="ranged-roll-section" style="display:none;margin-top:0.4rem;">
+              <div style="margin-bottom:0.35rem;display:flex;align-items:center;gap:0.5rem;">
+                <span style="font-family:var(--font-mono);font-size:0.52rem;letter-spacing:0.08em;color:var(--text-muted);white-space:nowrap;">Ammo</span>
+                <span class="action-ammo-stock" style="font-family:var(--font-mono);font-size:0.5rem;color:var(--text-muted);white-space:nowrap;"></span>
+              </div>
               <div class="roll-result ranged-roll-result" style="font-family:var(--font-mono);font-size:0.65rem;min-height:1em;"></div>
             </div>
 
@@ -9844,14 +11118,14 @@ document.addEventListener('keydown', function(e) {
         // Martial Wraps
         'martial-wraps': { range:'close',  lightWounds:2, heavyName:'Roundhouse Kick',desc:'Wrapped hands. Speed-focused unarmed combat.',            lightName:'Skilled Punch' },
         // Fire — ranged
-        'shortbow':      { range:'ranged', lightWounds:3, heavyName:'Aimed Shot',     desc:'Compact bow. Fast draw, shorter effective range.',        lightName:'Fire' },
-        'bow':           { range:'ranged', lightWounds:4, heavyName:'Aimed Shot',     desc:'Standard bow. Balanced ranged option.',                   lightName:'Fire' },
-        'longbow':       { range:'ranged', lightWounds:5, heavyName:'Aimed Shot',     desc:'Long-range bow. High damage at distance.',                lightName:'Fire' },
-        'crossbow':      { range:'ranged', lightWounds:4, heavyName:'Aimed Shot',     desc:'Mechanical ranged weapon. Slow reload, high accuracy.',   lightName:'Fire' },
-        'pistol':        { range:'ranged', lightWounds:3, heavyName:'Point-Blank',    desc:'Sidearm. Concealable, quick to draw.',                    lightName:'Fire' },
-        'auto-pistol':   { range:'ranged', lightWounds:3, heavyName:'Burst',          desc:'Semi-auto sidearm. Rapid follow-up shots.',               lightName:'Fire' },
-        'auto-rifle':    { range:'ranged', lightWounds:4, heavyName:'Suppressive Fire',desc:'Automatic rifle. High rate of fire.',                    lightName:'Fire' },
-        'rifle':         { range:'ranged', lightWounds:5, heavyName:'Sniper Shot',    desc:'Precision firearm. Long range, high damage.',             lightName:'Fire' },
+        'shortbow':      { range:'ranged', defaultAmmo:'arrows',        lightWounds:3, heavyName:'Aimed Shot',      desc:'Compact bow. Fast draw, shorter effective range.',        lightName:'Fire' },
+        'bow':           { range:'ranged', defaultAmmo:'arrows',        lightWounds:4, heavyName:'Aimed Shot',      desc:'Standard bow. Balanced ranged option.',                   lightName:'Fire' },
+        'longbow':       { range:'ranged', defaultAmmo:'great-arrows',  lightWounds:5, heavyName:'Aimed Shot',      desc:'Long-range bow. High damage at distance.',                lightName:'Fire' },
+        'crossbow':      { range:'ranged', defaultAmmo:'bolts',         lightWounds:4, heavyName:'Aimed Shot',      desc:'Mechanical ranged weapon. Slow reload, high accuracy.',   lightName:'Fire' },
+        'pistol':        { range:'ranged', defaultAmmo:'heavy-rounds',  lightWounds:3, heavyName:'Point-Blank',     desc:'Sidearm. Concealable, quick to draw.',                    lightName:'Fire' },
+        'auto-pistol':   { range:'ranged', defaultAmmo:'light-rounds',  lightWounds:3, heavyName:'Burst',           desc:'Semi-auto sidearm. Rapid follow-up shots.',               lightName:'Fire' },
+        'auto-rifle':    { range:'ranged', defaultAmmo:'light-rounds',  lightWounds:4, heavyName:'Suppressive Fire',desc:'Automatic rifle. High rate of fire.',                     lightName:'Fire' },
+        'rifle':         { range:'ranged', defaultAmmo:'heavy-rounds',  lightWounds:5, heavyName:'Sniper Shot',     desc:'Precision firearm. Long range, high damage.',             lightName:'Fire' },
         'fusion':        { range:'close',  lightWounds:0, heavyName:'',               desc:'Dual-nature weapon. Combines two weapon types into one.',  lightName:'' },
       };
 
@@ -9973,6 +11247,13 @@ document.addEventListener('keydown', function(e) {
           rollBtn.className = 'declare-btn';
           rollBtn.textContent = 'Fire — Roll Accuracy';
           rollBtn.addEventListener('click', () => {
+            // ── AMMO GATE ──
+            const _waAmmoType = (WEAPON_TYPE_DATA[data.wpnType] || {}).defaultAmmo;
+            if (_waAmmoType && countAmmo(_waAmmoType) === 0) {
+              toast('You try to fire but you realize you\'ve ran out of ammunition.', 'var(--red)');
+              return;
+            }
+            if (_waAmmoType) consumeAmmo(_waAmmoType);
             const witMax = getStatDieMax('wit');
             const expMax = getStatDieMax('expertise');
             const witRoll = Math.ceil(Math.random() * witMax);
@@ -10093,6 +11374,10 @@ document.addEventListener('keydown', function(e) {
             </div>
             <div class="action-locked-summary" id="${id}-summary"></div>
             <div class="ranged-roll-section" style="display:none;margin-top:0.4rem;">
+              <div style="margin-bottom:0.35rem;display:flex;align-items:center;gap:0.5rem;">
+                <span style="font-family:var(--font-mono);font-size:0.52rem;letter-spacing:0.08em;color:var(--text-muted);white-space:nowrap;">Ammo</span>
+                <span class="action-ammo-stock" style="font-family:var(--font-mono);font-size:0.5rem;color:var(--text-muted);white-space:nowrap;"></span>
+              </div>
               <div class="roll-result ranged-roll-result" style="font-family:var(--font-mono);font-size:0.65rem;min-height:1em;"></div>
             </div>
             <div class="action-declare-section" id="${id}-declare-row">
@@ -10648,7 +11933,7 @@ document.addEventListener('keydown', function(e) {
       }
 
       function addInventoryItem(data) {
-        const listId = (_addingToHandList || _addingToActiveList || data?._activeList) ? 'hand-list' : 'inventory-list';
+        const listId = (_addingToHandList || data?._activeList) ? 'hand-list' : 'inventory-list';
         const list = document.getElementById(listId);
         const id = uid();
         const d = data || {};
@@ -10793,8 +12078,8 @@ document.addEventListener('keydown', function(e) {
           inner.appendChild(lbl); contentFn(inner); wrapper.appendChild(inner); return wrapper;
         }
 
-        // type + rarity + size selectors
-        const typeRow = document.createElement('div'); typeRow.className = 'inv-type-row'; typeRow.style.gridTemplateColumns = 'repeat(3,1fr)';
+        // type + rarity + weight + bulk selectors
+        const typeRow = document.createElement('div'); typeRow.className = 'inv-type-row'; typeRow.style.gridTemplateColumns = 'repeat(4,1fr)';
         const typeFg = document.createElement('div');
         const typeLabel = document.createElement('div'); typeLabel.className = 'inv-sub-label'; typeLabel.textContent = 'Item Type';
         const typeSel = document.createElement('select'); typeSel.className = 'inv-field-sel'; typeSel.setAttribute('data-key','type');
@@ -10814,17 +12099,29 @@ document.addEventListener('keydown', function(e) {
         raritySel.value = d.rarity || 'common';
         rarityFg.appendChild(rarityLabel); rarityFg.appendChild(raritySel);
 
+        // Weight — contributes to carry weight vs Might limit
         const sizeFg = document.createElement('div');
-        const sizeLabel = document.createElement('div'); sizeLabel.className = 'inv-sub-label'; sizeLabel.textContent = 'Size';
+        const sizeLabel = document.createElement('div'); sizeLabel.className = 'inv-sub-label'; sizeLabel.textContent = 'Weight';
         const sizeSel = document.createElement('select'); sizeSel.className = 'inv-field-sel'; sizeSel.setAttribute('data-key','itemSize');
-        [['1','Average (1)'],['2','Heavy (2)'],['3','Massive (3)'],['4','Colossal (4)']].forEach(([v,l])=>{
+        [['0','Feather (0)'],['1','Light (1)'],['2','Normal (2)'],['3','Heavy (3)'],['4','Massive (4)']].forEach(([v,l])=>{
           const o = document.createElement('option'); o.value=v; o.textContent=l; sizeSel.appendChild(o);
         });
         sizeSel.value = d.itemSize || '1';
         sizeSel.addEventListener('change', () => { updateActiveSlotDisplay(); checkEncumbrance(); });
         sizeFg.appendChild(sizeLabel); sizeFg.appendChild(sizeSel);
 
-        typeRow.appendChild(typeFg); typeRow.appendChild(rarityFg); typeRow.appendChild(sizeFg);
+        // Bulk — how many bag slots this item occupies
+        const bulkFg = document.createElement('div');
+        const bulkLabel = document.createElement('div'); bulkLabel.className = 'inv-sub-label'; bulkLabel.textContent = 'Size';
+        const bulkSel = document.createElement('select'); bulkSel.className = 'inv-field-sel'; bulkSel.setAttribute('data-key','itemBulk');
+        [['1','Tiny (1)'],['2','Small (2)'],['3','Medium (3)'],['4','Large (4)'],['5','Huge (5)'],['6','Enormous (6)'],['7','Colossal (7)']].forEach(([v,l])=>{
+          const o = document.createElement('option'); o.value=v; o.textContent=l; bulkSel.appendChild(o);
+        });
+        bulkSel.value = d.itemBulk || '1';
+        bulkSel.addEventListener('change', () => { updateActiveSlotDisplay(); checkEncumbrance(); });
+        bulkFg.appendChild(bulkLabel); bulkFg.appendChild(bulkSel);
+
+        typeRow.appendChild(typeFg); typeRow.appendChild(rarityFg); typeRow.appendChild(sizeFg); typeRow.appendChild(bulkFg);
         body.appendChild(typeRow);
 
         // description
@@ -10847,25 +12144,20 @@ document.addEventListener('keydown', function(e) {
           const g = document.createElement('div'); g.className = 'inv-g3';
           g.appendChild(ifield('Base Wounds','wpnWounds',d.wpnWounds,'0',true));
           g.appendChild(ifield('Modifier','wpnModifier',d.wpnModifier,'+0',true));
-          g.appendChild(iselect('Range','wpnRange',[['close','Close'],['ranged','Ranged'],['both','Both']],d.wpnRange));
           el.appendChild(g);
           el.appendChild(itags('Tags','wpnTags',INV_WPN_TAGS,d.wpnTags));
           el.appendChild(itextarea('Special Effect','wpnSpecial',d.wpnSpecial,'On-hit effect…',2));
 
-          // ── AMMO REQUIREMENT ROW ──
+          // ── AMMO REQUIREMENT ROW (read-only — determined by weapon type) ──
           const ammoReqRow = document.createElement('div');
           ammoReqRow.style.cssText = 'margin-top:0.5rem;display:none;';
-          const ammoReqFg = document.createElement('div'); ammoReqFg.className = 'inv-fg';
           const ammoReqLbl = document.createElement('div'); ammoReqLbl.className = 'inv-sub-label'; ammoReqLbl.textContent = 'Ammo Required';
-          const ammoReqSel = document.createElement('select'); ammoReqSel.className = 'inv-field-sel'; ammoReqSel.setAttribute('data-key','wpnAmmoType');
-          [['none','None (no ammo required)'],['arrows','Arrows'],['great-arrows','Great Arrows'],['bolts','Bolts'],['light-rounds','Light Rounds'],['heavy-rounds','Heavy Rounds']].forEach(([v,l]) => {
-            const o = document.createElement('option'); o.value = v; o.textContent = l; ammoReqSel.appendChild(o);
-          });
-          ammoReqSel.value = d.wpnAmmoType || 'none';
-          ammoReqFg.appendChild(ammoReqLbl); ammoReqFg.appendChild(ammoReqSel);
-          ammoReqRow.appendChild(ammoReqFg);
+          const ammoReqVal = document.createElement('div');
+          ammoReqVal.style.cssText = 'font-family:var(--font-mono);font-size:0.62rem;letter-spacing:0.08em;color:var(--text-dim);padding:0.3rem 0.4rem;background:var(--bg);border:1px solid var(--border);';
+          ammoReqRow.appendChild(ammoReqLbl);
+          ammoReqRow.appendChild(ammoReqVal);
 
-          // Ammo stock readout — shows how many rounds of the required type are in inventory
+          // Ammo stock readout
           const ammoStockNote = document.createElement('div');
           ammoStockNote.style.cssText = 'font-family:var(--font-mono);font-size:0.52rem;letter-spacing:0.08em;color:var(--text-muted);margin-top:3px;padding:0.25rem 0.4rem;background:var(--bg);border:1px solid var(--border);';
           ammoReqRow.appendChild(ammoStockNote);
@@ -10888,15 +12180,18 @@ document.addEventListener('keydown', function(e) {
           }
 
           function updateAmmoReqRow() {
-            const range = el.querySelector('[data-key="wpnRange"]')?.value || 'close';
-            const needsAmmoRow = range === 'ranged' || range === 'both';
+            const wpnTypeVal = el.querySelector('[data-key="wpnType"]')?.value || '';
+            const _rangedTypes = new Set(['shortbow','bow','longbow','crossbow','pistol','auto-pistol','auto-rifle','rifle']);
+            const needsAmmoRow = _rangedTypes.has(wpnTypeVal);
             ammoReqRow.style.display = needsAmmoRow ? '' : 'none';
             if (needsAmmoRow) {
-              const selectedAmmo = ammoReqSel.value;
-              if (selectedAmmo && selectedAmmo !== 'none') {
-                const stock = getAmmoStock(selectedAmmo);
-                const ammoLabels = {'arrows':'Arrows','great-arrows':'Great Arrows','bolts':'Bolts','light-rounds':'Light Rounds','heavy-rounds':'Heavy Rounds'};
-                ammoStockNote.textContent = '▸ ' + (ammoLabels[selectedAmmo] || selectedAmmo) + ' in inventory: ' + stock;
+              const typeData = WEAPON_TYPE_DATA[wpnTypeVal] || {};
+              const ammoType = typeData.defaultAmmo || '';
+              const ammoLabels = {'arrows':'Arrows','great-arrows':'Great Arrows','bolts':'Bolts','light-rounds':'Light Rounds','heavy-rounds':'Heavy Rounds'};
+              ammoReqVal.textContent = ammoLabels[ammoType] || ammoType;
+              if (ammoType) {
+                const stock = getAmmoStock(ammoType);
+                ammoStockNote.textContent = '▸ ' + (ammoLabels[ammoType] || ammoType) + ' in inventory: ' + stock;
                 ammoStockNote.style.color = stock === 0 ? 'var(--red)' : 'var(--text-muted)';
                 ammoStockNote.style.display = '';
               } else {
@@ -10905,8 +12200,7 @@ document.addEventListener('keydown', function(e) {
             }
           }
 
-          el.querySelector('[data-key="wpnRange"]')?.addEventListener('change', updateAmmoReqRow);
-          ammoReqSel.addEventListener('change', updateAmmoReqRow);
+          el.querySelector('[data-key="wpnType"]')?.addEventListener('change', updateAmmoReqRow);
           // Also refresh when panel opens
           setTimeout(updateAmmoReqRow, 50);
 
@@ -11077,11 +12371,11 @@ document.addEventListener('keydown', function(e) {
           updateFusionRow();
 
           // ── EQUIP TOGGLE ──
-          // ── Equip bar: unsheathe/sheathe ──
+          // ── Equip bar: draw/sheathe ──
           const equipBar = document.createElement('div');
           equipBar.style.cssText = 'margin-top:0.5rem;';
 
-          // Unsheathe/Sheathe row
+          // Draw/Sheathe row
           const unsheatheRow = document.createElement('div');
           unsheatheRow.style.cssText = 'display:flex;align-items:center;gap:0.6rem;padding:0.4rem 0.6rem;background:var(--bg);border:1px solid var(--red-dim);';
           const equipStatus = document.createElement('div');
@@ -11093,33 +12387,49 @@ document.addEventListener('keydown', function(e) {
           // State helpers
           function isInActiveList() { return div.closest('#hand-list') !== null; }
 
+          function isInSheathList() { return div.closest('#sheath-list') !== null; }
+
           function updateEquipBarState() {
-            equipStatus.textContent = weaponEquipped
-              ? (linkedActionIds.length > 0 ? '⚔ unsheathed — ' + linkedActionIds.length + ' declaration' + (linkedActionIds.length!==1?'s':'') + ' ready' : '⚔ unsheathed')
-              : '— sheathed';
-            equipStatus.style.color = weaponEquipped ? 'var(--red)' : 'var(--text-muted)';
-            equipBtn.textContent = weaponEquipped ? 'Sheathe' : 'Unsheathe';
-            // Sync quick buttons in top row
-            const inActive = isInActiveList();
+            const inHand   = isInActiveList();
+            const inSheath = isInSheathList();
+            if (inHand && weaponEquipped) {
+              equipStatus.textContent = linkedActionIds.length > 0
+                ? '⚔ drawn — ' + linkedActionIds.length + ' declaration' + (linkedActionIds.length!==1?'s':'') + ' ready'
+                : '⚔ drawn';
+              equipStatus.style.color = 'var(--red)';
+              equipBtn.textContent = 'Sheathe';
+            } else if (inSheath) {
+              equipStatus.textContent = '— sheathed';
+              equipStatus.style.color = 'var(--text-muted)';
+              equipBtn.textContent = 'Draw';
+            } else if (inHand) {
+              // In hand but not yet drawn — transitional state (e.g. just equipped from bag)
+              equipStatus.textContent = '— in hand';
+              equipStatus.style.color = 'var(--text-muted)';
+              equipBtn.textContent = 'Draw';
+            } else {
+              equipStatus.textContent = '— not equipped';
+              equipStatus.style.color = 'var(--text-muted)';
+              equipBtn.textContent = 'Draw';
+            }
             if (div._quickEquipBtn) {
               div._quickEquipBtn.style.display = '';
-              div._quickEquipBtn.textContent = inActive ? 'In active' : 'Equip';
-              div._quickEquipBtn.className = 'inv-quick-btn' + (inActive ? ' equipped' : '');
-              // Route to universal equip bar button (built after this panel)
+              div._quickEquipBtn.textContent = inHand ? 'Equipped' : 'Equip';
+              div._quickEquipBtn.className = 'inv-quick-btn' + (inHand ? ' equipped' : '');
               div._quickEquipBtn.onclick = () => {
                 const uniBtn = div.querySelector('.inv-universal-equip-btn');
                 if (uniBtn) uniBtn.click();
               };
             }
             if (div._quickUnsheatheBtn) {
-              div._quickUnsheatheBtn.style.display = inActive ? '' : 'none';
-              div._quickUnsheatheBtn.textContent = weaponEquipped ? 'Sheathe' : 'Draw';
-              div._quickUnsheatheBtn.className = 'inv-quick-btn inv-quick-unsheathe' + (weaponEquipped ? ' unsheathed' : '');
+              div._quickUnsheatheBtn.style.display = (inHand || inSheath) ? '' : 'none';
+              div._quickUnsheatheBtn.textContent = (inHand && weaponEquipped) ? 'Sheathe' : 'Draw';
+              div._quickUnsheatheBtn.className = 'inv-quick-btn inv-quick-unsheathe' + ((inHand && weaponEquipped) ? ' unsheathed' : '');
               div._quickUnsheatheBtn.onclick = () => equipBtn.click();
             }
           }
 
-          // Init from saved state — treat weaponEquipped as "was unsheathed" on load
+          // Init from saved state — treat weaponEquipped as "was drawn" on load
           const _savedUnsheathed = weaponEquipped;
           weaponEquipped = false; // reset — will restore via syncWeaponEquip if needed
 
@@ -11192,7 +12502,7 @@ document.addEventListener('keydown', function(e) {
 
                 div._linkedActionIds = linkedActionIds;
                 const count = linkedActionIds.length;
-                equipStatus.textContent = '⚔ unsheathed — Fusion [' + (fusionMode === 'constant' ? 'Constant' : 'Mode '+fusionActiveMode) + '] — ' + count + ' declaration' + (count !== 1 ? 's' : '') + ' ready';
+                equipStatus.textContent = '⚔ drawn — Fusion [' + (fusionMode === 'constant' ? 'Constant' : 'Mode '+fusionActiveMode) + '] — ' + count + ' declaration' + (count !== 1 ? 's' : '') + ' ready';
                 equipStatus.style.color = 'var(--ice)';
                 equipBtn.textContent = 'Sheathe';
                 badge.style.outline = '1px solid var(--ice)';
@@ -11242,13 +12552,15 @@ document.addEventListener('keydown', function(e) {
               }
 
               const count = linkedActionIds.length;
-              equipStatus.textContent = '⚔ unsheathed — ' + count + ' declaration' + (count !== 1 ? 's' : '') + ' ready';
+              equipStatus.textContent = '⚔ drawn — ' + count + ' declaration' + (count !== 1 ? 's' : '') + ' ready';
               equipStatus.style.color = 'var(--red)';
               equipBtn.textContent = 'Sheathe';
               badge.style.outline = '1px solid var(--red)';
-              // ── AMMO WARNING on unsheathe ──
-              const wpnAmmoReq = el.querySelector('[data-key="wpnAmmoType"]')?.value || 'none';
-              if ((range === 'ranged' || range === 'both') && wpnAmmoReq && wpnAmmoReq !== 'none') {
+              // ── AMMO WARNING on draw ──
+              const _drawWpnType = el.querySelector('[data-key="wpnType"]')?.value || '';
+              const _drawTypeData = WEAPON_TYPE_DATA[_drawWpnType] || {};
+              const wpnAmmoReq = _drawTypeData.defaultAmmo || null;
+              if (wpnAmmoReq) {
                 const stock = countAmmo(wpnAmmoReq);
                 const ammoLabel = AMMO_LABELS[wpnAmmoReq] || 'round';
                 if (stock === 0) {
@@ -11274,7 +12586,7 @@ document.addEventListener('keydown', function(e) {
 
               equipStatus.textContent = '— sheathed';
               equipStatus.style.color = 'var(--text-muted)';
-              equipBtn.textContent = 'Unsheathe';
+              equipBtn.textContent = 'Draw';
               badge.style.outline = '';
               toast(wpnName + ' unequipped', 'var(--text-muted)');
               refreshAllActionWeaponPickers();
@@ -11296,39 +12608,73 @@ document.addEventListener('keydown', function(e) {
             }
           });
 
-          // Unsheathe/Sheathe — only works when weapon is in active items
+          // Draw/Sheathe — in hand+drawn = active, sheath slot = sheathed, in hand not drawn = transitional
           equipBtn.addEventListener('click', () => {
-            if (!isInActiveList()) { toast('Move weapon to Hand slot first', 'var(--text-muted)'); return; }
-            weaponEquipped = !weaponEquipped;
-            div._weaponEquipped = weaponEquipped;
-            syncWeaponEquip();
-            syncEnchantmentTrait(div, weaponEquipped);
-            if (typeSel.value === 'gauntlets') syncGauntletHandSlot(weaponEquipped, selectedHand, div.querySelector('[data-key="name"]')?.value || 'Gauntlets');
-            updateEquipBarState();
+            const inHand   = isInActiveList();
+            const inSheath = isInSheathList();
+
+            if (inSheath) {
+              // Draw: move from sheath to hand and activate
+              if (!moveWeaponFromSheath(div)) return;
+              weaponEquipped = true;
+              div._weaponEquipped = true;
+              if (typeSel.value === 'gauntlets') div._handSlotsUsed = (selectedHand === 'both') ? 2 : 1;
+              syncWeaponEquip();
+              syncEnchantmentTrait(div, true);
+              if (typeSel.value === 'gauntlets') syncGauntletHandSlot(true, selectedHand, div.querySelector('[data-key="name"]')?.value || 'Gauntlets');
+              updateEquipBarState();
+            } else if (inHand && weaponEquipped) {
+              // Sheathe: move from hand to sheath slot and deactivate
+              if (!moveWeaponToSheath(div)) return;
+              weaponEquipped = false;
+              div._weaponEquipped = false;
+              div._handSlotsUsed = 1;
+              removeLinkedActions();
+              syncEnchantmentTrait(div, false);
+              if (typeSel.value === 'gauntlets') syncGauntletHandSlot(false, selectedHand, div.querySelector('[data-key="name"]')?.value || 'Gauntlets');
+              updateEquipBarState();
+              updateActiveSlotDisplay();
+            } else if (inHand && !weaponEquipped) {
+              // In hand but not drawn — draw it
+              weaponEquipped = true;
+              div._weaponEquipped = true;
+              if (typeSel.value === 'gauntlets') div._handSlotsUsed = (selectedHand === 'both') ? 2 : 1;
+              syncWeaponEquip();
+              syncEnchantmentTrait(div, true);
+              if (typeSel.value === 'gauntlets') syncGauntletHandSlot(true, selectedHand, div.querySelector('[data-key="name"]')?.value || 'Gauntlets');
+              updateEquipBarState();
+            } else {
+              toast('Equip the weapon to hand first', 'var(--text-muted)');
+            }
           });
 
           // When hand selection changes on an equipped gauntlet, re-sync slot
           handBtnRow.querySelectorAll('button').forEach(hb => {
             hb.addEventListener('click', () => {
               if (weaponEquipped && typeSel.value === 'gauntlets') {
-                setTimeout(() => syncGauntletHandSlot(true, selectedHand, div.querySelector('[data-key="name"]')?.value || 'Gauntlets'), 0);
+                div._handSlotsUsed = (selectedHand === 'both') ? 2 : 1;
+                setTimeout(() => { syncGauntletHandSlot(true, selectedHand, div.querySelector('[data-key="name"]')?.value || 'Gauntlets'); updateActiveSlotDisplay(); }, 0);
               }
             });
           });
 
           // When weapon type changes away from/to gauntlets while equipped, re-sync
           typeSel.addEventListener('change', () => {
-            if (weaponEquipped) syncGauntletHandSlot(typeSel.value === 'gauntlets', selectedHand, div.querySelector('[data-key="name"]')?.value || 'Gauntlets');
+            if (weaponEquipped) {
+              if (typeSel.value === 'gauntlets') div._handSlotsUsed = (selectedHand === 'both') ? 2 : 1;
+              else div._handSlotsUsed = 1;
+              syncGauntletHandSlot(typeSel.value === 'gauntlets', selectedHand, div.querySelector('[data-key="name"]')?.value || 'Gauntlets');
+            }
           });
 
           // Store unregister hook for when item is removed
           div._unregisterGauntletSlot = () => {
-            if (weaponEquipped && typeSel.value === 'gauntlets') syncGauntletHandSlot(false, selectedHand, '');
+            if (weaponEquipped && typeSel.value === 'gauntlets') { div._handSlotsUsed = 1; syncGauntletHandSlot(false, selectedHand, ''); }
           };
           const _origRmBtn = div.querySelector('.remove-btn');
           if (_origRmBtn) {
             _origRmBtn.addEventListener('click', () => {
-              if (weaponEquipped && typeSel.value === 'gauntlets') syncGauntletHandSlot(false, selectedHand, '');
+              if (weaponEquipped && typeSel.value === 'gauntlets') { div._handSlotsUsed = 1; syncGauntletHandSlot(false, selectedHand, ''); }
             });
           }
 
@@ -11338,6 +12684,7 @@ document.addEventListener('keydown', function(e) {
               if (_isDeserializing) { setTimeout(_tryEquip, 50); return; }
               weaponEquipped = true;
               div._weaponEquipped = true;
+              if (typeSel.value === 'gauntlets') div._handSlotsUsed = (selectedHand === 'both') ? 2 : 1;
               syncWeaponEquip();
               if (typeSel.value === 'gauntlets') syncGauntletHandSlot(true, selectedHand, div.querySelector('[data-key="name"]')?.value || 'Gauntlets');
               updateEquipBarState();
@@ -11435,7 +12782,7 @@ document.addEventListener('keydown', function(e) {
           wearStatus.textContent = armorWorn ? '▲ currently worn' : '— not worn';
 
           const wearBtn = document.createElement('button');
-          wearBtn.className = 'con-use-btn';
+          wearBtn.className = 'con-use-btn armor-wear-btn';
           wearBtn.style.cssText = 'border-color:var(--blue);color:var(--blue);';
           wearBtn.textContent = armorWorn ? 'Remove' : 'Wear';
 
@@ -11475,24 +12822,49 @@ document.addEventListener('keydown', function(e) {
 
           wearBtn.addEventListener('click', () => {
             if (!armorWorn) {
-              // Determine target body slot
+              // Wearing: validate slot selected
               const slotKey = selectedSlot;
-              if (!slotKey) { toast('Select a body slot (Helm / Body / Legs) first', 'var(--red)'); return; }
+              if (!slotKey) { toast('Select a body slot (Helm / Body / Legs / Feet) first', 'var(--red)'); return; }
               const slotDomId = 'body-slot-' + (slotKey === 'body-armor' ? 'body' : slotKey);
               const slotEl = document.getElementById(slotDomId);
               if (!slotEl) { toast('Body slot not found — open Inventory', 'var(--red)'); return; }
+              // Enforce slot-type matching — item's armSlot must match target slot
+              const itemSlot = slotSel.value || selectedSlot;
+              if (itemSlot && itemSlot !== slotKey) {
+                const slotLabels = {'helm':'Helm','body-armor':'Body','legs':'Legs','feet':'Feet'};
+                toast('This piece is set to ' + (slotLabels[itemSlot]||itemSlot) + ' — it can\'t be worn in the ' + (slotLabels[slotKey]||slotKey) + ' slot', 'var(--red)'); return;
+              }
               if (slotEl.querySelector('.inventory-item') && slotEl.querySelector('.inventory-item') !== div) {
                 const slotLabels = {'helm':'Helm','body-armor':'Body','legs':'Legs','feet':'Feet'};
                 toast(slotLabels[slotKey] + ' slot is already occupied — remove current piece first', 'var(--red)'); return;
               }
-              // Move into body slot
+              // Cancel equip state — item leaves hand
+              div._itemEquipped = false;
+              const uniStatus = div.querySelector('.inv-universal-equip-status');
+              const uniBtn = div.querySelector('.inv-universal-equip-btn');
+              if (uniStatus) { uniStatus.textContent = '— not equipped'; uniStatus.style.color = 'var(--text-muted)'; }
+              if (uniBtn) uniBtn.textContent = 'Equip';
+              // Move directly into body slot
               slotEl.appendChild(div);
+            } else {
+              // Removing: send back to bag
+              moveItemToInventory(div);
+              div._itemEquipped = false;
+              const uniStatus = div.querySelector('.inv-universal-equip-status');
+              const uniBtn = div.querySelector('.inv-universal-equip-btn');
+              if (uniStatus) { uniStatus.textContent = '— not equipped'; uniStatus.style.color = 'var(--text-muted)'; }
+              if (uniBtn) uniBtn.textContent = 'Equip';
             }
             armorWorn = !armorWorn;
             div._armorWorn = armorWorn;
-            if (!armorWorn) moveItemToInventory(div);
             syncArmorWear();
             syncEnchantmentTrait(div, armorWorn);
+            // Sync universal equip bar button text
+            const uniStatus = div.querySelector('.inv-universal-equip-status');
+            const uniBtn = div.querySelector('.inv-universal-equip-btn');
+            if (uniStatus) { uniStatus.textContent = div._itemEquipped ? '▲ equipped' : '— not equipped'; uniStatus.style.color = div._itemEquipped ? 'var(--gold)' : 'var(--text-muted)'; }
+            if (uniBtn) uniBtn.textContent = div._itemEquipped ? 'Unequip' : 'Equip';
+            updateActiveSlotDisplay();
           });
 
         // Expose a forceUnwear hook so destroyArmorPiece can reset the closure state
@@ -11505,9 +12877,13 @@ div._forceUnwear = () => {
     wearStatus.textContent = '— not worn';
     wearStatus.style.color = 'var(--text-muted)';
     badge.style.outline = '';
+    div._itemEquipped = false;
     // Move back to bag
-    const invList = document.getElementById('inventory-list');
-    if (invList) invList.appendChild(div);
+    moveItemToInventory(div);
+    const uniStatus = div.querySelector('.inv-universal-equip-status');
+    const uniBtn = div.querySelector('.inv-universal-equip-btn');
+    if (uniStatus) { uniStatus.textContent = '— not equipped'; uniStatus.style.color = 'var(--text-muted)'; }
+    if (uniBtn) uniBtn.textContent = 'Equip';
     syncEnchantmentTrait(div, false);
     rebuildTracks();
   }
@@ -11566,7 +12942,7 @@ div._forceUnwear = () => {
           const kindFg = document.createElement('div'); kindFg.className = 'inv-fg';
           const kindLbl = document.createElement('div'); kindLbl.className = 'inv-sub-label'; kindLbl.textContent = 'Consumable Kind';
           const kindSel = document.createElement('select'); kindSel.className = 'inv-field-sel'; kindSel.setAttribute('data-key','conKind');
-          [['other','Other'],['food','Food (heals wounds)'],['water','Water (heals fatigue)'],['aid','Aid (wounds + status)'],['material','Material (repairs armor)'],['ammo','Ammo (ranged weapons)']].forEach(([v,l]) => {
+          [['other','Other'],['food','Food (heals wounds)'],['water','Water (heals fatigue)'],['aid','Aid (wounds + status)'],['material','Material (repairs armor)'],['ammo','Ammo (ranged weapons)'],['currency','Currency (spend in shop)']].forEach(([v,l]) => {
             const o = document.createElement('option'); o.value = v; o.textContent = l; kindSel.appendChild(o);
           });
           kindSel.value = d.conKind || 'other';
@@ -11660,6 +13036,7 @@ div._forceUnwear = () => {
             const isAid  = kind === 'aid';
             const isMaterial = kind === 'material';
             const isAmmo = kind === 'ammo';
+            const isCurrency = kind === 'currency';
             matFg.style.display = isMaterial ? '' : 'none';
             ammoFg.style.display = isAmmo ? '' : 'none';
             healFg.style.display = isAuto ? '' : 'none';
@@ -11667,8 +13044,8 @@ div._forceUnwear = () => {
             if (aidFgEl) aidFgEl.style.display = isAid ? '' : 'none';
             const aidSwEl = document.getElementById('aid-status-wrap-' + id);
             if (aidSwEl) aidSwEl.style.display = isAid ? '' : 'none';
-            effectWrap.style.display = (isAuto || isAid || isMaterial || isAmmo) ? 'none' : '';
-            autoDesc.style.display = (isAuto || isAid || isMaterial || isAmmo) ? '' : 'none';
+            effectWrap.style.display = (isAuto || isAid || isMaterial || isAmmo || isCurrency) ? 'none' : '';
+            autoDesc.style.display = (isAuto || isAid || isMaterial || isAmmo || isCurrency) ? '' : 'none';
             if (kind === 'food') {
               healLbl.textContent = 'Wounds healed';
               autoDesc.textContent = '▸ On use: heals wounds from wound pool (filled → cleared)';
@@ -11680,18 +13057,18 @@ div._forceUnwear = () => {
             } else if (isMaterial) {
               autoDesc.textContent = '▸ On use: opens repair dialog — requires matching armor material & Improvised Repair trait or a mechanic/blacksmith.';
             } else if (isAmmo) {
-              const ammoLabels = {'arrows':'Arrows','great-arrows':'Great Arrows','bolts':'Bolts','light-rounds':'Light Rounds','heavy-rounds':'Heavy Rounds'};
               autoDesc.textContent = '▸ On use: 1 round/arrow/bolt consumed per ranged attack. Weapon must declare this ammo type.';
+            } else if (isCurrency) {
+              autoDesc.textContent = '▸ Spendable in the Item Shop tab — each "use" is one unit of currency. Browse the shop and spend to add items to your inventory automatically.';
             }
-            // Hide enchantment panel entirely for materials/ammo — they can't be enchanted
+            // Hide enchantment panel for materials/ammo/currency — they can't be enchanted
             const enchPanelEl = document.getElementById('inv-panel-enchantment-' + id);
             if (enchPanelEl) {
-              if (isMaterial || isAmmo) {
+              if (isMaterial || isAmmo || isCurrency) {
                 enchPanelEl.classList.remove('inv-panel-visible');
                 enchPanelEl.dataset.hiddenByMaterial = 'true';
               } else if (enchPanelEl.dataset.hiddenByMaterial) {
                 delete enchPanelEl.dataset.hiddenByMaterial;
-                // Only re-show if item type panel logic would normally show it
                 if (div.querySelector('[data-key="type"]')?.value !== 'archive') {
                   enchPanelEl.classList.add('inv-panel-visible');
                 }
@@ -12014,7 +13391,7 @@ div._forceUnwear = () => {
           const accTypeFg = document.createElement('div'); accTypeFg.className = 'inv-fg'; accTypeFg.style.marginTop = '0.35rem';
           const accTypeLbl = document.createElement('div'); accTypeLbl.className = 'inv-sub-label'; accTypeLbl.textContent = 'Accessory Type';
           const accTypeSel = document.createElement('select'); accTypeSel.className = 'inv-field-sel'; accTypeSel.setAttribute('data-key','miscAccType');
-          [['ring','Ring (max 10)'],['necklace','Necklace (max 3)'],['mask','Mask (max 1)']].forEach(([v,l]) => {
+          [['ring','Ring (max 10)'],['necklace','Necklace (max 3)'],['mask','Mask (max 1)'],['charm','Charm (max 5)']].forEach(([v,l]) => {
             const o = document.createElement('option'); o.value = v; o.textContent = l; accTypeSel.appendChild(o);
           });
           accTypeSel.value = d.miscAccType || 'ring';
@@ -12040,7 +13417,7 @@ div._forceUnwear = () => {
           function syncAccWear() {
             const name = div.querySelector('[data-key="name"]')?.value || 'Accessory';
             const accType = accTypeSel.value;
-            const typeLabels = { ring: 'ring', necklace: 'necklace', mask: 'mask' };
+            const typeLabels = { ring: 'ring', necklace: 'necklace', mask: 'mask', charm: 'charm' };
             if (accWorn) {
               wearBtn.textContent = 'Remove';
               wearStatus.textContent = '✦ worn as ' + typeLabels[accType];
@@ -12072,7 +13449,7 @@ div._forceUnwear = () => {
               const count = listEl.querySelectorAll('.inventory-item').length;
               const max = ACC_LIMITS[accType];
               if (count >= max) {
-                const labels = { ring: 'ring', necklace: 'necklace', mask: 'mask' };
+                const labels = { ring: 'ring', necklace: 'necklace', mask: 'mask', charm: 'charm' };
                 toast('Maximum ' + max + ' ' + labels[accType] + (max !== 1 ? 's' : '') + ' allowed', 'var(--red)');
                 return;
               }
@@ -12083,6 +13460,8 @@ div._forceUnwear = () => {
             accWorn = !accWorn;
             div._accWorn = accWorn;
             syncAccWear();
+            // Activate/deactivate enchantment when worn state changes
+            syncEnchantmentTrait(div, accWorn);
           });
 
           wearBar.appendChild(wearStatus);
@@ -12103,7 +13482,7 @@ div._forceUnwear = () => {
               if (_isDeserializing) { setTimeout(_tryWear, 50); return; }
               const accType = accTypeSel.value;
               const listEl = document.getElementById(ACC_LIST_IDS[accType]);
-              if (listEl) { listEl.appendChild(div); syncAccWear(); }
+              if (listEl) { listEl.appendChild(div); syncAccWear(); syncEnchantmentTrait(div, true); }
             };
             setTimeout(_tryWear, 80);
           }
@@ -12163,20 +13542,6 @@ div._forceUnwear = () => {
 
             const isTechnique = actData._isTechnique || (actData.weaponReq && actData.weaponReq !== 'unarmed' && actData.weaponReq !== '');
 
-            const studyBtn = document.createElement('button');
-            studyBtn.style.cssText = 'background:none;border:1px solid var(--gold);color:var(--gold);font-family:var(--font-mono);font-size:0.52rem;letter-spacing:0.1em;padding:2px 8px;cursor:pointer;text-transform:uppercase;transition:all 0.15s;flex-shrink:0;';
-            studyBtn.textContent = '★ Study';
-            studyBtn.title = 'Grant this declaration to your ' + (isTechnique ? 'Techniques' : 'Skills');
-            studyBtn.addEventListener('click', () => {
-              if (isTechnique) {
-                addTechnique(actData);
-                toast((actData.name || 'Declaration') + ' learned — added to Techniques', 'var(--gold)');
-              } else {
-                addAction(actData);
-                toast((actData.name || 'Declaration') + ' learned — added to Skills', 'var(--gold)');
-              }
-            });
-
             const restoreBtn = document.createElement('button');
             restoreBtn.style.cssText = 'background:none;border:1px solid var(--psion);color:var(--psion);font-family:var(--font-mono);font-size:0.52rem;letter-spacing:0.1em;padding:2px 8px;cursor:pointer;text-transform:uppercase;transition:all 0.15s;flex-shrink:0;';
             restoreBtn.textContent = 'Restore';
@@ -12193,7 +13558,6 @@ div._forceUnwear = () => {
 
             entry.appendChild(nameEl);
             entry.appendChild(typeEl);
-            entry.appendChild(studyBtn);
             entry.appendChild(restoreBtn);
             entry.appendChild(removeBtn);
             actionList.appendChild(entry);
@@ -12319,6 +13683,138 @@ div._forceUnwear = () => {
           });
           el.appendChild(lockBtn);
 
+          // ── STUDY ARCHIVE BUTTON ──
+          const studyArchiveBtn = document.createElement('button');
+          studyArchiveBtn.style.cssText = 'width:100%;background:none;border:1px solid var(--gold);color:var(--gold);font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.2em;padding:0.4rem;cursor:pointer;text-transform:uppercase;transition:all 0.2s;margin-top:0.4rem;';
+          studyArchiveBtn.textContent = '★ Study Archive';
+          el.appendChild(studyArchiveBtn);
+
+          // ── STUDY PANEL (inline, toggled by Study button) ──
+          const studyPanel = document.createElement('div');
+          studyPanel.style.cssText = 'display:none;margin-top:0.6rem;border:1px solid rgba(201,168,76,0.25);background:rgba(201,168,76,0.04);padding:0.75rem;';
+          el.appendChild(studyPanel);
+
+          studyArchiveBtn.addEventListener('click', () => {
+            if (studyPanel.style.display !== 'none') {
+              studyPanel.style.display = 'none';
+              studyArchiveBtn.textContent = '★ Study Archive';
+              return;
+            }
+
+            // Build study panel
+            studyPanel.innerHTML = '';
+            studyArchiveBtn.textContent = '✕ Close Study';
+
+            const slotMax  = getActionSlotMax();
+            const slotUsed = document.querySelectorAll('#actions-list .additive-item').length;
+            const slotFree = slotMax - slotUsed;
+
+            const hdr = document.createElement('div');
+            hdr.style.cssText = 'font-family:var(--font-mono);font-size:0.52rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.6rem;';
+            hdr.textContent = 'Insight allows ' + slotMax + ' skills — ' + slotUsed + ' used, ' + Math.max(0, slotFree) + ' free';
+            studyPanel.appendChild(hdr);
+
+            const entries = [...actionList.querySelectorAll('.archive-action-entry')];
+            if (!entries.length) {
+              const empty = document.createElement('div');
+              empty.style.cssText = 'font-family:var(--font-fell);font-style:italic;font-size:0.82rem;color:var(--text-muted);';
+              empty.textContent = 'No actions stored in this archive.';
+              studyPanel.appendChild(empty);
+              return;
+            }
+
+            const checkList = document.createElement('div');
+            checkList.style.cssText = 'display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.75rem;';
+
+            entries.forEach(entry => {
+              let actData;
+              try { actData = JSON.parse(entry.dataset.actionData); } catch { return; }
+              if (!actData) return;
+
+              const isTech = actData._isTechnique || (actData.weaponReq && actData.weaponReq !== 'unarmed' && actData.weaponReq !== '');
+
+              const row = document.createElement('div');
+              row.style.cssText = 'display:flex;align-items:center;gap:0.5rem;padding:0.3rem 0.45rem;background:var(--surface2);border:1px solid var(--border);cursor:pointer;transition:all 0.15s;';
+
+              const chk = document.createElement('div');
+              chk.style.cssText = 'font-family:var(--font-mono);font-size:0.65rem;color:var(--text-muted);flex-shrink:0;width:14px;text-align:center;';
+              chk.textContent = '○';
+
+              const lbl = document.createElement('div');
+              lbl.style.cssText = 'flex:1;font-family:var(--font-display);font-size:0.72rem;color:var(--text-dim);';
+              lbl.textContent = (actData.name || 'Unnamed') + (isTech ? ' · technique' : ' · skill');
+
+              let checked = false;
+              row.addEventListener('click', () => {
+                if (!checked) {
+                  // Count how many are already checked
+                  const checkedCount = [...checkList.querySelectorAll('[data-checked="true"]')].length;
+                  if (!isTech && checkedCount >= slotFree) {
+                    toast('Insight limit reached — ' + slotMax + ' skills max. Remove a skill first.', 'var(--red)');
+                    return;
+                  }
+                  checked = true;
+                  row.dataset.checked = 'true';
+                  row.style.borderColor = 'var(--gold)';
+                  row.style.background = 'rgba(201,168,76,0.07)';
+                  chk.textContent = '●';
+                  chk.style.color = 'var(--gold)';
+                  lbl.style.color = 'var(--text)';
+                } else {
+                  checked = false;
+                  row.dataset.checked = 'false';
+                  row.style.borderColor = 'var(--border)';
+                  row.style.background = 'var(--surface2)';
+                  chk.textContent = '○';
+                  chk.style.color = 'var(--text-muted)';
+                  lbl.style.color = 'var(--text-dim)';
+                }
+              });
+
+              row.dataset.actData = entry.dataset.actionData;
+              row.dataset.isTech = isTech ? 'true' : 'false';
+              row.appendChild(chk);
+              row.appendChild(lbl);
+              checkList.appendChild(row);
+            });
+
+            studyPanel.appendChild(checkList);
+
+            const learnBtn = document.createElement('button');
+            learnBtn.style.cssText = 'width:100%;background:none;border:1px solid var(--gold);color:var(--gold);font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.2em;padding:0.45rem;cursor:pointer;text-transform:uppercase;transition:all 0.2s;';
+            learnBtn.textContent = '★ Learn Selected';
+            learnBtn.addEventListener('click', () => {
+              const selected = [...checkList.querySelectorAll('[data-checked="true"]')];
+              if (!selected.length) { toast('Select at least one action to learn', 'var(--text-muted)'); return; }
+
+              let learned = 0, skipped = 0;
+              selected.forEach(row => {
+                let actData;
+                try { actData = JSON.parse(row.dataset.actData); } catch { return; }
+                const isTech = row.dataset.isTech === 'true';
+                if (isTech) {
+                  addTechnique(actData);
+                  learned++;
+                } else {
+                  const cur = document.querySelectorAll('#actions-list .additive-item').length;
+                  if (cur >= getActionSlotMax()) { skipped++; return; }
+                  addAction(actData);
+                  learned++;
+                }
+              });
+
+              updateActionSlots();
+              studyPanel.style.display = 'none';
+              studyArchiveBtn.textContent = '★ Study Archive';
+
+              if (learned > 0 && skipped === 0) toast(learned + ' action' + (learned !== 1 ? 's' : '') + ' learned from archive', 'var(--gold)');
+              else if (learned > 0) toast(learned + ' learned, ' + skipped + ' skipped — Insight limit reached', 'var(--gold)');
+              else toast('Could not learn — Insight limit reached', 'var(--red)');
+            });
+            studyPanel.appendChild(learnBtn);
+            studyPanel.style.display = '';
+          });
+
           div._serializeArchive = () => [...actionList.querySelectorAll('.archive-action-entry')].map(e => {
             try { return JSON.parse(e.dataset.actionData); } catch { return null; }
           }).filter(Boolean);
@@ -12329,7 +13825,7 @@ div._forceUnwear = () => {
         }));
 
         // ── UNIVERSAL EQUIP BAR — moves item into/out of active slots ──
-        // All types get this gold equip toggle. Weapons additionally have Unsheathe/Sheathe.
+        // All types get this gold equip toggle. Weapons additionally have Draw/Sheathe.
         // Armor additionally has Wear/Remove inside its panel.
         if (true) {
           let itemEquipped = d.itemEquipped || false;
@@ -12339,6 +13835,7 @@ div._forceUnwear = () => {
           equipBar.style.cssText = 'display:flex;align-items:center;gap:0.6rem;margin-top:0.75rem;padding:0.45rem 0.6rem;background:var(--bg);border:1px solid var(--gold-dim);';
 
           const equipStatus = document.createElement('div');
+          equipStatus.className = 'inv-universal-equip-status';
           equipStatus.style.cssText = 'font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.1em;color:var(--text-muted);flex:1;';
           equipStatus.textContent = itemEquipped ? '▲ equipped' : '— not equipped';
 
@@ -12357,12 +13854,82 @@ div._forceUnwear = () => {
           }
 
           equipBtn.addEventListener('click', () => {
+            const isArmor = div.querySelector('[data-key="armFortitude"]') !== null;
+            const itemType = div.querySelector('[data-key="type"]')?.value || '';
+            const isWeapon = itemType === 'weapon';
+
+            // ── ARMOR: Equip = to hand; Unequip = to bag ──
+            if (isArmor) {
+              if (!itemEquipped) {
+                // Equip: move to hand. If currently worn, Remove first then move to hand.
+                if (div._armorWorn) {
+                  const wearBtn = div.querySelector('.armor-wear-btn');
+                  if (wearBtn) wearBtn.click(); // fires Remove → moves to bag, clears worn
+                  setTimeout(() => {
+                    // Now move from bag to hand
+                    if (!moveItemToActive(div)) return;
+                    itemEquipped = true;
+                    div._itemEquipped = true;
+                    equipStatus.textContent = '▲ equipped';
+                    equipStatus.style.color = 'var(--gold)';
+                    equipBtn.textContent = 'Unequip';
+                    syncEnchantmentTrait(div, true);
+                    syncQuickEquipBtn();
+                  }, 40);
+                } else {
+                  if (!moveItemToActive(div)) return;
+                  itemEquipped = true;
+                  div._itemEquipped = true;
+                  equipStatus.textContent = '▲ equipped';
+                  equipStatus.style.color = 'var(--gold)';
+                  equipBtn.textContent = 'Unequip';
+                  syncEnchantmentTrait(div, true);
+                  syncQuickEquipBtn();
+                }
+              } else {
+                // Unequip: to bag. Block if worn — must Remove first.
+                if (div._armorWorn) {
+                  toast('Remove armor from body slot first before unequipping', 'var(--red)'); return;
+                }
+                moveItemToInventory(div);
+                itemEquipped = false;
+                div._itemEquipped = false;
+                equipStatus.textContent = '— not equipped';
+                equipStatus.style.color = 'var(--text-muted)';
+                equipBtn.textContent = 'Equip';
+                syncEnchantmentTrait(div, false);
+                syncQuickEquipBtn();
+              }
+              return;
+            }
+
             if (!itemEquipped) {
               if (!moveItemToActive(div)) return;
+              // Weapon: auto-fire the weapon's own Draw button so it's immediately drawn
+              if (isWeapon) {
+                setTimeout(() => {
+                  const drawBtn = div.querySelector('.con-use-btn:not(.inv-universal-equip-btn)');
+                  if (drawBtn && !div._weaponEquipped) drawBtn.click();
+                }, 20);
+              }
+            } else {
+              // For weapons, fire the sheathe/draw btn to properly deactivate before bagging
+              if (isWeapon && div._weaponEquipped) {
+                const drawBtn = div.querySelector('.con-use-btn:not(.inv-universal-equip-btn)');
+                if (drawBtn) drawBtn.click();
+                setTimeout(() => moveItemToInventory(div), 20);
+                itemEquipped = false;
+                div._itemEquipped = false;
+                equipStatus.textContent = '— not equipped';
+                equipStatus.style.color = 'var(--text-muted)';
+                equipBtn.textContent = 'Equip';
+                syncQuickEquipBtn();
+                return;
+              }
+              moveItemToInventory(div);
             }
             itemEquipped = !itemEquipped;
             div._itemEquipped = itemEquipped;
-            if (!itemEquipped) moveItemToInventory(div);
             equipStatus.textContent = itemEquipped ? '▲ equipped' : '— not equipped';
             equipStatus.style.color = itemEquipped ? 'var(--gold)' : 'var(--text-muted)';
             equipBtn.textContent = itemEquipped ? 'Unequip' : 'Equip';
@@ -12422,7 +13989,7 @@ div._forceUnwear = () => {
         return {
           name:gv('name'), type:gv('type'), rarity:gv('rarity'),
           description:gv('description'), source:gv('source'), value:gv('value'), notes:gv('notes'),
-          wpnType:gv('wpnType'), wpnWounds:gv('wpnWounds'), wpnModifier:gv('wpnModifier'), wpnRange:gv('wpnRange'), wpnAmmoType:gv('wpnAmmoType'),
+          wpnType:gv('wpnType'), wpnWounds:gv('wpnWounds'), wpnModifier:gv('wpnModifier'),
           wpnSpecial:gv('wpnSpecial'), wpnTags:getTags('wpnTags'), wpnEquipped:wpnEquipped, wpnLinkedActions:wpnLinkedActions, wpnHand:wpnHand, wpnArmorHP:gv('wpnArmorHP'),
           fusionMode:gv('fusionMode'), fusionDom:gv('fusionDom'), fusionSub:gv('fusionSub'),
           fusionModeA:gv('fusionModeA'), fusionModeB:gv('fusionModeB'),
@@ -12457,6 +14024,7 @@ div._forceUnwear = () => {
           enchDuration:gv('enchDuration'), enchDurRemaining:gv('enchDurRemaining'),
           itemEquipped: itemEquipped, _activeList: _activeList,
           itemSize: gv('itemSize') || '1',
+          itemBulk: gv('itemBulk') || '1',
           archiveSize: gv('archiveSize') || '1',
           archiveLocked: item._archiveLocked !== false,
           archivedActions: (typeof item._serializeArchive === 'function') ? item._serializeArchive() : [],
@@ -13227,6 +14795,7 @@ div._forceUnwear = () => {
             metaphysCost: item.dataset.metaphysCost || '1',
           });
         });
+        data.bagUpgradeSlots = _bagUpgradeSlots;
         data.inventory = [];
         document.querySelectorAll('#inventory-list .inventory-item').forEach(item => {
           data.inventory.push(serializeInventoryItem(item));
@@ -13234,6 +14803,10 @@ div._forceUnwear = () => {
         data.handItems = [];
         document.querySelectorAll('#hand-list .inventory-item').forEach(item => {
           data.handItems.push(serializeInventoryItem(item));
+        });
+        data.sheathItems = [];
+        document.querySelectorAll('#sheath-list .inventory-item').forEach(item => {
+          data.sheathItems.push(serializeInventoryItem(item));
         });
         data.bodySlots = { helm: null, body: null, legs: null, feet: null };
         ['helm', 'body', 'legs', 'feet'].forEach(slot => {
@@ -13407,10 +14980,25 @@ div._forceUnwear = () => {
           });
           updateMetaphysActionsSection();
         }
+        _bagUpgradeSlots = typeof data.bagUpgradeSlots === 'number' ? data.bagUpgradeSlots : 0;
         document.getElementById('hand-list').innerHTML = '';
         _addingToHandList = true;
         (data.handItems || data.activeItems || []).forEach(d => addInventoryItem(d));
         _addingToHandList = false;
+        // Restore sheath items
+        const sheathListEl = document.getElementById('sheath-list');
+        if (sheathListEl) {
+          sheathListEl.innerHTML = '';
+          (data.sheathItems || []).forEach(d => {
+            _addingToHandList = false;
+            addInventoryItem(d);
+            const invList = document.getElementById('inventory-list');
+            if (invList && invList.lastElementChild && invList.lastElementChild.classList.contains('inventory-item')) {
+              sheathListEl.appendChild(invList.lastElementChild);
+            }
+          });
+          updateSheathCounter();
+        }
         // Restore body slots
         ['helm', 'body', 'legs', 'feet'].forEach(slot => {
           const el = document.getElementById('body-slot-' + slot);
@@ -13423,7 +15011,7 @@ div._forceUnwear = () => {
         document.getElementById('inventory-list').innerHTML = '';
         (data.inventory || []).forEach(d => addInventoryItem(d));
         // Restore enchantment traits for equipped/worn items in all lists
-        document.querySelectorAll('#hand-list .inventory-item, #inventory-list .inventory-item, #body-slot-helm .inventory-item, #body-slot-body .inventory-item, #body-slot-legs .inventory-item, #body-slot-feet .inventory-item, #accessories-rings .inventory-item, #accessories-necklaces .inventory-item, #accessories-mask .inventory-item').forEach(itemDiv => {
+        document.querySelectorAll('#hand-list .inventory-item, #inventory-list .inventory-item, #sheath-list .inventory-item, #body-slot-helm .inventory-item, #body-slot-body .inventory-item, #body-slot-legs .inventory-item, #body-slot-feet .inventory-item, #accessories-rings .inventory-item, #accessories-necklaces .inventory-item, #accessories-mask .inventory-item, #accessories-charms .inventory-item').forEach(itemDiv => {
           const equipped = itemDiv._weaponEquipped || itemDiv._armorWorn || itemDiv._itemEquipped || false;
           if (equipped) syncEnchantmentTrait(itemDiv, true);
         });
@@ -13812,30 +15400,62 @@ function importJSON(fileInputOrFile) {
          BAG  — Might-scaled (starts at 3, grows up)
       ══════════════════════════════════════════════ */
       const HAND_SLOTS = 2;
-      const tierBagSlots = {
-        deficient:2, average:3, capable:4, proficient:5, expert:6,
-        master:8, enhanced:10, remarkable:12, extraordinary:15, legendary:20
-      };
 
-      function getBagSlots() {
-        return tierBagSlots[getEffectiveTier('might')] || 3;
+      // ── BAG UPGRADES (persistent, saved per character) ──
+      let _bagUpgradeSlots = 0; // extra slots bought by the player
+      const BAG_BASE_SLOTS = 5;
+      function getBagSlots() { return BAG_BASE_SLOTS + _bagUpgradeSlots; }
+
+      // ── WEIGHT CAPACITY from Might ──
+      const tierWeightLimit = {
+        deficient:3, average:5, capable:7, proficient:10,
+        expert:13, master:16, enhanced:20, remarkable:25, extraordinary:30, legendary:40
+      };
+      function getWeightLimit() {
+        return tierWeightLimit[getEffectiveTier('might')] || 5;
       }
 
       function getUsedHandSlots() {
-        return document.querySelectorAll('#hand-list .inventory-item').length;
+        let count = 0;
+        document.querySelectorAll('#hand-list .inventory-item').forEach(item => {
+          // Gauntlets set to "both" occupy 2 hand slots
+          count += (item._handSlotsUsed || 1);
+        });
+        return count;
       }
 
+      function getCarriedWeight() {
+        let w = 0;
+        document.querySelectorAll('#inventory-list .inventory-item').forEach(item => {
+          const val = item.querySelector('[data-key="itemSize"]')?.value;
+          w += val !== undefined && val !== '' ? parseInt(val, 10) : 1;
+        });
+        return w;
+      }
+
+      // How many weight units over the limit are being carried (0 = fine)
+      function getOverWeight() {
+        return Math.max(0, getCarriedWeight() - getWeightLimit());
+      }
+
+      function adjustBagUpgrade(delta) {
+        _bagUpgradeSlots = Math.max(0, _bagUpgradeSlots + delta);
+        updateActiveSlotDisplay();
+        checkEncumbrance();
+        toast('Bag slots: ' + getBagSlots() + ' (' + BAG_BASE_SLOTS + ' base + ' + _bagUpgradeSlots + ' upgraded)', 'var(--teal)');
+      }
+
+      // Legacy shims so old callers don't break
+      // getUsedBagSlots: total bulk (slot usage) of all bag items
       function getUsedBagSlots() {
         let used = 0;
         document.querySelectorAll('#inventory-list .inventory-item').forEach(item => {
-          used += parseInt(item.querySelector('[data-key="itemSize"]')?.value || '1', 10);
+          used += parseInt(item.querySelector('[data-key="itemBulk"]')?.value || '1', 10);
         });
         return used;
       }
 
-      // Legacy shims so old callers don't break
-      function getActiveSlots() { return getBagSlots(); }
-      function getUsedActiveSlots() { return getUsedBagSlots(); }
+      // Slot helpers — inventory is split into Hands, Body, and Bag only
 
       function updateActiveSlotDisplay() {
         // Hand counter
@@ -13847,51 +15467,70 @@ function importJSON(fileInputOrFile) {
           handEl.style.color = handOver ? 'var(--red)' : handUsed === HAND_SLOTS ? 'var(--gold)' : 'var(--text-muted)';
         }
 
-        // Bag counter
-        const bagSlots = getBagSlots();
-        const bagUsed  = getUsedBagSlots();
-        const bagOver  = bagUsed > bagSlots;
+        // Bag: bulk (slot usage) vs bag slots + weight vs limit
+        const bagSlots   = getBagSlots();
+        const bagUsed    = getUsedBagSlots();
+        const weight     = getCarriedWeight();
+        const weightLim  = getWeightLimit();
+        const overWeight = Math.max(0, weight - weightLim);
+        const bagOver    = bagUsed > bagSlots;
+
         const bagEl = document.getElementById('bag-slots-counter');
         if (bagEl) {
-          bagEl.textContent = bagUsed + ' / ' + bagSlots;
-          bagEl.style.color = bagOver ? 'var(--red)' : bagUsed === bagSlots ? 'var(--gold)' : 'var(--text-muted)';
+          bagEl.textContent = bagUsed + ' / ' + bagSlots + ' slots · ' + weight + ' / ' + weightLim + ' wt';
+          bagEl.style.color = overWeight > 0 ? 'var(--red)' : bagOver ? 'var(--red)' : weight >= weightLim ? 'var(--gold)' : 'var(--text-muted)';
         }
 
-        // Active-slots-counter on main sheet (legacy)
+        // Weight upgrade buttons
+        const upgradeEl = document.getElementById('bag-upgrade-counter');
+        if (upgradeEl) upgradeEl.textContent = _bagUpgradeSlots + ' upgrade' + (_bagUpgradeSlots !== 1 ? 's' : '');
+
+        // Hands/Bag counter on main sheet
         const sheetEl = document.getElementById('active-slots-counter');
         if (sheetEl) {
-          const text = 'Hand ' + handUsed + '/2 · Bag ' + bagUsed + '/' + bagSlots + (bagOver ? ' — ENCUMBERED' : '');
-          sheetEl.textContent = text;
-          sheetEl.style.color = bagOver ? 'var(--accent)' : 'var(--text-muted)';
+          const encLabel = overWeight > 0 ? ' — ENCUMBERED (' + overWeight + ' over)' : bagOver ? ' — BAG FULL' : '';
+          sheetEl.textContent = 'Hands ' + handUsed + '/2 · Slots ' + bagUsed + '/' + bagSlots + ' · Weight ' + weight + '/' + weightLim + encLabel;
+          sheetEl.style.color = (overWeight > 0 || bagOver) ? 'var(--accent)' : 'var(--text-muted)';
         }
 
         // Modal header summary
         const modal = document.getElementById('inv-modal-slots');
         if (modal) {
-          modal.textContent = 'Hand ' + handUsed + '/2 · Bag ' + bagUsed + '/' + bagSlots;
-          modal.style.color = (handOver || bagOver) ? 'var(--accent)' : 'var(--text-muted)';
+          modal.textContent = 'Hands ' + handUsed + '/2 · Slots ' + bagUsed + '/' + bagSlots + ' · Weight ' + weight + '/' + weightLim;
+          modal.style.color = (overWeight > 0 || bagOver) ? 'var(--accent)' : 'var(--text-muted)';
         }
       }
 
       let _slowedByEncumbrance = false;
+      let _lastEncumbranceOver = 0;
 
       function checkEncumbrance() {
-        const bagSlots = getBagSlots();
-        const bagUsed  = getUsedBagSlots();
-        const handOver = getUsedHandSlots() > HAND_SLOTS;
-        const over = bagUsed > bagSlots || handOver;
-        if (over && !statusEffects.slowed.active) {
-          statusEffects.slowed.active = true;
-          _slowedByEncumbrance = true;
-          renderStatusEffect('slowed');
-          toast('Encumbered — carrying too much · Slowed activated', 'var(--accent)');
-        } else if (!over && _slowedByEncumbrance && statusEffects.slowed.active) {
+        const over = getOverWeight();
+        const bagFull = document.querySelectorAll('#inventory-list .inventory-item').length > getBagSlots();
+
+        if (over > 0) {
+          // Slowed scales: +2 fatigue per weight unit over limit
+          const slowAmount = Math.min(over * 2, 12);
+          if (!statusEffects.slowed.active || _lastEncumbranceOver !== over) {
+            statusEffects.slowed.active = true;
+            statusEffects.slowed.amount = slowAmount;
+            _slowedByEncumbrance = true;
+            _lastEncumbranceOver = over;
+            document.getElementById('slowed-val') && (document.getElementById('slowed-val').textContent = slowAmount);
+            document.getElementById('slowed-preview') && (document.getElementById('slowed-preview').textContent = slowAmount + ' fatigue slot' + (slowAmount !== 1 ? 's' : '') + ' blacked out');
+            renderStatusEffect('slowed');
+            applySlowedOverlay();
+            toast('Overweight by ' + over + ' · Slowed ×' + slowAmount + ' fatigue blacked', 'var(--accent)');
+          }
+        } else if (_slowedByEncumbrance && statusEffects.slowed.active) {
           statusEffects.slowed.active = false;
           _slowedByEncumbrance = false;
+          _lastEncumbranceOver = 0;
           renderStatusEffect('slowed');
           toast('No longer encumbered · Slowed cleared', 'var(--text-muted)');
         } else if (!over) {
           _slowedByEncumbrance = false;
+          _lastEncumbranceOver = 0;
         }
       }
 
@@ -13922,7 +15561,8 @@ function importJSON(fileInputOrFile) {
           toast('Slot already occupied — remove current piece first', 'var(--red)'); return;
         }
         _addingToBodySlot = slotId;
-        const d = Object.assign({}, data || {}, { type: 'armor', _bodySlot: slotKey });
+        // Pre-set type=armor and armSlot so the item lands correctly
+        const d = Object.assign({}, data || {}, { type: 'armor', armSlot: slotKey, _bodySlot: slotKey });
         addInventoryItem(d);
         // Move last-created item from inventory-list into the body slot
         const invList = document.getElementById('inventory-list');
@@ -13936,12 +15576,45 @@ function importJSON(fileInputOrFile) {
         updateActiveSlotDisplay();
       }
 
+      // ── SHEATHES (4 weapon slots) ──
+      const SHEATH_SLOTS = 4;
+      function getSheathCount() {
+        return document.querySelectorAll('#sheath-list .inventory-item').length;
+      }
+      function updateSheathCounter() {
+        const el = document.getElementById('sheath-counter');
+        if (el) {
+          const n = getSheathCount();
+          el.textContent = n + ' / ' + SHEATH_SLOTS;
+          el.style.color = n >= SHEATH_SLOTS ? 'var(--red)' : n > 0 ? 'var(--red)' : 'var(--text-muted)';
+        }
+      }
+      function moveWeaponToSheath(div) {
+        const sheathList = document.getElementById('sheath-list');
+        if (!sheathList) { toast('Open Inventory to sheathe weapons', 'var(--red)'); return false; }
+        if (getSheathCount() >= SHEATH_SLOTS) { toast('All 4 sheath slots are full', 'var(--red)'); return false; }
+        sheathList.appendChild(div);
+        updateSheathCounter();
+        updateActiveSlotDisplay();
+        return true;
+      }
+      function moveWeaponFromSheath(div) {
+        const slotsNeeded = div._handSlotsUsed || 1;
+        const used = getUsedHandSlots();
+        if (used + slotsNeeded > HAND_SLOTS) {
+          toast(slotsNeeded === 2 ? 'Gauntlets (both) need 2 free hand slots' : 'Both hands are full — can\'t draw weapon', 'var(--red)');
+          return false;
+        }
+        const handList = document.getElementById('hand-list');
+        if (handList) handList.appendChild(div);
+        updateSheathCounter();
+        updateActiveSlotDisplay();
+        return true;
+      }
+
       // ── BAG ──
       let _addingToBag = false;
       function addBagItem(data) {
-        const used = getUsedBagSlots();
-        const slots = getBagSlots();
-        if (used >= slots) { toast('Bag full — ' + used + '/' + slots + ' slots · train Might to carry more', 'var(--red)'); return; }
         addInventoryItem(data);
         updateActiveSlotDisplay();
         checkEncumbrance();
@@ -13951,8 +15624,8 @@ function importJSON(fileInputOrFile) {
          ACCESSORIES — rings (×10), necklaces (×3), mask (×1)
          Items move into the accessory lists as inventory-item divs.
       ══════════════════════════════════════════════ */
-      const ACC_LIMITS = { ring: 10, necklace: 3, mask: 1 };
-      const ACC_LIST_IDS = { ring: 'accessories-rings', necklace: 'accessories-necklaces', mask: 'accessories-mask' };
+      const ACC_LIMITS = { ring: 10, necklace: 3, mask: 1, charm: 5 };
+      const ACC_LIST_IDS = { ring: 'accessories-rings', necklace: 'accessories-necklaces', mask: 'accessories-mask', charm: 'accessories-charms' };
 
       function toggleAccessoriesPanel() {
         const panel = document.getElementById('accessories-panel');
@@ -13964,7 +15637,7 @@ function importJSON(fileInputOrFile) {
       }
 
       function updateAccessoryCounters() {
-        ['ring','necklace','mask'].forEach(type => {
+        ['ring','necklace','mask','charm'].forEach(type => {
           const list = document.getElementById(ACC_LIST_IDS[type]);
           const counter = document.getElementById(type + '-counter');
           if (!list || !counter) return;
@@ -13975,14 +15648,18 @@ function importJSON(fileInputOrFile) {
         });
       }
 
-      // Legacy: addActiveItem now adds to hand
-      function addActiveItem(data) { addHandItem(data); }
-
-      let _addingToActiveList = false;
+      // addActiveItem removed — use addHandItem() directly
 
       function moveItemToActive(div) {
         const handList = document.getElementById('hand-list');
-        if (handList && div.parentElement !== handList) handList.appendChild(div);
+        const alreadyInHand = handList && div.parentElement === handList;
+        const slotsNeeded = div._handSlotsUsed || 1;
+        const currentUsed = getUsedHandSlots();
+        if (!alreadyInHand && currentUsed + slotsNeeded > HAND_SLOTS) {
+          toast(slotsNeeded === 2 ? 'Gauntlets (both) need 2 free hand slots' : 'Both hands are full — 2 slot equip limit', 'var(--red)');
+          return false;
+        }
+        if (handList && !alreadyInHand) handList.appendChild(div);
         updateActiveSlotDisplay();
         checkEncumbrance();
         return true;
@@ -14010,6 +15687,15 @@ function importJSON(fileInputOrFile) {
         }
         delete armorDamage[id];
         armorDestroyed.delete(id);
+
+        // If this item is a worn accessory, clear enchantment and update counters
+        if (div && div._accWorn) {
+          div._accWorn = false;
+          syncEnchantmentTrait(div, false);
+        }
+
+        // If item is in sheath, update sheath counter after removal
+        const inSheath = div && div.closest('#sheath-list');
         
         // NOW rebuild tracks/bars with cleaned state
         if (isArmor) { 
@@ -14019,7 +15705,7 @@ function importJSON(fileInputOrFile) {
         
         // Finally remove the item from DOM
         _origRemoveItem(id);
-        setTimeout(() => { updateActionSlots(); updateCarryCapacity(); }, 0);
+        setTimeout(() => { updateActionSlots(); updateCarryCapacity(); updateAccessoryCounters(); if (inSheath) updateSheathCounter(); checkEncumbrance(); }, 0);
       };
 
       /* ── Patch addInventoryItem to refresh carry after add ── */
@@ -14358,16 +16044,15 @@ function importJSON(fileInputOrFile) {
       const gauntletHandSlots = { left: null, right: null };
 
       function syncGauntletHandSlot(equipped, hand, name) {
-        // Update gauntletHandSlots
         if (equipped) {
           if (hand === 'both' || hand === 'left')  gauntletHandSlots.left  = name;
           if (hand === 'both' || hand === 'right') gauntletHandSlots.right = name;
         } else {
-          // Only clear slots that belong to this weapon
           if ((hand === 'both' || hand === 'left')  && gauntletHandSlots.left  === name) gauntletHandSlots.left  = null;
           if ((hand === 'both' || hand === 'right') && gauntletHandSlots.right === name) gauntletHandSlots.right = null;
         }
         refreshGauntletConflicts();
+        updateActiveSlotDisplay();
       }
 
       function refreshGauntletConflicts() {
@@ -14603,12 +16288,11 @@ function importJSON(fileInputOrFile) {
           if (!item._weaponEquipped) return;
           const nameEl = item.querySelector('[data-key="name"]');
           const typeEl = item.querySelector('[data-key="wpnType"]');
-          const rangeEl = item.querySelector('[data-key="wpnRange"]');
           const name = nameEl ? nameEl.value.trim() : '';
           const wpnType = typeEl ? typeEl.value : '';
           if (!wpnType) return;
           const typeData = WEAPON_TYPE_DATA[wpnType] || {};
-          const range = typeData.range || (rangeEl ? rangeEl.value : 'close');
+          const range = typeData.range || 'close';
           results.push({ id: item.id, name: name || wpnType, wpnType, range, typeData });
         });
         return results;
@@ -14836,7 +16520,7 @@ function importJSON(fileInputOrFile) {
 
 <!-- ══ INVENTORY MODAL ══ -->
 <div class="modal-overlay" id="inventory-modal" style="display:none;align-items:flex-start;padding:0;" onclick="if(event.target===this)closeInventoryModal()">
-  <div style="background:var(--surface);width:100%;max-width:960px;height:100vh;max-height:100vh;display:flex;flex-direction:column;position:relative;margin:0 auto;">
+  <div style="background:var(--surface);width:100%;max-width:100%;height:100vh;max-height:100vh;display:flex;flex-direction:column;position:relative;margin:0 auto;">
 
     <!-- Header -->
     <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;border-bottom:1px solid var(--border);flex-shrink:0;">
@@ -14848,29 +16532,29 @@ function importJSON(fileInputOrFile) {
     </div>
 
     <!-- Three-column body -->
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;flex:1;overflow:hidden;">
+    <div style="display:grid;grid-template-columns:minmax(280px,1fr) minmax(300px,1fr) minmax(280px,1fr);gap:0;flex:1;overflow:hidden;">
 
       <!-- HAND column — 2 fixed slots -->
       <div style="display:flex;flex-direction:column;border-right:1px solid var(--border);overflow:hidden;">
-        <div style="padding:0.75rem 1rem;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;">
+        <div style="padding:0.75rem 1.25rem;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;">
           <div>
             <div style="font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--red);">✋ Hand</div>
             <div style="font-family:var(--font-mono);font-size:0.5rem;color:var(--text-muted);margin-top:2px;"><span id="hand-slots-counter">0 / 2</span> · weapons &amp; held items</div>
           </div>
           <button class="add-btn" onclick="addHandItem()" style="font-size:0.55rem;padding:0.3rem 0.7rem;">+ add</button>
         </div>
-        <div style="flex:1;overflow-y:auto;padding:0.5rem;">
+        <div style="flex:1;overflow-y:auto;padding:0.75rem;">
           <div class="additive-list" id="hand-list"></div>
         </div>
       </div>
 
       <!-- BODY column — 3 fixed named armor slots -->
       <div style="display:flex;flex-direction:column;border-right:1px solid var(--border);overflow:hidden;">
-        <div style="padding:0.75rem 1rem;border-bottom:1px solid var(--border);flex-shrink:0;">
+        <div style="padding:0.75rem 1.25rem;border-bottom:1px solid var(--border);flex-shrink:0;">
           <div style="font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--blue);">🛡 Body</div>
-          <div style="font-family:var(--font-mono);font-size:0.5rem;color:var(--text-muted);margin-top:2px;">Helm · Body · Legs · Feet</div>
+          <div style="font-family:var(--font-mono);font-size:0.5rem;color:var(--text-muted);margin-top:2px;">Helm · Body · Legs · Feet · Sheathes</div>
         </div>
-        <div style="flex:1;overflow-y:auto;padding:0.5rem;display:flex;flex-direction:column;gap:0.4rem;">
+        <div style="flex:1;overflow-y:auto;padding:0.75rem;display:flex;flex-direction:column;gap:0.4rem;">
 
           <!-- Helm slot -->
           <div style="border:1px solid var(--border);background:var(--surface2);">
@@ -14908,6 +16592,15 @@ function importJSON(fileInputOrFile) {
             <div id="body-slot-feet" style="min-height:2rem;padding:0.25rem;"></div>
           </div>
 
+          <!-- Sheathes — 4 weapon slots -->
+          <div style="border:1px solid var(--border);background:var(--surface2);">
+            <div style="font-family:var(--font-mono);font-size:0.5rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--red);padding:0.3rem 0.6rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+              <span>⚔ Sheathes</span>
+              <span id="sheath-counter" style="color:var(--text-muted);font-size:0.45rem;">0 / 4</span>
+            </div>
+            <div id="sheath-list" style="display:flex;flex-direction:column;gap:0.2rem;padding:0.25rem;min-height:1.5rem;"></div>
+          </div>
+
           <!-- Accessories collapsible -->
           <div style="border:1px solid var(--border);background:var(--surface2);">
             <div onclick="toggleAccessoriesPanel()" style="font-family:var(--font-mono);font-size:0.5rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);padding:0.3rem 0.6rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;">
@@ -14943,28 +16636,45 @@ function importJSON(fileInputOrFile) {
                 <div id="accessories-mask" style="display:flex;flex-direction:column;gap:0.2rem;min-height:0.5rem;"></div>
               </div>
 
+              <!-- Charms -->
+              <div style="margin-top:0.5rem;">
+                <div style="font-family:var(--font-mono);font-size:0.48rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.3rem;display:flex;align-items:center;justify-content:space-between;">
+                  <span>Charms</span>
+                  <span id="charm-counter" style="color:var(--text-muted);">0 / 5</span>
+                </div>
+                <div id="accessories-charms" style="display:flex;flex-direction:column;gap:0.2rem;min-height:0.5rem;"></div>
+              </div>
+
             </div>
           </div>
 
         </div>
       </div>
 
-      <!-- BAG column — Might-scaled -->
+      <!-- BAG column — upgradeable slots, weight-limited by Might -->
       <div style="display:flex;flex-direction:column;overflow:hidden;">
-        <div style="padding:0.75rem 1rem;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;">
-          <div>
-            <div style="font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--text-dim);">🎒 Bag</div>
-            <div style="font-family:var(--font-mono);font-size:0.5rem;color:var(--text-muted);margin-top:2px;"><span id="bag-slots-counter">0 / 3</span> · scales with Might</div>
+        <div style="padding:0.75rem 1.25rem;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;flex-direction:column;gap:0.4rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;">
+            <div>
+              <div style="font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--text-dim);">🎒 Bag</div>
+              <div style="font-family:var(--font-mono);font-size:0.5rem;color:var(--text-muted);margin-top:2px;"><span id="bag-slots-counter">0 / 5 items · 0 / 5 wt</span></div>
+            </div>
+            <div style="display:flex;gap:0.4rem;align-items:center;">
+              <label style="background:none;border:1px solid var(--border);color:var(--text-dim);font-family:var(--font-mono);font-size:0.52rem;letter-spacing:0.12em;padding:0.28rem 0.6rem;cursor:pointer;text-transform:uppercase;" id="import-lib-label" onmouseover="this.style.borderColor='var(--teal)';this.style.color='var(--teal)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-dim)'">
+                ↑ Import
+                <input type="file" accept=".json" id="import-library-file" style="display:none" multiple/>
+              </label>
+              <button class="add-btn" onclick="addBagItem()" style="font-size:0.55rem;padding:0.3rem 0.7rem;">+ add</button>
+            </div>
           </div>
-          <div style="display:flex;gap:0.4rem;align-items:center;">
-            <label style="background:none;border:1px solid var(--border);color:var(--text-dim);font-family:var(--font-mono);font-size:0.52rem;letter-spacing:0.12em;padding:0.28rem 0.6rem;cursor:pointer;text-transform:uppercase;" id="import-lib-label" onmouseover="this.style.borderColor='var(--teal)';this.style.color='var(--teal)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-dim)'">
-              ↑ Import
-              <input type="file" accept=".json" id="import-library-file" style="display:none" multiple/>
-            </label>
-            <button class="add-btn" onclick="addBagItem()" style="font-size:0.55rem;padding:0.3rem 0.7rem;">+ add</button>
+          <!-- Bag upgrade row -->
+          <div style="display:flex;align-items:center;gap:0.5rem;border-top:1px solid var(--border);padding-top:0.35rem;">
+            <span style="font-family:var(--font-mono);font-size:0.48rem;letter-spacing:0.1em;color:var(--text-muted);flex:1;">Bag slots: <span id="bag-upgrade-counter">0 upgrades</span></span>
+            <button onclick="adjustBagUpgrade(-1)" style="background:none;border:1px solid var(--border-bright);color:var(--text-muted);font-family:var(--font-mono);font-size:0.6rem;width:1.4rem;height:1.4rem;cursor:pointer;line-height:1;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--red)';this.style.color='var(--red)'" onmouseout="this.style.borderColor='var(--border-bright)';this.style.color='var(--text-muted)'">−</button>
+            <button onclick="adjustBagUpgrade(1)" style="background:none;border:1px solid var(--border-bright);color:var(--text-muted);font-family:var(--font-mono);font-size:0.6rem;width:1.4rem;height:1.4rem;cursor:pointer;line-height:1;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--teal)';this.style.color='var(--teal)'" onmouseout="this.style.borderColor='var(--border-bright)';this.style.color='var(--text-muted)'">+</button>
           </div>
         </div>
-        <div style="flex:1;overflow-y:auto;padding:0.5rem;" id="inventory-scroll">
+        <div style="flex:1;overflow-y:auto;padding:0.75rem;" id="inventory-scroll">
           <div class="additive-list" id="inventory-list"></div>
         </div>
       </div>
@@ -15174,3 +16884,4 @@ function importJSON(fileInputOrFile) {
 </script>
 </body>
 </html>
+
