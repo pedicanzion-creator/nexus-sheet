@@ -1766,6 +1766,8 @@ body.sheet-mode .sheet-nav-btn { display: block; }
       .portrait-icon { font-size: 2.5rem; color: var(--text-muted); }
       .portrait-hint { font-family: var(--font-mono); font-size: 0.45rem; letter-spacing: 0.12em; color: var(--text-muted); text-transform: uppercase; text-align: center; }
       .portrait-input { display: none; }
+      .portrait-remove { display: none; position: absolute; top: 5px; right: 5px; background: rgba(10,10,18,0.75); border: 1px solid var(--red); color: var(--red); font-family: var(--font-mono); font-size: 0.55rem; letter-spacing: 0.1em; padding: 2px 6px; cursor: pointer; z-index: 2; line-height: 1.6; transition: background 0.15s; }
+      .portrait-remove:hover { background: var(--red); color: #fff; }
       .save-bar { position: sticky; top: 0; z-index: 100; width: 100%; background: var(--bg); border-bottom: 1px solid var(--border); padding: 0.6rem 1.5rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; box-sizing: border-box; }
       .save-bar-label { font-family: var(--font-mono); font-size: 0.70rem; letter-spacing: 0.2em; color: var(--text-muted); text-transform: uppercase; flex-shrink: 0; }
       .slot-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text-dim); font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.12em; padding: 0.35rem 0.75rem; cursor: pointer; text-transform: uppercase; transition: all 0.2s; position: relative; }
@@ -4501,6 +4503,7 @@ body.sheet-mode .sheet-nav-btn { display: block; }
               <span class="portrait-icon">◈</span>
               <span class="portrait-hint">Portrait<br/>click to upload</span>
             </div>
+            <button class="portrait-remove" id="portrait-remove" title="Remove portrait" onclick="event.stopPropagation(); clearPortrait();">✕ remove</button>
           </div>
           <input class="portrait-input" id="portrait-input" type="file" accept="image/*" onchange="loadPortrait(this)" />
         </div>
@@ -7577,15 +7580,25 @@ document.addEventListener('keydown', function(e) {
       function applyPortrait(dataUrl) {
         const img = document.getElementById('portrait-img');
         const placeholder = document.getElementById('portrait-placeholder');
+        const removeBtn = document.getElementById('portrait-remove');
         if (dataUrl) {
           img.src = dataUrl; img.style.display = 'block';
           placeholder.style.display = 'none';
+          if (removeBtn) removeBtn.style.display = 'block';
           document.getElementById('portrait-zone').title = 'Click to change portrait';
         } else {
           img.src = ''; img.style.display = 'none';
           placeholder.style.display = 'flex';
+          if (removeBtn) removeBtn.style.display = 'none';
           document.getElementById('portrait-zone').title = 'Click to upload portrait';
         }
+      }
+
+      function clearPortrait() {
+        portraitDataUrl = null;
+        applyPortrait(null);
+        const input = document.getElementById('portrait-input');
+        if (input) input.value = '';
       }
 
       /* ══════════════════════════════════════════════
