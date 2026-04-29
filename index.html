@@ -17279,7 +17279,928 @@ window.deserializeSheet = function(data) {
 console.log('[STILLPOINT] Ability import/export patch loaded ✓');
 })();
 </script>
-</body>
-</html>
+  <!--
+  ══════════════════════════════════════════════════════════════════
+  STILLPOINT — TACTIC ACTION TYPE + ABILITY IMPORT/EXPORT FIX
+  VERSION: Combined patch, April 2026
+
+  INSTALLATION:
+  1. Open your STILLPOINT HTML file in a text editor
+  2. Find the very last line: </body>
+  3. Paste EVERYTHING between the <script> tags below immediately
+     before that </body> tag
+  4. Save and reload
+
+  WHAT THIS ADDS:
+  ◈ Tactic — new action type in Memory and Metaphysical panels
+    - Has a name field and a "what it does" description textarea
+    - Set a fatigue cost (required to lock)
+    - Optional duration in phases — only shown/tracked if you fill it in
+    - Declare button spends fatigue + consumes one phase action
+    - If created in a Metaphysical tab (Mage/Psion/Meta), locks to Arts
+    - If created in Memory > Skills, stays in the Skills section
+    - Duration ticks down each time you press Declare (or manually with ⧖ Tick)
+  
+  + FIXES ability import/export so all metaphysical abilities survive
+    save → export JSON → import JSON cycles
+  ══════════════════════════════════════════════════════════════════
+-->
+<script>
+/**
+ * STILLPOINT — Ability Import/Export Fix
+ * 
+ * Paste this block just before </body> in the HTML.
+ * It patches the serialization and deserialization so all metaphysical
+ * abilities (Mage system abilities, Psion abilities, Meta skills, and Arts)
+ * survive import/export correctly.
+ */
+
+(function() {
+'use strict';
+
+/* ─── HELPERS ─── */
+
+/** Serialize a single special-ability additive-item into a plain object */
+function serializeAbilityItem(item) {
+  const obj = {};
+  item.querySelectorAll('[data-key]').forEach(el => { obj[el.dataset.key] = el.value; });
+  obj.actionType    = item.dataset.actionType    || '';
+  obj.attackRange   = item.dataset.attackRange   || '';
+  obj.locked        = item.dataset.locked        || '';
+  obj.abilityType   = item.dataset.abilityType   || '';
+  obj.metaphysType  = item.dataset.metaphysType  || '';
+  obj.metaphysCost  = item.dataset.metaphysCost  || '';
+  // Movement distance
+  const fSel = item.querySelector('.movement-feet-select');
+  if (fSel) obj.movementFeet = fSel.value;
+  // Commitment mode
+  const cmSel = item.querySelector('.commitment-mode-select');
+  if (cmSel) obj.commitmentMode = cmSel.value;
+  // FC wound bonus
+  const fcEl = item.querySelector('.fc-wound-bonus');
+  if (fcEl) obj['fc-wound-bonus'] = fcEl.value;
+  // Action type selection (from ability type buttons)
+  const actionTypeSel = item.querySelector('.ability-action-type-sel');
+  if (actionTypeSel) obj.abilityActionType = actionTypeSel.value;
+  return obj;
+}
+
+/** Serialize ALL mage system cards including their abilities */
+function serializeMageSystemsFull() {
+  const systems = [];
+  document.querySelectorAll('.mage-system-card').forEach(card => {
+    const nameSpan   = card.querySelector('.mage-system-num');
+    const nameSibling = nameSpan ? nameSpan.nextElementSibling : null;
+    const backlashTa  = card.querySelector('[data-key="backlash"]');
+    // Restrictions
+    const restrictions = [];
+    card.querySelectorAll('.restriction-list .restriction-item-text').forEach(el => {
+      if (el.textContent.trim()) restrictions.push(el.textContent.trim());
+    });
+    // Abilities — use full serializer
+    const abilities = [];
+    const listId = card.querySelector('.additive-list')?.id;
+    if (listId) {
+      document.querySelectorAll('#' + listId + ' .additive-item').forEach(item => {
+        abilities.push(serializeAbilityItem(item));
+      });
+    }
+    systems.push({
+      system:       nameSibling ? nameSibling.textContent : '',
+      restrictions,
+      abilities,
+      backlash:     backlashTa ? backlashTa.value : '',
+    });
+  });
+  return systems;
+}
+
+/** Serialize psion abilities */
+function serializePsionAbilitiesFull() {
+  const abilities = [];
+  document.querySelectorAll('#psion-ability-list .additive-item').forEach(item => {
+    abilities.push(serializeAbilityItem(item));
+  });
+  return abilities;
+}
+
+/** Serialize meta ability cards including complex skills */
+function serializeMetaAbilitiesFull() {
+  const cards = [];
+  document.querySelectorAll('#meta-ability-cards .mage-system-card').forEach(card => {
+    const type    = card.dataset.type;
+    const name    = card.querySelector('.mage-system-num')?.textContent || '';
+    if (type === 'simple') {
+      cards.push({ type, name, stat: card.dataset.stat, tier: card.dataset.tier || '' });
+    } else {
+      const descEl = card.querySelector('[style*="font-body"]');
+      const desc   = descEl ? descEl.textContent : '';
+      const skills = [];
+      const skillsListId = 'meta-skills-' + card.id.replace('meta-card-', '');
+      document.querySelectorAll('#' + skillsListId + ' .additive-item').forEach(item => {
+        skills.push(serializeAbilityItem(item));
+      });
+      cards.push({ type, name, desc, skills });
+    }
+  });
+  return cards;
+}
+
+/** Serialize Arts (metaphys-actions-list) with full data */
+function serializeArts() {
+  const arts = [];
+  document.querySelectorAll('#metaphys-actions-list .additive-item').forEach(item => {
+    arts.push({
+      name:          item.querySelector('.additive-item-num')?.textContent.replace('✦ ', '').trim() || '',
+      actionType:    item.dataset.actionType    || 'attack',
+      metaphysType:  item.dataset.metaphysType  || 'mage',
+      metaphysCost:  item.dataset.metaphysCost  || '1',
+      attackRange:   item.dataset.attackRange   || '',
+      computedWounds: item.dataset.computedWounds || '0',
+    });
+  });
+  return arts;
+}
+
+/* ─── RESTORE HELPERS ─── */
+
+/**
+ * Restore a single special ability into a list.
+ * If data.locked is set, calls lockSpecialAbility with _skipArts=true
+ * so it doesn't double-push into the Arts section.
+ */
+function restoreAbilityItem(listId, type, data) {
+  if (typeof addSpecialAbility !== 'function') return;
+  addSpecialAbility(listId, type, data);
+  // If it was locked, re-lock it now (skipping the Arts push)
+  if (data.locked === 'true' || data.locked === true) {
+    const list  = document.getElementById(listId);
+    const item  = list ? list.lastElementChild : null;
+    if (item) {
+      lockSpecialAbilityQuiet(item.id, type);
+    }
+  }
+}
+
+/**
+ * Lock a special ability WITHOUT pushing to the Arts panel.
+ * Called during deserialization to restore the locked visual state only.
+ */
+function lockSpecialAbilityQuiet(id, type) {
+  const item = document.getElementById(id);
+  if (!item) return;
+  const actionType = item.dataset.actionType || 'attack';
+  const name  = item.querySelector('[data-key="name"]')?.value.trim() || 'Ability';
+  const ac    = type === 'psion' ? 'var(--psion)' : type === 'meta' ? 'var(--meta)' : 'var(--mage)';
+  const costLbl = type === 'psion' ? 'Psi cost' : 'Fatigue cost';
+
+  let cost = 0;
+  if (actionType === 'movement') {
+    cost = parseInt(item.querySelector('[data-key="moveCost"]')?.value || '0', 10);
+  } else if (actionType === 'reaction') {
+    cost = parseInt(item.querySelector('[data-key="reactCost"]')?.value || '0', 10);
+  } else {
+    cost = parseInt(item.querySelector('[data-key="cost"]')?.value || '0', 10);
+  }
+
+  const range  = item.dataset.attackRange || '';
+  const wounds = item.querySelector('[data-key="wounds"]')?.value || '0';
+  const req    = item.querySelector('[data-key="req"]')?.value.trim() || '';
+
+  item.dataset.locked        = 'true';
+  item.dataset.metaphysType  = type;
+  item.dataset.metaphysCost  = cost;
+
+  // Update fatigue display
+  const fatigueDisplay = item.querySelector('.action-fatigue-display');
+  if (fatigueDisplay) { fatigueDisplay.textContent = cost + ' ' + (type === 'psion' ? 'Psi' : 'Fatigue'); fatigueDisplay.style.color = ac; }
+
+  // Update summaries
+  ['', '-move-', '-react-'].forEach(mid => {
+    const summary = item.querySelector('#' + id + mid + 'summary') || document.getElementById(id + mid + 'summary');
+    if (!summary) return;
+    let html = '<span style="color:' + ac + ';font-weight:600;">' + escapeHtmlSafe(name) + '</span>';
+    if (actionType === 'attack') {
+      if (range) html += '<br><span style="color:var(--text-muted);">Range:</span> ' + range;
+      html += '<br><span style="color:var(--red);">' + wounds + (range === 'ranged' ? ' wounds on hit' : ' wounds + Might bonus') + '</span>';
+      if (req) html += '<br><span style="color:var(--text-muted);">' + escapeHtmlSafe(req) + '</span>';
+    }
+    html += '<br><span style="color:var(--text-muted);">' + costLbl + ':</span> ' + cost;
+    summary.innerHTML = html;
+  });
+
+  // Show ranged roll section
+  const rangedSection = item.querySelector('.ranged-roll-section');
+  if (rangedSection) rangedSection.style.display = (actionType === 'attack' && range === 'ranged') ? 'block' : 'none';
+
+  item.classList.add('action-locked');
+}
+
+function escapeHtmlSafe(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ─── PATCH serializeSheet ─── */
+const _origSerialize = window.serializeSheet;
+window.serializeSheet = function() {
+  const data = _origSerialize ? _origSerialize() : {};
+  // Overwrite with full-fidelity versions
+  data.mageSystems      = serializeMageSystemsFull();
+  data.psionAbilities   = serializePsionAbilitiesFull();
+  data.metaAbilities    = serializeMetaAbilitiesFull();
+  data.metaphysActions  = serializeArts();
+  return data;
+};
+
+/* ─── PATCH deserializeSheet ─── */
+const _origDeserialize = window.deserializeSheet;
+window.deserializeSheet = function(data) {
+  if (!data) return _origDeserialize && _origDeserialize(data);
+
+  // Pre-process: inject full ability data before calling original
+  // The original will handle most fields; we override the ability restoration below.
+  _origDeserialize && _origDeserialize(data);
+
+  // ── Re-restore mage system abilities with proper lock state ──
+  // The original already rebuilt the system cards; now fix their abilities.
+  const mageSystemCards = document.querySelectorAll('.mage-system-card');
+  const savedSystems    = data.mageSystems || [];
+  mageSystemCards.forEach((card, ci) => {
+    const sys = savedSystems[ci];
+    if (!sys || !sys.abilities || !sys.abilities.length) return;
+    const list = card.querySelector('.additive-list');
+    if (!list) return;
+    // Clear what the original already added (may be empty or partially done)
+    list.innerHTML = '';
+    sys.abilities.forEach(ab => {
+      if (typeof addSpecialAbility === 'function') {
+        addSpecialAbility(list.id, 'mage', ab);
+        if (ab.locked === 'true' || ab.locked === true) {
+          const item = list.lastElementChild;
+          if (item) lockSpecialAbilityQuiet(item.id, 'mage');
+        }
+      }
+    });
+  });
+
+  // ── Re-restore psion abilities ──
+  const psionList = document.getElementById('psion-ability-list');
+  if (psionList && data.psionAbilities && data.psionAbilities.length) {
+    psionList.innerHTML = '';
+    data.psionAbilities.forEach(ab => {
+      if (typeof addSpecialAbility === 'function') {
+        addSpecialAbility('psion-ability-list', 'psion', ab);
+        if (ab.locked === 'true' || ab.locked === true) {
+          const item = psionList.lastElementChild;
+          if (item) lockSpecialAbilityQuiet(item.id, 'psion');
+        }
+      }
+    });
+  }
+
+  // ── Re-restore meta complex card skills ──
+  const metaCards = document.querySelectorAll('#meta-ability-cards .mage-system-card');
+  const savedMeta = data.metaAbilities || [];
+  metaCards.forEach((card, ci) => {
+    const meta = savedMeta[ci];
+    if (!meta || meta.type !== 'complex' || !meta.skills || !meta.skills.length) return;
+    const skillsListId = 'meta-skills-' + card.id.replace('meta-card-', '');
+    const skillsList = document.getElementById(skillsListId);
+    if (!skillsList) return;
+    skillsList.innerHTML = '';
+    meta.skills.forEach(sk => {
+      if (typeof addSpecialAbility === 'function') {
+        addSpecialAbility(skillsListId, 'meta', sk);
+        if (sk.locked === 'true' || sk.locked === true) {
+          const item = skillsList.lastElementChild;
+          if (item) lockSpecialAbilityQuiet(item.id, 'meta');
+        }
+      }
+    });
+  });
+
+  // ── Re-restore Arts panel with full data ──
+  const artsList = document.getElementById('metaphys-actions-list');
+  const savedArts = data.metaphysActions || [];
+  if (artsList && savedArts.length) {
+    artsList.innerHTML = '';
+    savedArts.forEach(art => {
+      const ac = art.metaphysType === 'psion' ? 'var(--psion)'
+               : art.metaphysType === 'meta'  ? 'var(--meta)'
+               :                                 'var(--mage)';
+      const typeColors = { attack: 'var(--red)', movement: 'var(--teal)', reaction: 'var(--meta)' };
+      const typeIcons  = { attack: '⚔', movement: '↗', reaction: '◎' };
+      const costLabel  = art.metaphysType === 'psion' ? 'Psi' : 'Fatigue';
+      const mid = uid ? uid() : ('arts-' + Math.random().toString(36).slice(2));
+      const mDiv = document.createElement('div');
+      mDiv.className = 'additive-item action-locked';
+      mDiv.id = mid;
+      mDiv.dataset.actionType     = art.actionType    || 'attack';
+      mDiv.dataset.metaphysType   = art.metaphysType  || 'mage';
+      mDiv.dataset.metaphysCost   = art.metaphysCost  || '1';
+      mDiv.dataset.locked         = 'true';
+      mDiv.dataset.attackRange    = art.attackRange   || '';
+      mDiv.dataset.computedWounds = art.computedWounds || '0';
+
+      const rangedResultSection = (art.actionType === 'attack' && art.attackRange === 'ranged')
+        ? '<div class="roll-result ranged-roll-result" style="font-family:var(--font-mono);font-size:0.65rem;margin-bottom:0.4rem;min-height:1em;display:none;"></div>'
+        : '';
+
+      mDiv.innerHTML = `
+        <div class="additive-item-header" style="border-bottom:1px solid var(--border);padding-bottom:0.4rem;margin-bottom:0.5rem;">
+          <span class="additive-item-num" style="color:${ac};">✦ ${escapeHtmlSafe(art.name || 'Ability')}</span>
+          <span style="font-family:var(--font-mono);font-size:0.5rem;letter-spacing:0.1em;color:${typeColors[art.actionType]||'var(--text-muted)'};border:1px solid currentColor;padding:1px 6px;opacity:0.8;">${typeIcons[art.actionType]||''} ${art.actionType||''}</span>
+          <button class="remove-btn" onclick="removeItem('${mid}');updateMetaphysActionsSection()">remove</button>
+        </div>
+        <div class="action-locked-summary" style="display:block;font-family:var(--font-mono);font-size:0.62rem;color:var(--text-dim);line-height:1.8;margin-bottom:0.5rem;">
+          <span style="color:var(--text-muted);">Cost:</span> ${art.metaphysCost} ${costLabel}
+          ${art.attackRange ? '<br><span style="color:var(--text-muted);">Range:</span> ' + art.attackRange : ''}
+          ${parseInt(art.computedWounds,10) > 0 ? '<br><span style="color:var(--red);">' + art.computedWounds + ' wounds</span>' : ''}
+        </div>
+        <div style="padding-top:0.5rem;border-top:1px solid var(--border);">
+          ${rangedResultSection}
+          <button class="declare-btn" style="width:100%;border-color:${ac};color:${ac};" onclick="declareMetaphysAbility('${mid}')">Declare</button>
+        </div>`;
+
+      artsList.appendChild(mDiv);
+    });
+    if (typeof updateMetaphysActionsSection === 'function') updateMetaphysActionsSection();
+  }
+};
+
+console.log('[STILLPOINT] Ability import/export patch loaded ✓');
+})();
+
+/* ══════════════════════════════════════════════
+   STILLPOINT — TACTIC ACTION TYPE
+   Inject before </body>. Adds "Tactic" as a
+   new action type in Memory (Skills section) and
+   Metaphysical panel (routes to Arts if created there).
+   - Costs fatigue on declare
+   - Consumes one action from the phase budget
+   - Optional duration tracking (only if player fills it in)
+══════════════════════════════════════════════ */
+(function() {
+'use strict';
+
+/* ── TACTIC COLOR / STYLE ── */
+const TACTIC_COLOR = 'var(--ice)';
+const TACTIC_DIM   = 'rgba(168,216,234,0.10)';
+
+/* ══════════════════════════════════════════════
+   addTactic(listId, fromMetaphys, data)
+   Creates a Tactic card in the given list.
+   fromMetaphys: if true, when locked it pushes to Arts.
+══════════════════════════════════════════════ */
+window.addTactic = function(listId, fromMetaphys, data) {
+  fromMetaphys = !!fromMetaphys;
+  const list = document.getElementById(listId);
+  if (!list) return;
+  const id = (typeof uid === 'function') ? uid() : ('tactic-' + Math.random().toString(36).slice(2));
+  const div = document.createElement('div');
+  div.className = 'additive-item';
+  div.id = id;
+  div.dataset.isTactic = 'true';
+  div.dataset.fromMetaphys = fromMetaphys ? 'true' : 'false';
+
+  div.innerHTML = `
+    <div class="additive-item-header">
+      <span class="additive-item-num" style="color:${TACTIC_COLOR};">◈ Tactic</span>
+      <button class="remove-btn" onclick="removeItem('${id}')">remove</button>
+    </div>
+
+    <!-- LOCKED BADGE -->
+    <div class="action-locked-badge" style="border-color:${TACTIC_COLOR};color:${TACTIC_COLOR};display:none;" id="${id}-locked-badge">◈ Tactic · Locked</div>
+
+    <!-- SETUP FIELDS (hidden when locked) -->
+    <div class="action-setup-fields" id="${id}-setup">
+
+      <div style="margin-bottom:0.5rem;">
+        <div class="sub-label">Tactic name</div>
+        <input class="additive-input" data-key="name" type="text" placeholder="Name this tactic…" />
+      </div>
+
+      <div style="margin-bottom:0.5rem;">
+        <div class="sub-label">What it does</div>
+        <textarea class="notes-area ability-notes-textarea additive-input" data-key="tacticDesc" rows="3"
+          placeholder="Describe exactly what this tactic does — what the player declares and what effect it has…"
+          style="min-height:3.5rem;font-size:0.88rem;font-family:var(--font-body);resize:vertical;"></textarea>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:0.5rem;">
+        <div>
+          <div class="sub-label">Fatigue cost</div>
+          <input class="additive-input" data-key="tacticFatigue" type="number" min="1" placeholder="1"
+            style="color:var(--ice);font-family:var(--font-mono);" />
+        </div>
+        <div>
+          <div class="sub-label">Duration (phases) <span style="font-size:0.55rem;color:var(--text-muted);">— optional</span></div>
+          <input class="additive-input" data-key="tacticDuration" type="number" min="1" placeholder="—"
+            style="color:var(--gold);font-family:var(--font-mono);" />
+        </div>
+      </div>
+
+      <button class="action-lock-btn" style="border-color:${TACTIC_COLOR};color:${TACTIC_COLOR};"
+        onclick="lockTactic('${id}', ${fromMetaphys})">◈ Lock Tactic</button>
+    </div>
+
+    <!-- LOCKED SUMMARY (shown when locked) -->
+    <div class="action-locked-summary" id="${id}-summary" style="display:none;font-family:var(--font-mono);font-size:0.62rem;color:var(--text-dim);line-height:1.8;margin-bottom:0.5rem;"></div>
+
+    <!-- DURATION TRACKER (shown when locked AND duration was set) -->
+    <div id="${id}-dur-row" style="display:none;margin-bottom:0.4rem;">
+      <div style="display:flex;align-items:center;gap:0.5rem;padding:0.3rem 0.5rem;background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.2);">
+        <span style="font-family:var(--font-mono);font-size:0.5rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);flex:1;">Duration remaining</span>
+        <span id="${id}-dur-val" style="font-family:var(--font-mono);font-size:0.82rem;font-weight:700;color:var(--gold);min-width:1.8rem;text-align:center;">—</span>
+        <button onclick="tickTacticDuration('${id}')" style="background:none;border:1px solid var(--border);color:var(--text-muted);font-family:var(--font-mono);font-size:0.5rem;letter-spacing:0.1em;padding:2px 6px;cursor:pointer;text-transform:uppercase;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">⧖ Tick</button>
+      </div>
+    </div>
+
+    <!-- DECLARE SECTION (shown when locked) -->
+    <div class="action-declare-section" id="${id}-declare" style="display:none;">
+      <div style="display:grid;grid-template-columns:auto 1fr;gap:0.75rem;align-items:center;padding-top:0.5rem;border-top:1px solid var(--border);">
+        <div>
+          <div class="sub-label">Fatigue</div>
+          <div class="action-fatigue-display" id="${id}-fatigue-display"
+            style="cursor:default;user-select:none;color:${TACTIC_COLOR};">—</div>
+        </div>
+        <button class="declare-btn" id="${id}-declare-btn"
+          style="border-color:${TACTIC_COLOR};color:${TACTIC_COLOR};"
+          onclick="declareTactic('${id}')">◈ Declare Tactic</button>
+      </div>
+    </div>
+  `;
+
+  list.appendChild(div);
+
+  // Restore saved data
+  if (data) {
+    const nameEl = div.querySelector('[data-key="name"]');
+    const descEl = div.querySelector('[data-key="tacticDesc"]');
+    const fatEl  = div.querySelector('[data-key="tacticFatigue"]');
+    const durEl  = div.querySelector('[data-key="tacticDuration"]');
+    if (nameEl && data.name)           nameEl.value = data.name;
+    if (descEl && data.tacticDesc)     descEl.value = data.tacticDesc;
+    if (fatEl  && data.tacticFatigue)  fatEl.value  = data.tacticFatigue;
+    if (durEl  && data.tacticDuration) durEl.value  = data.tacticDuration;
+    if (data.locked === 'true' || data.locked === true) {
+      lockTactic(id, fromMetaphys, true /* silent */);
+      // Restore remaining duration if it was saved
+      if (data.tacticDurRemaining != null) {
+        const durVal = document.getElementById(id + '-dur-val');
+        if (durVal) {
+          div.dataset.durRemaining = data.tacticDurRemaining;
+          const rem = parseInt(data.tacticDurRemaining, 10);
+          durVal.textContent = rem > 0 ? rem : '✓ done';
+          durVal.style.color = rem <= 0 ? 'var(--text-muted)' : rem <= 1 ? 'var(--red)' : 'var(--gold)';
+        }
+      }
+    }
+  }
+
+  if (typeof updateActionSlots === 'function') updateActionSlots();
+};
+
+/* ── LOCK TACTIC ── */
+window.lockTactic = function(id, fromMetaphys, silent) {
+  const item = document.getElementById(id);
+  if (!item) return;
+
+  const nameEl  = item.querySelector('[data-key="name"]');
+  const descEl  = item.querySelector('[data-key="tacticDesc"]');
+  const fatEl   = item.querySelector('[data-key="tacticFatigue"]');
+  const durEl   = item.querySelector('[data-key="tacticDuration"]');
+
+  const name    = nameEl?.value.trim() || 'Tactic';
+  const desc    = descEl?.value.trim() || '';
+  const fat     = parseInt(fatEl?.value || '1', 10);
+  const durRaw  = durEl?.value.trim();
+  const hasDur  = durRaw && parseInt(durRaw, 10) > 0;
+  const dur     = hasDur ? parseInt(durRaw, 10) : null;
+
+  if (!silent) {
+    if (!name) { if (typeof toast === 'function') toast('Name the tactic before locking', 'var(--text-muted)'); return; }
+    if (isNaN(fat) || fat < 1) { if (typeof toast === 'function') toast('Set a fatigue cost (≥1) before locking', 'var(--text-muted)'); return; }
+  }
+
+  // Store locked state
+  item.dataset.locked          = 'true';
+  item.dataset.tacticFatigue   = fat;
+  item.dataset.tacticDur       = dur != null ? dur : '';
+  item.dataset.durRemaining    = dur != null ? dur : '';
+  item.classList.add('action-locked');
+
+  // Build summary
+  const summaryEl = document.getElementById(id + '-summary');
+  if (summaryEl) {
+    let html = `<span style="color:${TACTIC_COLOR};font-weight:600;">${escHtml(name)}</span>`;
+    if (desc) html += `<br><span style="color:var(--text-muted);">Effect:</span> ${escHtml(desc)}`;
+    html += `<br><span style="color:var(--text-muted);">Fatigue cost:</span> ${fat}`;
+    if (hasDur) html += `<br><span style="color:var(--gold);">Duration:</span> ${dur} phase${dur !== 1 ? 's' : ''}`;
+    summaryEl.innerHTML = html;
+    summaryEl.style.display = 'block';
+  }
+
+  // Show fatigue cost display
+  const fatDisplay = document.getElementById(id + '-fatigue-display');
+  if (fatDisplay) { fatDisplay.textContent = fat + ' Fatigue'; }
+
+  // Show/hide duration row
+  const durRow = document.getElementById(id + '-dur-row');
+  const durVal = document.getElementById(id + '-dur-val');
+  if (durRow) durRow.style.display = hasDur ? '' : 'none';
+  if (durVal && hasDur) {
+    durVal.textContent = dur;
+    durVal.style.color = 'var(--gold)';
+  }
+
+  // Show locked badge, hide setup, show declare
+  const badge   = document.getElementById(id + '-locked-badge');
+  const setup   = document.getElementById(id + '-setup');
+  const declare = document.getElementById(id + '-declare');
+  if (badge)   badge.style.display   = 'inline-block';
+  if (setup)   setup.style.display   = 'none';
+  if (declare) declare.style.display = 'block';
+
+  // If created from Metaphysical tab — push to Arts
+  if (fromMetaphys) {
+    pushTacticToArts(id, name, desc, fat, hasDur ? dur : null);
+  }
+
+  if (!silent && typeof toast === 'function') {
+    toast(name + ' locked → ' + (fromMetaphys ? 'Arts' : 'Memory'), TACTIC_COLOR);
+  }
+};
+
+/* ── PUSH TO ARTS ── */
+function pushTacticToArts(srcId, name, desc, fat, dur) {
+  const artsList = document.getElementById('metaphys-actions-list');
+  if (!artsList) return;
+
+  // Remove existing card from this source if re-locking
+  const existing = artsList.querySelector('[data-tactic-src="' + srcId + '"]');
+  if (existing) existing.remove();
+
+  const mid = (typeof uid === 'function') ? uid() : ('tactic-art-' + Math.random().toString(36).slice(2));
+  const mDiv = document.createElement('div');
+  mDiv.className = 'additive-item action-locked';
+  mDiv.id = mid;
+  mDiv.dataset.actionType   = 'tactic';
+  mDiv.dataset.metaphysType = 'tactic';
+  mDiv.dataset.metaphysCost = fat;
+  mDiv.dataset.locked       = 'true';
+  mDiv.dataset.tacticSrc    = srcId;
+
+  let durHtml = '';
+  if (dur != null) {
+    durHtml = `<div style="display:flex;align-items:center;gap:0.5rem;padding:0.3rem 0.5rem;background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.2);margin-bottom:0.4rem;">
+      <span style="font-family:var(--font-mono);font-size:0.5rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);flex:1;">Duration</span>
+      <span id="${mid}-dur-val" style="font-family:var(--font-mono);font-size:0.82rem;font-weight:700;color:var(--gold);">${dur}</span>
+      <button onclick="tickArtsTacticDuration('${mid}')" style="background:none;border:1px solid var(--border);color:var(--text-muted);font-family:var(--font-mono);font-size:0.5rem;letter-spacing:0.1em;padding:2px 6px;cursor:pointer;text-transform:uppercase;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">⧖ Tick</button>
+    </div>`;
+  }
+
+  mDiv.innerHTML = `
+    <div class="additive-item-header" style="border-bottom:1px solid var(--border);padding-bottom:0.4rem;margin-bottom:0.5rem;">
+      <span class="additive-item-num" style="color:${TACTIC_COLOR};">◈ ${escHtml(name)}</span>
+      <span style="font-family:var(--font-mono);font-size:0.5rem;letter-spacing:0.1em;color:${TACTIC_COLOR};border:1px solid currentColor;padding:1px 6px;opacity:0.8;">◈ tactic</span>
+      <button class="remove-btn" onclick="removeItem('${mid}');updateMetaphysActionsSection()">remove</button>
+    </div>
+    <div class="action-locked-summary" style="display:block;font-family:var(--font-mono);font-size:0.62rem;color:var(--text-dim);line-height:1.8;margin-bottom:0.5rem;">
+      ${desc ? '<span style="color:var(--text-muted);">Effect:</span> ' + escHtml(desc) + '<br>' : ''}
+      <span style="color:var(--text-muted);">Fatigue:</span> ${fat}
+      ${dur != null ? '<br><span style="color:var(--text-muted);">Duration:</span> ' + dur + ' phase' + (dur !== 1 ? 's' : '') : ''}
+    </div>
+    <div style="padding-top:0.5rem;border-top:1px solid var(--border);">
+      ${durHtml}
+      <button class="declare-btn" style="width:100%;border-color:${TACTIC_COLOR};color:${TACTIC_COLOR};"
+        onclick="declareArtsTactic('${mid}')">◈ Declare Tactic</button>
+    </div>`;
+
+  artsList.appendChild(mDiv);
+  if (typeof updateMetaphysActionsSection === 'function') updateMetaphysActionsSection();
+}
+
+/* ── DECLARE TACTIC (from Memory Skills) ── */
+window.declareTactic = function(id) {
+  if (typeof isDeclareLocked === 'function' && isDeclareLocked()) return;
+
+  const item   = document.getElementById(id);
+  if (!item) return;
+  const name   = item.querySelector('[data-key="name"]')?.value.trim() || 'Tactic';
+  const fat    = parseInt(item.dataset.tacticFatigue || '1', 10);
+  const btn    = document.getElementById(id + '-declare-btn');
+  const durVal = document.getElementById(id + '-dur-val');
+
+  // Spend fatigue
+  let msg = name + ' declared';
+  if (typeof fillFatigue === 'function') {
+    const { fill, overflow } = fillFatigue(fat);
+    msg += ' — Fatigue +' + fill;
+    if (overflow > 0) msg += ' (' + overflow + ' overflow)';
+  }
+
+  // Tick duration if set
+  const durRem = parseInt(item.dataset.durRemaining || '', 10);
+  if (!isNaN(durRem) && durRem > 0) {
+    const newRem = durRem - 1;
+    item.dataset.durRemaining = newRem;
+    if (durVal) {
+      durVal.textContent = newRem > 0 ? newRem : '✓ done';
+      durVal.style.color = newRem <= 0 ? 'var(--text-muted)' : newRem <= 1 ? 'var(--red)' : 'var(--gold)';
+    }
+    msg += ' · ' + newRem + ' phase' + (newRem !== 1 ? 's' : '') + ' remaining';
+  }
+
+  if (typeof toast === 'function') toast(msg, TACTIC_COLOR);
+  if (btn && typeof flashBtn === 'function') flashBtn(btn, 'Declared');
+  if (typeof spendAction === 'function') spendAction(name);
+};
+
+/* ── DECLARE TACTIC (from Arts panel) ── */
+window.declareArtsTactic = function(id) {
+  if (typeof isDeclareLocked === 'function' && isDeclareLocked()) return;
+
+  const item   = document.getElementById(id);
+  if (!item) return;
+  const nameEl = item.querySelector('.additive-item-num');
+  const name   = nameEl ? nameEl.textContent.replace('◈ ', '').trim() : 'Tactic';
+  const fat    = parseInt(item.dataset.metaphysCost || '1', 10);
+  const btn    = item.querySelector('.declare-btn');
+  const durVal = document.getElementById(id + '-dur-val');
+
+  // Spend fatigue
+  let msg = name + ' declared';
+  if (typeof fillFatigue === 'function') {
+    const { fill, overflow } = fillFatigue(fat);
+    msg += ' — Fatigue +' + fill;
+    if (overflow > 0) msg += ' (' + overflow + ' overflow)';
+  }
+
+  // Tick duration if present
+  if (durVal) {
+    const cur = parseInt(durVal.textContent, 10);
+    if (!isNaN(cur) && cur > 0) {
+      const newRem = cur - 1;
+      durVal.textContent = newRem > 0 ? newRem : '✓ done';
+      durVal.style.color = newRem <= 0 ? 'var(--text-muted)' : newRem <= 1 ? 'var(--red)' : 'var(--gold)';
+      msg += ' · ' + newRem + ' phase' + (newRem !== 1 ? 's' : '') + ' remaining';
+    }
+  }
+
+  if (typeof toast === 'function') toast(msg, TACTIC_COLOR);
+  if (btn && typeof flashBtn === 'function') flashBtn(btn, 'Declared');
+  if (typeof spendAction === 'function') spendAction(name);
+};
+
+/* ── TICK DURATION (from Memory card) ── */
+window.tickTacticDuration = function(id) {
+  const item   = document.getElementById(id);
+  const durVal = document.getElementById(id + '-dur-val');
+  if (!item || !durVal) return;
+  const cur = parseInt(item.dataset.durRemaining || '0', 10);
+  if (cur <= 0) { if (typeof toast === 'function') toast('Duration already expired', 'var(--text-muted)'); return; }
+  const newRem = cur - 1;
+  item.dataset.durRemaining = newRem;
+  durVal.textContent = newRem > 0 ? newRem : '✓ done';
+  durVal.style.color = newRem <= 0 ? 'var(--text-muted)' : newRem <= 1 ? 'var(--red)' : 'var(--gold)';
+  const name = item.querySelector('[data-key="name"]')?.value.trim() || 'Tactic';
+  if (typeof toast === 'function') {
+    toast(name + ' — ' + (newRem > 0 ? newRem + ' phase' + (newRem !== 1 ? 's' : '') + ' remaining' : 'duration expired'), newRem > 0 ? 'var(--gold)' : 'var(--text-muted)');
+  }
+};
+
+/* ── TICK DURATION (from Arts card) ── */
+window.tickArtsTacticDuration = function(id) {
+  const durVal = document.getElementById(id + '-dur-val');
+  if (!durVal) return;
+  const cur = parseInt(durVal.textContent, 10);
+  if (isNaN(cur) || cur <= 0) { if (typeof toast === 'function') toast('Duration already expired', 'var(--text-muted)'); return; }
+  const newRem = cur - 1;
+  durVal.textContent = newRem > 0 ? newRem : '✓ done';
+  durVal.style.color = newRem <= 0 ? 'var(--text-muted)' : newRem <= 1 ? 'var(--red)' : 'var(--gold)';
+};
+
+/* ── SERIALIZE TACTICS ──
+   Patch into the existing serializeSheet / deserializeSheet cycle. */
+function serializeTactics() {
+  const tactics = [];
+  // Tactics in Skills list
+  document.querySelectorAll('#actions-list .additive-item[data-is-tactic]').forEach(item => {
+    const obj = {
+      _isTactic:       true,
+      fromMetaphys:    item.dataset.fromMetaphys === 'true',
+      locked:          item.dataset.locked || '',
+      tacticFatigue:   item.dataset.tacticFatigue || '',
+      tacticDur:       item.dataset.tacticDur || '',
+      durRemaining:    item.dataset.durRemaining || '',
+    };
+    item.querySelectorAll('[data-key]').forEach(el => { obj[el.dataset.key] = el.value; });
+    tactics.push(obj);
+  });
+  // Tactics in Metaphysical ability lists
+  document.querySelectorAll('.additive-item[data-is-tactic][data-from-metaphys="true"]').forEach(item => {
+    if (item.closest('#actions-list')) return; // already captured
+    const obj = {
+      _isTactic:       true,
+      fromMetaphys:    true,
+      locked:          item.dataset.locked || '',
+      tacticFatigue:   item.dataset.tacticFatigue || '',
+      tacticDur:       item.dataset.tacticDur || '',
+      durRemaining:    item.dataset.durRemaining || '',
+    };
+    item.querySelectorAll('[data-key]').forEach(el => { obj[el.dataset.key] = el.value; });
+    tactics.push(obj);
+  });
+  return tactics;
+}
+
+/* Patch serializeSheet */
+if (typeof window.serializeSheet === 'function') {
+  const _origSer = window.serializeSheet;
+  window.serializeSheet = function() {
+    const data = _origSer();
+    data._tactics = serializeTactics();
+    return data;
+  };
+}
+
+/* Patch deserializeSheet */
+if (typeof window.deserializeSheet === 'function') {
+  const _origDes = window.deserializeSheet;
+  window.deserializeSheet = function(data) {
+    _origDes(data);
+    // Restore tactics
+    (data._tactics || []).forEach(t => {
+      if (t.fromMetaphys) {
+        // Goes into a metaphysical ability list — for now surface it in the psion or meta list
+        // depending on active types. Fall back to actions-list.
+        addTactic('actions-list', true, t);
+      } else {
+        addTactic('actions-list', false, t);
+      }
+    });
+  };
+}
+
+/* ── ESCAPE HELPER ── */
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ── INJECT "+ add tactic" BUTTONS ──
+   We inject a button into the Skills section of the Memory sidebar
+   and one into the Metaphysical panel for Meta/Psion/Mage tabs.
+   We do this after the DOM is ready. */
+function injectTacticButtons() {
+
+  /* 1. Skills section in Memory sidebar — add after the existing "+ add skill" button */
+  const skillsBody = document.getElementById('mem-skills');
+  if (skillsBody && !skillsBody.querySelector('.tactic-add-btn')) {
+    const btn = document.createElement('button');
+    btn.className = 'add-btn tactic-add-btn';
+    btn.style.borderColor = TACTIC_COLOR;
+    btn.style.color = TACTIC_COLOR;
+    btn.textContent = '◈ add tactic';
+    btn.addEventListener('click', () => {
+      const max = typeof getActionSlotMax === 'function' ? getActionSlotMax() : 99;
+      const cur = document.querySelectorAll('#actions-list .additive-item').length;
+      if (cur >= max) {
+        if (typeof toast === 'function') toast('Memory full — remove a Skill first', 'var(--red)');
+        return;
+      }
+      addTactic('actions-list', false);
+      if (typeof updateActionSlots === 'function') updateActionSlots();
+    });
+    skillsBody.appendChild(btn);
+  }
+
+  /* 2. Meta panel — below the "add ability" button */
+  const metaPanel = document.getElementById('panel-meta');
+  if (metaPanel && !metaPanel.querySelector('.tactic-add-btn-meta')) {
+    const metaCardContainer = document.getElementById('meta-ability-cards');
+    if (metaCardContainer) {
+      // Create a dedicated tactic area within the meta panel
+      let tacticSection = document.getElementById('meta-tactic-section');
+      if (!tacticSection) {
+        tacticSection = document.createElement('div');
+        tacticSection.id = 'meta-tactic-section';
+        tacticSection.style.cssText = 'margin-top:1rem;border-top:1px solid var(--border);padding-top:0.75rem;';
+
+        const label = document.createElement('div');
+        label.className = 'meta-panel-title';
+        label.style.marginBottom = '0.4rem';
+        label.style.color = TACTIC_COLOR;
+        label.textContent = '◈ Tactics';
+        tacticSection.appendChild(label);
+
+        const tacticList = document.createElement('div');
+        tacticList.className = 'additive-list';
+        tacticList.id = 'meta-tactic-list';
+        tacticSection.appendChild(tacticList);
+
+        const tacticBtn = document.createElement('button');
+        tacticBtn.className = 'add-btn tactic-add-btn-meta';
+        tacticBtn.style.cssText = 'border-color:' + TACTIC_COLOR + ';color:' + TACTIC_COLOR + ';margin-top:0.5rem;';
+        tacticBtn.textContent = '◈ add tactic';
+        tacticBtn.addEventListener('click', () => addTactic('meta-tactic-list', true));
+        tacticSection.appendChild(tacticBtn);
+
+        metaPanel.appendChild(tacticSection);
+      }
+    }
+  }
+
+  /* 3. Mage panel */
+  const magePanel = document.getElementById('panel-mage');
+  if (magePanel && !magePanel.querySelector('.tactic-add-btn-mage')) {
+    let mageTacticSection = document.getElementById('mage-tactic-section');
+    if (!mageTacticSection) {
+      mageTacticSection = document.createElement('div');
+      mageTacticSection.id = 'mage-tactic-section';
+      mageTacticSection.style.cssText = 'margin-top:1rem;border-top:1px solid var(--border);padding-top:0.75rem;';
+
+      const label = document.createElement('div');
+      label.className = 'meta-panel-title';
+      label.style.color = TACTIC_COLOR;
+      label.textContent = '◈ Tactics';
+      mageTacticSection.appendChild(label);
+
+      const tacticList = document.createElement('div');
+      tacticList.className = 'additive-list';
+      tacticList.id = 'mage-tactic-list';
+      mageTacticSection.appendChild(tacticList);
+
+      const tacticBtn = document.createElement('button');
+      tacticBtn.className = 'add-btn tactic-add-btn-mage';
+      tacticBtn.style.cssText = 'border-color:' + TACTIC_COLOR + ';color:' + TACTIC_COLOR + ';margin-top:0.5rem;';
+      tacticBtn.textContent = '◈ add tactic';
+      tacticBtn.addEventListener('click', () => addTactic('mage-tactic-list', true));
+      mageTacticSection.appendChild(tacticBtn);
+
+      magePanel.appendChild(mageTacticSection);
+    }
+  }
+
+  /* 4. Psion panel */
+  const psionPanel = document.getElementById('panel-psion');
+  if (psionPanel && !psionPanel.querySelector('.tactic-add-btn-psion')) {
+    let psionTacticSection = document.getElementById('psion-tactic-section');
+    if (!psionTacticSection) {
+      psionTacticSection = document.createElement('div');
+      psionTacticSection.id = 'psion-tactic-section';
+      psionTacticSection.style.cssText = 'margin-top:1rem;border-top:1px solid var(--border);padding-top:0.75rem;';
+
+      const label = document.createElement('div');
+      label.className = 'meta-panel-title';
+      label.style.color = TACTIC_COLOR;
+      label.textContent = '◈ Tactics';
+      psionTacticSection.appendChild(label);
+
+      const tacticList = document.createElement('div');
+      tacticList.className = 'additive-list';
+      tacticList.id = 'psion-tactic-list';
+      psionTacticSection.appendChild(tacticList);
+
+      const tacticBtn = document.createElement('button');
+      tacticBtn.className = 'add-btn tactic-add-btn-psion';
+      tacticBtn.style.cssText = 'border-color:' + TACTIC_COLOR + ';color:' + TACTIC_COLOR + ';margin-top:0.5rem;';
+      tacticBtn.textContent = '◈ add tactic';
+      tacticBtn.addEventListener('click', () => addTactic('psion-tactic-list', true));
+      psionTacticSection.appendChild(tacticBtn);
+
+      psionPanel.appendChild(psionTacticSection);
+    }
+  }
+}
+
+/* Inject buttons after DOM settles */
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => setTimeout(injectTacticButtons, 400));
+} else {
+  setTimeout(injectTacticButtons, 400);
+}
+
+/* Re-inject when memory modal opens (buttons may not exist yet if modal was lazy) */
+const _origOpenMem = window.openMemoryModal;
+if (typeof _origOpenMem === 'function') {
+  window.openMemoryModal = function() {
+    _origOpenMem();
+    setTimeout(injectTacticButtons, 80);
+  };
+}
+
+/* Re-inject when metaphysical type panels become visible */
+const _origToggleType = window.toggleType;
+if (typeof _origToggleType === 'function') {
+  window.toggleType = function(type) {
+    _origToggleType(type);
+    setTimeout(injectTacticButtons, 80);
+  };
+}
+
+console.log('[STILLPOINT] Tactic feature loaded ✓');
+})();
+</script>
 </body>
 </html>
