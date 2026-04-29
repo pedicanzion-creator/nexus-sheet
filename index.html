@@ -16953,5 +16953,333 @@ function importJSON(fileInputOrFile) {
     _deferredInstallPrompt = e;
   });
 </script>
+  <script>
+/**
+ * STILLPOINT — Ability Import/Export Fix
+ * 
+ * Paste this block just before </body> in the HTML.
+ * It patches the serialization and deserialization so all metaphysical
+ * abilities (Mage system abilities, Psion abilities, Meta skills, and Arts)
+ * survive import/export correctly.
+ */
+ 
+(function() {
+'use strict';
+ 
+/* ─── HELPERS ─── */
+ 
+/** Serialize a single special-ability additive-item into a plain object */
+function serializeAbilityItem(item) {
+  const obj = {};
+  item.querySelectorAll('[data-key]').forEach(el => { obj[el.dataset.key] = el.value; });
+  obj.actionType    = item.dataset.actionType    || '';
+  obj.attackRange   = item.dataset.attackRange   || '';
+  obj.locked        = item.dataset.locked        || '';
+  obj.abilityType   = item.dataset.abilityType   || '';
+  obj.metaphysType  = item.dataset.metaphysType  || '';
+  obj.metaphysCost  = item.dataset.metaphysCost  || '';
+  // Movement distance
+  const fSel = item.querySelector('.movement-feet-select');
+  if (fSel) obj.movementFeet = fSel.value;
+  // Commitment mode
+  const cmSel = item.querySelector('.commitment-mode-select');
+  if (cmSel) obj.commitmentMode = cmSel.value;
+  // FC wound bonus
+  const fcEl = item.querySelector('.fc-wound-bonus');
+  if (fcEl) obj['fc-wound-bonus'] = fcEl.value;
+  // Action type selection (from ability type buttons)
+  const actionTypeSel = item.querySelector('.ability-action-type-sel');
+  if (actionTypeSel) obj.abilityActionType = actionTypeSel.value;
+  return obj;
+}
+ 
+/** Serialize ALL mage system cards including their abilities */
+function serializeMageSystemsFull() {
+  const systems = [];
+  document.querySelectorAll('.mage-system-card').forEach(card => {
+    const nameSpan   = card.querySelector('.mage-system-num');
+    const nameSibling = nameSpan ? nameSpan.nextElementSibling : null;
+    const backlashTa  = card.querySelector('[data-key="backlash"]');
+    // Restrictions
+    const restrictions = [];
+    card.querySelectorAll('.restriction-list .restriction-item-text').forEach(el => {
+      if (el.textContent.trim()) restrictions.push(el.textContent.trim());
+    });
+    // Abilities — use full serializer
+    const abilities = [];
+    const listId = card.querySelector('.additive-list')?.id;
+    if (listId) {
+      document.querySelectorAll('#' + listId + ' .additive-item').forEach(item => {
+        abilities.push(serializeAbilityItem(item));
+      });
+    }
+    systems.push({
+      system:       nameSibling ? nameSibling.textContent : '',
+      restrictions,
+      abilities,
+      backlash:     backlashTa ? backlashTa.value : '',
+    });
+  });
+  return systems;
+}
+ 
+/** Serialize psion abilities */
+function serializePsionAbilitiesFull() {
+  const abilities = [];
+  document.querySelectorAll('#psion-ability-list .additive-item').forEach(item => {
+    abilities.push(serializeAbilityItem(item));
+  });
+  return abilities;
+}
+ 
+/** Serialize meta ability cards including complex skills */
+function serializeMetaAbilitiesFull() {
+  const cards = [];
+  document.querySelectorAll('#meta-ability-cards .mage-system-card').forEach(card => {
+    const type    = card.dataset.type;
+    const name    = card.querySelector('.mage-system-num')?.textContent || '';
+    if (type === 'simple') {
+      cards.push({ type, name, stat: card.dataset.stat, tier: card.dataset.tier || '' });
+    } else {
+      const descEl = card.querySelector('[style*="font-body"]');
+      const desc   = descEl ? descEl.textContent : '';
+      const skills = [];
+      const skillsListId = 'meta-skills-' + card.id.replace('meta-card-', '');
+      document.querySelectorAll('#' + skillsListId + ' .additive-item').forEach(item => {
+        skills.push(serializeAbilityItem(item));
+      });
+      cards.push({ type, name, desc, skills });
+    }
+  });
+  return cards;
+}
+ 
+/** Serialize Arts (metaphys-actions-list) with full data */
+function serializeArts() {
+  const arts = [];
+  document.querySelectorAll('#metaphys-actions-list .additive-item').forEach(item => {
+    arts.push({
+      name:          item.querySelector('.additive-item-num')?.textContent.replace('✦ ', '').trim() || '',
+      actionType:    item.dataset.actionType    || 'attack',
+      metaphysType:  item.dataset.metaphysType  || 'mage',
+      metaphysCost:  item.dataset.metaphysCost  || '1',
+      attackRange:   item.dataset.attackRange   || '',
+      computedWounds: item.dataset.computedWounds || '0',
+    });
+  });
+  return arts;
+}
+ 
+/* ─── RESTORE HELPERS ─── */
+ 
+/**
+ * Restore a single special ability into a list.
+ * If data.locked is set, calls lockSpecialAbility with _skipArts=true
+ * so it doesn't double-push into the Arts section.
+ */
+function restoreAbilityItem(listId, type, data) {
+  if (typeof addSpecialAbility !== 'function') return;
+  addSpecialAbility(listId, type, data);
+  // If it was locked, re-lock it now (skipping the Arts push)
+  if (data.locked === 'true' || data.locked === true) {
+    const list  = document.getElementById(listId);
+    const item  = list ? list.lastElementChild : null;
+    if (item) {
+      lockSpecialAbilityQuiet(item.id, type);
+    }
+  }
+}
+ 
+/**
+ * Lock a special ability WITHOUT pushing to the Arts panel.
+ * Called during deserialization to restore the locked visual state only.
+ */
+function lockSpecialAbilityQuiet(id, type) {
+  const item = document.getElementById(id);
+  if (!item) return;
+  const actionType = item.dataset.actionType || 'attack';
+  const name  = item.querySelector('[data-key="name"]')?.value.trim() || 'Ability';
+  const ac    = type === 'psion' ? 'var(--psion)' : type === 'meta' ? 'var(--meta)' : 'var(--mage)';
+  const costLbl = type === 'psion' ? 'Psi cost' : 'Fatigue cost';
+ 
+  let cost = 0;
+  if (actionType === 'movement') {
+    cost = parseInt(item.querySelector('[data-key="moveCost"]')?.value || '0', 10);
+  } else if (actionType === 'reaction') {
+    cost = parseInt(item.querySelector('[data-key="reactCost"]')?.value || '0', 10);
+  } else {
+    cost = parseInt(item.querySelector('[data-key="cost"]')?.value || '0', 10);
+  }
+ 
+  const range  = item.dataset.attackRange || '';
+  const wounds = item.querySelector('[data-key="wounds"]')?.value || '0';
+  const req    = item.querySelector('[data-key="req"]')?.value.trim() || '';
+ 
+  item.dataset.locked        = 'true';
+  item.dataset.metaphysType  = type;
+  item.dataset.metaphysCost  = cost;
+ 
+  // Update fatigue display
+  const fatigueDisplay = item.querySelector('.action-fatigue-display');
+  if (fatigueDisplay) { fatigueDisplay.textContent = cost + ' ' + (type === 'psion' ? 'Psi' : 'Fatigue'); fatigueDisplay.style.color = ac; }
+ 
+  // Update summaries
+  ['', '-move-', '-react-'].forEach(mid => {
+    const summary = item.querySelector('#' + id + mid + 'summary') || document.getElementById(id + mid + 'summary');
+    if (!summary) return;
+    let html = '<span style="color:' + ac + ';font-weight:600;">' + escapeHtmlSafe(name) + '</span>';
+    if (actionType === 'attack') {
+      if (range) html += '<br><span style="color:var(--text-muted);">Range:</span> ' + range;
+      html += '<br><span style="color:var(--red);">' + wounds + (range === 'ranged' ? ' wounds on hit' : ' wounds + Might bonus') + '</span>';
+      if (req) html += '<br><span style="color:var(--text-muted);">' + escapeHtmlSafe(req) + '</span>';
+    }
+    html += '<br><span style="color:var(--text-muted);">' + costLbl + ':</span> ' + cost;
+    summary.innerHTML = html;
+  });
+ 
+  // Show ranged roll section
+  const rangedSection = item.querySelector('.ranged-roll-section');
+  if (rangedSection) rangedSection.style.display = (actionType === 'attack' && range === 'ranged') ? 'block' : 'none';
+ 
+  item.classList.add('action-locked');
+}
+ 
+function escapeHtmlSafe(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+ 
+/* ─── PATCH serializeSheet ─── */
+const _origSerialize = window.serializeSheet;
+window.serializeSheet = function() {
+  const data = _origSerialize ? _origSerialize() : {};
+  // Overwrite with full-fidelity versions
+  data.mageSystems      = serializeMageSystemsFull();
+  data.psionAbilities   = serializePsionAbilitiesFull();
+  data.metaAbilities    = serializeMetaAbilitiesFull();
+  data.metaphysActions  = serializeArts();
+  return data;
+};
+ 
+/* ─── PATCH deserializeSheet ─── */
+const _origDeserialize = window.deserializeSheet;
+window.deserializeSheet = function(data) {
+  if (!data) return _origDeserialize && _origDeserialize(data);
+ 
+  // Pre-process: inject full ability data before calling original
+  // The original will handle most fields; we override the ability restoration below.
+  _origDeserialize && _origDeserialize(data);
+ 
+  // ── Re-restore mage system abilities with proper lock state ──
+  // The original already rebuilt the system cards; now fix their abilities.
+  const mageSystemCards = document.querySelectorAll('.mage-system-card');
+  const savedSystems    = data.mageSystems || [];
+  mageSystemCards.forEach((card, ci) => {
+    const sys = savedSystems[ci];
+    if (!sys || !sys.abilities || !sys.abilities.length) return;
+    const list = card.querySelector('.additive-list');
+    if (!list) return;
+    // Clear what the original already added (may be empty or partially done)
+    list.innerHTML = '';
+    sys.abilities.forEach(ab => {
+      if (typeof addSpecialAbility === 'function') {
+        addSpecialAbility(list.id, 'mage', ab);
+        if (ab.locked === 'true' || ab.locked === true) {
+          const item = list.lastElementChild;
+          if (item) lockSpecialAbilityQuiet(item.id, 'mage');
+        }
+      }
+    });
+  });
+ 
+  // ── Re-restore psion abilities ──
+  const psionList = document.getElementById('psion-ability-list');
+  if (psionList && data.psionAbilities && data.psionAbilities.length) {
+    psionList.innerHTML = '';
+    data.psionAbilities.forEach(ab => {
+      if (typeof addSpecialAbility === 'function') {
+        addSpecialAbility('psion-ability-list', 'psion', ab);
+        if (ab.locked === 'true' || ab.locked === true) {
+          const item = psionList.lastElementChild;
+          if (item) lockSpecialAbilityQuiet(item.id, 'psion');
+        }
+      }
+    });
+  }
+ 
+  // ── Re-restore meta complex card skills ──
+  const metaCards = document.querySelectorAll('#meta-ability-cards .mage-system-card');
+  const savedMeta = data.metaAbilities || [];
+  metaCards.forEach((card, ci) => {
+    const meta = savedMeta[ci];
+    if (!meta || meta.type !== 'complex' || !meta.skills || !meta.skills.length) return;
+    const skillsListId = 'meta-skills-' + card.id.replace('meta-card-', '');
+    const skillsList = document.getElementById(skillsListId);
+    if (!skillsList) return;
+    skillsList.innerHTML = '';
+    meta.skills.forEach(sk => {
+      if (typeof addSpecialAbility === 'function') {
+        addSpecialAbility(skillsListId, 'meta', sk);
+        if (sk.locked === 'true' || sk.locked === true) {
+          const item = skillsList.lastElementChild;
+          if (item) lockSpecialAbilityQuiet(item.id, 'meta');
+        }
+      }
+    });
+  });
+ 
+  // ── Re-restore Arts panel with full data ──
+  const artsList = document.getElementById('metaphys-actions-list');
+  const savedArts = data.metaphysActions || [];
+  if (artsList && savedArts.length) {
+    artsList.innerHTML = '';
+    savedArts.forEach(art => {
+      const ac = art.metaphysType === 'psion' ? 'var(--psion)'
+               : art.metaphysType === 'meta'  ? 'var(--meta)'
+               :                                 'var(--mage)';
+      const typeColors = { attack: 'var(--red)', movement: 'var(--teal)', reaction: 'var(--meta)' };
+      const typeIcons  = { attack: '⚔', movement: '↗', reaction: '◎' };
+      const costLabel  = art.metaphysType === 'psion' ? 'Psi' : 'Fatigue';
+      const mid = uid ? uid() : ('arts-' + Math.random().toString(36).slice(2));
+      const mDiv = document.createElement('div');
+      mDiv.className = 'additive-item action-locked';
+      mDiv.id = mid;
+      mDiv.dataset.actionType     = art.actionType    || 'attack';
+      mDiv.dataset.metaphysType   = art.metaphysType  || 'mage';
+      mDiv.dataset.metaphysCost   = art.metaphysCost  || '1';
+      mDiv.dataset.locked         = 'true';
+      mDiv.dataset.attackRange    = art.attackRange   || '';
+      mDiv.dataset.computedWounds = art.computedWounds || '0';
+ 
+      const rangedResultSection = (art.actionType === 'attack' && art.attackRange === 'ranged')
+        ? '<div class="roll-result ranged-roll-result" style="font-family:var(--font-mono);font-size:0.65rem;margin-bottom:0.4rem;min-height:1em;display:none;"></div>'
+        : '';
+ 
+      mDiv.innerHTML = `
+        <div class="additive-item-header" style="border-bottom:1px solid var(--border);padding-bottom:0.4rem;margin-bottom:0.5rem;">
+          <span class="additive-item-num" style="color:${ac};">✦ ${escapeHtmlSafe(art.name || 'Ability')}</span>
+          <span style="font-family:var(--font-mono);font-size:0.5rem;letter-spacing:0.1em;color:${typeColors[art.actionType]||'var(--text-muted)'};border:1px solid currentColor;padding:1px 6px;opacity:0.8;">${typeIcons[art.actionType]||''} ${art.actionType||''}</span>
+          <button class="remove-btn" onclick="removeItem('${mid}');updateMetaphysActionsSection()">remove</button>
+        </div>
+        <div class="action-locked-summary" style="display:block;font-family:var(--font-mono);font-size:0.62rem;color:var(--text-dim);line-height:1.8;margin-bottom:0.5rem;">
+          <span style="color:var(--text-muted);">Cost:</span> ${art.metaphysCost} ${costLabel}
+          ${art.attackRange ? '<br><span style="color:var(--text-muted);">Range:</span> ' + art.attackRange : ''}
+          ${parseInt(art.computedWounds,10) > 0 ? '<br><span style="color:var(--red);">' + art.computedWounds + ' wounds</span>' : ''}
+        </div>
+        <div style="padding-top:0.5rem;border-top:1px solid var(--border);">
+          ${rangedResultSection}
+          <button class="declare-btn" style="width:100%;border-color:${ac};color:${ac};" onclick="declareMetaphysAbility('${mid}')">Declare</button>
+        </div>`;
+ 
+      artsList.appendChild(mDiv);
+    });
+    if (typeof updateMetaphysActionsSection === 'function') updateMetaphysActionsSection();
+  }
+};
+ 
+console.log('[STILLPOINT] Ability import/export patch loaded ✓');
+})();
+</script>
+</body>
+</html>
 </body>
 </html>
